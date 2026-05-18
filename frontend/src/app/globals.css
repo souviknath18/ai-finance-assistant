@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #006a61 #e5eeff;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: #e5eeff;
+  border-radius: 9999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #006a61, #89f5e7);
+  border-radius: 9999px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #006a61;
+}
+
+@keyframes toastSlide {
+  from {
+    opacity: 0;
+    transform: translateX(20px) translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+.custom-select-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-select-scrollbar::-webkit-scrollbar-track {
+  margin-block: 8px;
+  background: transparent;
+  border-radius: 999px;
+}
+
+.custom-select-scrollbar::-webkit-scrollbar-thumb {
+  background: #c6c6cd;
+  border-radius: 999px;
+}
+
+.custom-select-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
