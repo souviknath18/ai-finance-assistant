@@ -25,6 +25,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             "ai_reason",
             "is_reviewed",
             "raw_text",
+            "is_vectorized",
             "created_at",
             "updated_at",
         ]

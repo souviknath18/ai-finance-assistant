@@ -1,28 +1,59 @@
+import {
+  DetectedSubscription,
+  DuplicateSubscriptionGroup,
+  UpcomingSubscriptionBill,
+} from "@/types/subscription";
 import RecommendationCard from "./RecommendationCard";
 import UpcomingBillsCard from "./UpcomingBillsCard";
 
-export default function RecommendationsPanel() {
+type RecommendationsPanelProps = {
+  subscriptions: DetectedSubscription[];
+  duplicates: DuplicateSubscriptionGroup[];
+  upcomingBills: UpcomingSubscriptionBill[];
+};
+
+export default function RecommendationsPanel({
+  subscriptions,
+  duplicates,
+  upcomingBills,
+}: RecommendationsPanelProps) {
+  const highest = [...subscriptions].sort(
+    (a, b) => Number(b.average_amount) - Number(a.average_amount)
+  )[0];
+
+  const duplicate = duplicates[0];
+
   return (
     <aside className="space-y-6">
       <h2 className="text-2xl font-bold text-black">Smart Recommendations</h2>
 
-      <RecommendationCard
-        type="warning"
-        label="Unused Service"
-        title="Hulu Plus"
-        description="No activity detected for 64 days. Cancel now to save $14.99/mo."
-        buttonText="Cancel Subscription"
-      />
+      {highest && (
+        <RecommendationCard
+          type="info"
+          label="Highest Subscription"
+          title={highest.merchant}
+          description={`This is your highest detected recurring payment at approximately ₹${Number(
+            highest.average_amount
+          ).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+          })}/month.`}
+          buttonText="Review Subscription"
+        />
+      )}
 
-      <RecommendationCard
-        type="info"
-        label="Price Update"
-        title="YouTube Premium"
-        description="Monthly cost will increase by $2.00 starting next billing cycle."
-        buttonText="Acknowledge"
-      />
+      {duplicate && (
+        <RecommendationCard
+          type="warning"
+          label="Possible Duplicate Services"
+          title={duplicate.group}
+          description={`You have ${duplicate.count} similar services: ${duplicate.services.join(
+            ", "
+          )}. Review them to avoid overlapping subscriptions.`}
+          buttonText="Review Services"
+        />
+      )}
 
-      <UpcomingBillsCard />
+      <UpcomingBillsCard upcomingBills={upcomingBills} />
     </aside>
   );
 }

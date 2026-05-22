@@ -2,9 +2,14 @@ from django.utils import timezone
 from .models import UploadedFile
 from ai_engine.parsers.pdf_parser import extract_text_from_pdf
 from ai_engine.parsers.bank_statement_parser import parse_bank_statement_transactions
+from ai_engine.parsers.receipt_invoice_parser import parse_receipt_invoice_transactions
 from ai_engine.parsers.ai_transaction_parser import parse_transactions_with_ai
+from ai_engine.parsers.document_type_detector import detect_document_type
+from ai_engine.parsers.csv_transaction_parser import parse_csv_transactions
+from ai_engine.parsers.subscription_parser import parse_subscription_transactions
 from apps.transactions.models import Transaction
 from ai_engine.categorization.categorize_transactions import categorize_transaction
+from ai_engine.embeddings.vector_store import store_transaction_vector
 
 
 ALLOWED_EXTENSIONS = [".pdf", ".csv", ".jpg", ".jpeg", ".png"]
@@ -47,10 +52,35 @@ def process_uploaded_file(uploaded_file: UploadedFile):
 
             uploaded_file.extracted_text = extracted_text
 
-            parser_result = parse_bank_statement_transactions(extracted_text)
+            document_type_result = detect_document_type(extracted_text)
+            document_type = document_type_result["document_type"]
+
+            print("Detected document type:", document_type_result)
+
+            if document_type == "bank_statement":
+                parser_result = parse_bank_statement_transactions(extracted_text)
+
+            elif document_type == "subscription_receipt":
+                parser_result = parse_subscription_transactions(extracted_text)
+
+            elif document_type == "receipt_invoice":
+                parser_result = parse_receipt_invoice_transactions(extracted_text)
+
+            else:
+                parser_result = parse_bank_statement_transactions(extracted_text)
+
+                if not parser_result["transactions"]:
+                    parser_result = parse_subscription_transactions(extracted_text)
+
+                if not parser_result["transactions"]:
+                    parser_result = parse_receipt_invoice_transactions(extracted_text)
 
             parsed_transactions = parser_result["transactions"]
             parser_confidence = parser_result["confidence"]
+
+            print("Parser used:", parser_result["parser"])
+            print("Parser confidence:", parser_confidence)
+            print("Transactions parsed:", len(parsed_transactions))
 
             if parser_confidence < 0.75:
                 parsed_transactions = parse_transactions_with_ai(extracted_text)
@@ -63,7 +93,7 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                     item["transaction_type"],
                 )
 
-                Transaction.objects.create(
+                transaction = Transaction.objects.create(
                     user=uploaded_file.user,
                     uploaded_file=uploaded_file,
                     date=item["date"],
@@ -85,6 +115,11 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                     ai_reason=category_result["reason"],
                     is_reviewed=category_result["confidence"] >= 0.85,
                 )
+                if not transaction.is_vectorized:
+                    try:
+                        store_transaction_vector(transaction)
+                    except Exception as vector_error:
+                        print("Vector storage failed:", vector_error)
 
                 created_count += 1
 
@@ -92,8 +127,53 @@ def process_uploaded_file(uploaded_file: UploadedFile):
             uploaded_file.extracted_amount = None
 
         elif uploaded_file.file_type == UploadedFile.FileType.CSV:
-            uploaded_file.extracted_text = "CSV parsing will be added next."
-            uploaded_file.extracted_transactions_count = 0
+            parser_result = parse_csv_transactions(uploaded_file.file.path)
+
+            parsed_transactions = parser_result["transactions"]
+
+            created_count = 0
+
+            for item in parsed_transactions:
+                category_result = categorize_transaction(
+                    item.get("category") or item["description"],
+                    item["transaction_type"],
+                )
+
+                transaction = Transaction.objects.create(
+                    user=uploaded_file.user,
+                    uploaded_file=uploaded_file,
+                    date=item["date"],
+                    description=item["description"],
+                    amount=item["amount"],
+                    transaction_type=item["transaction_type"],
+                    balance_after_transaction=item["balance_after_transaction"],
+                    raw_text=item["raw_text"],
+                    category=item.get("category") or category_result["category"],
+                    category_source=(
+                        "user"
+                        if item.get("category")
+                        else "ai"
+                        if category_result["is_ai_categorized"]
+                        else "rule"
+                        if category_result["category"] != "Uncategorized"
+                        else "none"
+                    ),
+                    is_ai_categorized=category_result["is_ai_categorized"],
+                    ai_confidence=category_result["confidence"],
+                    ai_reason=category_result["reason"],
+                    is_reviewed=category_result["confidence"] >= 0.85,
+                )
+
+                if not transaction.is_vectorized:
+                    try:
+                        store_transaction_vector(transaction)
+                    except Exception as vector_error:
+                        print("Vector storage failed:", vector_error)
+
+                created_count += 1
+
+            uploaded_file.extracted_text = "CSV transactions parsed successfully."
+            uploaded_file.extracted_transactions_count = created_count
             uploaded_file.extracted_amount = None
 
         elif uploaded_file.file_type == UploadedFile.FileType.IMAGE:

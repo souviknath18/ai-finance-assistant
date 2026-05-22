@@ -11,7 +11,8 @@ def categorize_transaction(description: str, transaction_type: str):
     try:
         return categorize_transaction_with_ai(description, transaction_type)
     except Exception as error:
-        print("AI categorization fallback failed:", error)
+        print("AI categorization fallback failed for:", description)
+        print("Error:", error)
         return rule_result
 
 

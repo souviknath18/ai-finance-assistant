@@ -1,22 +1,38 @@
 import { TrendingDown } from "lucide-react";
 import MetricCard from "./MetricCard";
 import AIOptimizationCard from "./AIOptimizationCard";
+import { DetectedSubscription } from "@/types/subscription";
 
-export default function SummaryMetrics() {
+type SummaryMetricsProps = {
+  subscriptions: DetectedSubscription[];
+};
+
+export default function SummaryMetrics({ subscriptions }: SummaryMetricsProps) {
+  const monthlySpend = subscriptions.reduce(
+    (total, item) => total + Number(item.average_amount),
+    0
+  );
+
+  const yearlyForecast = monthlySpend * 12;
+
   return (
     <section className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
       <MetricCard
         label="Monthly Spend"
-        value="$214.50"
-        trend="4% vs last month"
+        value={`₹${monthlySpend.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        })}`}
+        trend={`${subscriptions.length} active recurring services`}
         icon={<TrendingDown size={16} />}
         trendTone="green"
       />
 
       <MetricCard
         label="Yearly Forecast"
-        value="$2,574.00"
-        trend="Based on current active plans"
+        value={`₹${yearlyForecast.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        })}`}
+        trend="Based on detected subscriptions"
       />
 
       <AIOptimizationCard />

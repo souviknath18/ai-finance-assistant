@@ -29,7 +29,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
           setSidebarCollapsedAction={setSidebarCollapsed}
         />
 
-        <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-24 lg:px-12">
+        <main
+          className="mx-auto w-full max-w-7xl px-6 pb-16 pt-24 lg:px-12"
+          style={
+            {
+              "--sidebar-offset": sidebarCollapsed ? "5rem" : "16rem",
+            } as React.CSSProperties
+          }
+        >
           {children}
         </main>
       </div>

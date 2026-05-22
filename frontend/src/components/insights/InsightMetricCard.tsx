@@ -5,7 +5,7 @@ type InsightMetricCardProps = {
   title: string;
   value: string;
   description: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   tone?: "default" | "red" | "green" | "purple";
 };
 

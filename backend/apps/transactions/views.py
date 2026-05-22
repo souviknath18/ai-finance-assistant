@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from .models import Transaction
 from .serializers import TransactionSerializer, TransactionCreateSerializer
+from ai_engine.embeddings.vector_store import delete_transaction_vector
 
 
 class TransactionListCreateView(APIView):
@@ -72,13 +73,19 @@ class TransactionDetailView(APIView):
 
     def delete(self, request, transaction_id):
         transaction = self.get_object(request, transaction_id)
+
+        try:
+            delete_transaction_vector(transaction.transaction_id)
+        except Exception as error:
+            print("Vector delete failed:", error)
+
         transaction.delete()
 
         return Response(
             {"detail": "Transaction deleted successfully."},
             status=status.HTTP_204_NO_CONTENT,
         )
-    
+
 
 class TransactionBulkDeleteView(APIView):
     permission_classes = [IsAuthenticated]
@@ -92,10 +99,18 @@ class TransactionBulkDeleteView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        deleted_count, _ = Transaction.objects.filter(
+        transactions = Transaction.objects.filter(
             user=request.user,
             transaction_id__in=transaction_ids,
-        ).delete()
+        )
+
+        for transaction in transactions:
+            try:
+                delete_transaction_vector(transaction.transaction_id)
+            except Exception as error:
+                print("Vector delete failed:", error)
+
+        deleted_count, _ = transactions.delete()
 
         return Response(
             {

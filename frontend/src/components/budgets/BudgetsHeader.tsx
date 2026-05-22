@@ -1,6 +1,10 @@
 import { Plus } from "lucide-react";
 
-export default function BudgetHeader() {
+type BudgetHeaderProps = {
+  onCreateAction: () => void;
+};
+
+export default function BudgetHeader({ onCreateAction }: BudgetHeaderProps) {
   return (
     <section className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
@@ -9,12 +13,14 @@ export default function BudgetHeader() {
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-[#565e74]">
-          Optimize your spending habits with AI-driven limits and real-time
-          tracking.
+          Optimize your spending habits with AI-driven limits and real-time tracking.
         </p>
       </div>
 
-      <button className="flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98]">
+      <button
+        onClick={onCreateAction}
+        className="flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+      >
         <Plus size={17} />
         Create New Budget
       </button>

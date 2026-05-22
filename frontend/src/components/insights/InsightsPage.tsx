@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   CircleAlert,
@@ -15,7 +18,34 @@ import WealthTipCard from "./WealthTipCard";
 import ObservationTable from "./ObservationTable";
 import MiniBars from "./MiniBars";
 
+import { getInsightsDashboard } from "@/lib/api/insightsApi";
+import { InsightDashboard } from "@/types/insights";
+
 export default function InsightsPage() {
+  const [data, setData] = useState<InsightDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadInsights() {
+      try {
+        const result = await getInsightsDashboard();
+        setData(result);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadInsights();
+  }, []);
+
+  if (loading) {
+    return <div className="text-sm font-semibold text-[#565e74]">Loading insights...</div>;
+  }
+
+  if (!data) {
+    return <div className="text-sm font-semibold text-red-600">Failed to load insights.</div>;
+  }
+
   return (
     <>
       <section className="mb-10">
@@ -30,22 +60,25 @@ export default function InsightsPage() {
       </section>
 
       <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-12">
-        <HeroInsightCard />
+        <HeroInsightCard
+          headline={data.executive_summary.headline}
+          description={data.executive_summary.description}
+        />
 
         <div className="flex flex-col gap-6 md:col-span-4">
           <AlertInsightCard
             icon={<AlertTriangle size={20} />}
             tag="Critical"
-            title="Budget Warning"
-            description="'Entertainment' is at 94% of its monthly limit. Avoid new purchases until the 1st."
+            title={data.alerts.budget_warning.title}
+            description={data.alerts.budget_warning.description}
             tone="red"
           />
 
           <AlertInsightCard
             icon={<PiggyBank size={20} />}
             tag="Opportunity"
-            title="Smart Saving"
-            description="Transfer ₹45,000 to Emergency Fund to hit your Q3 goal 2 weeks early."
+            title={data.alerts.saving_opportunity.title}
+            description={data.alerts.saving_opportunity.description}
             tone="green"
           />
         </div>
@@ -55,50 +88,63 @@ export default function InsightsPage() {
         <InsightMetricCard
           icon={<TrendingUp size={20} />}
           title="Spending Spikes"
-          value="₹1,24,000"
-          description="Unusual activity detected at Apple Store on Oct 14."
+          value={data.metrics.spending_spikes}
+          description={data.metrics.spending_spikes_description}
         >
-          <MiniBars />
+          <MiniBars items={data.monthly_spending || []} />
         </InsightMetricCard>
 
         <InsightMetricCard
           icon={<CircleAlert size={20} />}
           title="Unusual Activity"
-          value="2 Alerts"
-          description="International charge and possible duplicate transaction detected."
+          value={`${data.metrics.unusual_activity_count} Alerts`}
+          description="High-value or unusual transactions detected from your financial records."
           tone="red"
         >
           <div className="space-y-4">
-            <AlertRow title="International Charge" desc="London, UK • ₹1,250" />
-            <div className="h-px bg-[#e5eeff]" />
-            <AlertRow title="Double Charge" desc="Starbucks • ₹675" />
+            {data.anomalies.alerts.length === 0 ? (
+              <p className="text-sm text-[#565e74]">No unusual transactions detected.</p>
+            ) : (
+              data.anomalies.alerts.slice(0, 2).map((alert, index) => (
+                <div key={index}>
+                  <AlertRow
+                    title={alert.title}
+                    desc={`${alert.category} • ${alert.amount_display}`}
+                  />
+                  {index !== data.anomalies.alerts.slice(0, 2).length - 1 && (
+                    <div className="h-px bg-[#e5eeff]" />
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </InsightMetricCard>
 
         <InsightMetricCard
           icon={<RefreshCcw size={20} />}
           title="Recurring"
-          value="₹42,800"
-          description="Monthly subscriptions increased by ₹4,500 since last month."
+          value={data.metrics.recurring_total}
+          description={data.metrics.recurring_description}
         >
           <div className="rounded-2xl bg-[#eff4ff] p-4">
             <p className="text-sm italic leading-6 text-black">
-              “You are paying for two streaming services with similar content.
-              Consider cancelling one.”
+              “{data.alerts.saving_opportunity.description}”
             </p>
           </div>
         </InsightMetricCard>
 
-        <CategoryBreakdownCard />
+        <CategoryBreakdownCard items={data.category_breakdown} />
 
         <WealthTipCard
           icon={<Lightbulb size={20} />}
-          title="Optimizing Cash Flow"
-          description="We noticed ₹4,20,000 sitting in your checking account for over 30 days."
+          title={data.wealth_tip.title}
+          description={data.wealth_tip.description}
+          potentialEarn={data.wealth_tip.potential_earn}
+          potentialDescription={data.wealth_tip.potential_description}
         />
       </section>
 
-      <ObservationTable />
+      <ObservationTable observations={data.observations} />
     </>
   );
 }

@@ -1,6 +1,10 @@
 import { Filter, Plus } from "lucide-react";
 
-export default function SubscriptionsHeader() {
+type SubscriptionsHeaderProps = {
+  count: number;
+};
+
+export default function SubscriptionsHeader({ count }: SubscriptionsHeaderProps) {
   return (
     <header className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
@@ -9,7 +13,7 @@ export default function SubscriptionsHeader() {
         </h1>
 
         <p className="mt-2 text-base leading-7 text-[#565e74]">
-          We&apos;ve identified 12 recurring payments from your accounts.
+          We&apos;ve identified {count} recurring payments from your accounts.
         </p>
       </div>
 

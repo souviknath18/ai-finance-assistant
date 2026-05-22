@@ -74,6 +74,26 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 
+export async function getCategoryOptions(): Promise<Category[]> {
+  const token = getAccessToken();
+
+  const response = await fetch(`${API_URL}/api/categories/options/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+
 export async function deleteCategory(categoryId: string) {
   const token = getAccessToken();
 

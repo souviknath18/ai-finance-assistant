@@ -1,67 +1,122 @@
-import {
-  Home,
-  Plane,
-  ShoppingBag,
-  Repeat,
-  MoreHorizontal,
-} from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 
 import LargeBudgetCard from "./LargeBudgetCard";
 import BudgetCard from "./BudgetCard";
 import OtherBudgetCard from "./OtherBudgetCard";
+import ManageBudgetsModal from "./ManageBudgetsModal";
+import CreateBudgetModal from "./CreateBudgetModal";
+import { BudgetItem } from "@/types/budget";
+import { getCategoryIcon } from "@/lib/utils/categoryIcons";
 
-export default function BudgetGrid() {
+type BudgetGridProps = {
+  budgets: BudgetItem[];
+  onRefreshAction: () => void;
+  onDeleteRequestAction: (budgetId: string) => void;
+};
+
+export default function BudgetGrid({
+  budgets,
+  onDeleteRequestAction,
+  onRefreshAction,
+}: BudgetGridProps) {
+  const [manageOpen, setManageOpen] = useState(false);
+  const [editBudget, setEditBudget] = useState<BudgetItem | null>(null);
+
+  if (budgets.length === 0) {
+    return (
+      <div className="rounded-3xl border border-[#e5eeff] bg-white p-8 text-sm font-semibold text-[#565e74] shadow-sm">
+        No budgets created yet. Create a budget to start tracking spending.
+      </div>
+    );
+  }
+
+  const sortedBudgets = [...budgets].sort(
+    (a, b) => b.raw_usage_percent - a.raw_usage_percent
+  );
+
+  const mainBudget = sortedBudgets[0];
+  const otherBudgets = sortedBudgets.slice(1, 5);
+  const remainingBudgets = sortedBudgets.slice(5);
+
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-      <LargeBudgetCard />
+    <>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+        <LargeBudgetCard
+          budget={mainBudget}
+          icon={(() => {
+            const Icon = getCategoryIcon(mainBudget.category);
+            return <Icon size={22} />;
+          })()}
+        />
 
-      <BudgetCard
-        icon={<Home size={20} />}
-        title="Rent & Housing"
-        subtitle="Monthly fixed cost"
-        amount="₹2,45,000"
-        progress={100}
-        badge="Fixed"
-        className="md:col-span-4"
+        {otherBudgets.map((budget) => (
+          <BudgetCard
+            key={budget.budget_id}
+            icon={(() => {
+              const Icon = getCategoryIcon(budget.category);
+              return <Icon size={20} />;
+            })()}
+            title={budget.category}
+            subtitle={`${budget.period === "weekly" ? "Weekly" : "Monthly"} budget`}
+            amount={`${budget.spent_display} / ${budget.limit_display}`}
+            progress={Math.round(budget.usage_percent)}
+            badge={
+              budget.status === "critical" || budget.status === "exceeded"
+                ? "Critical"
+                : budget.status === "warning"
+                ? "Watch"
+                : "Safe"
+            }
+            warning={
+              budget.status === "critical" || budget.status === "exceeded"
+                ? `${budget.remaining_display} remaining.`
+                : undefined
+            }
+            tone={
+              budget.status === "critical" || budget.status === "exceeded"
+                ? "red"
+                : "default"
+            }
+            className="md:col-span-4"
+          />
+        ))}
+
+        {remainingBudgets.length > 0 && (
+          <OtherBudgetCard
+            icon={<MoreHorizontal size={20} />}
+            title="Other Categories"
+            subtitle={`${remainingBudgets.length} more active budgets`}
+            amount={`${remainingBudgets.length} budgets`}
+            progress={40}
+            onManageAction={() => setManageOpen(true)}
+          />
+        )}
+      </div>
+
+      <ManageBudgetsModal
+        open={manageOpen}
+        budgets={remainingBudgets}
+        onCloseAction={() => setManageOpen(false)}
+        onDeleteAction={onDeleteRequestAction}
+        onEditAction={(budget) => {
+          setManageOpen(false);
+          setEditBudget(budget);
+        }}
       />
 
-      <BudgetCard
-        icon={<Plane size={20} />}
-        title="Travel"
-        subtitle="Includes commute & leisure"
-        amount="₹48,500"
-        progress={97}
-        badge="Critical"
-        warning="You are ₹1,500 away from your limit."
-        tone="red"
-        className="md:col-span-4"
+      <CreateBudgetModal
+        open={Boolean(editBudget)}
+        mode="edit"
+        budget={editBudget}
+        onCloseAction={() => setEditBudget(null)}
+        onSuccessAction={() => {
+          setEditBudget(null);
+          onRefreshAction();
+        }}
       />
-
-      <BudgetCard
-        icon={<ShoppingBag size={20} />}
-        title="Shopping"
-        subtitle="Lifestyle purchases"
-        amount="₹12,000 / ₹40,000"
-        progress={30}
-        className="md:col-span-4"
-      />
-
-      <BudgetCard
-        icon={<Repeat size={20} />}
-        title="Subscriptions"
-        subtitle="Recurring monthly services"
-        amount="₹8,200 / ₹10,000"
-        progress={82}
-        className="md:col-span-4"
-      />
-
-      <OtherBudgetCard
-        icon={<MoreHorizontal size={20} />}
-        title="Other Categories"
-        subtitle="Everything else not categorized above"
-        amount="₹21,000 spent of ₹50,000"
-        progress={42}
-      />
-    </div>
+    </>
   );
 }

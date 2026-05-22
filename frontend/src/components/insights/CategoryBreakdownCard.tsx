@@ -1,7 +1,21 @@
 import { PieChart } from "lucide-react";
 import IconCircle from "./IconCircle";
 
-export default function CategoryBreakdownCard() {
+type CategoryBreakdownItem = {
+  category: string;
+  total_display: string;
+  count: number;
+};
+
+type CategoryBreakdownCardProps = {
+  items: CategoryBreakdownItem[];
+};
+
+export default function CategoryBreakdownCard({
+  items,
+}: CategoryBreakdownCardProps) {
+  const top = items[0];
+
   return (
     <div className="rounded-3xl border border-transparent bg-white p-6 shadow-sm transition hover:border-[#c6c6cd] hover:shadow-md md:col-span-2">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -17,8 +31,14 @@ export default function CategoryBreakdownCard() {
           </div>
 
           <p className="mb-5 text-sm leading-7 text-[#565e74]">
-            Your <strong>Dining & Drinks</strong> category increased by 28%
-            compared to your average.
+            {top ? (
+              <>
+                Your <strong>{top.category}</strong> category has the highest
+                spend at <strong>{top.total_display}</strong>.
+              </>
+            ) : (
+              "Upload transactions to generate category breakdown insights."
+            )}
           </p>
 
           <div className="space-y-3">
@@ -27,8 +47,8 @@ export default function CategoryBreakdownCard() {
             </div>
 
             <div className="flex justify-between text-xs font-semibold text-[#565e74]">
-              <span>Current: ₹98,000</span>
-              <span>Limit: ₹1,25,000</span>
+              <span>Top: {top?.total_display || "₹0.00"}</span>
+              <span>{top?.count || 0} transactions</span>
             </div>
           </div>
         </div>
@@ -39,7 +59,8 @@ export default function CategoryBreakdownCard() {
           </p>
 
           <p className="mb-5 text-sm font-bold leading-7 text-black">
-            “Meal prepping 3 days a week could save you ₹21,000 monthly.”
+            “Review your highest spending category first to find quick savings
+            opportunities.”
           </p>
 
           <button className="rounded-xl border border-black/10 bg-white py-3 text-sm font-bold text-black transition hover:bg-[#dce9ff]">

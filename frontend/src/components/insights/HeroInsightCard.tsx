@@ -1,12 +1,17 @@
 import { Sparkles, Star } from "lucide-react";
 
-export default function HeroInsightCard() {
+type HeroInsightCardProps = {
+  headline: string;
+  description: string;
+};
+
+export default function HeroInsightCard({
+  headline,
+  description,
+}: HeroInsightCardProps) {
   return (
     <div className="relative overflow-hidden rounded-3xl border border-emerald-100 bg-white p-8 shadow-sm md:col-span-8">
-      <Sparkles
-        size={130}
-        className="absolute right-8 top-8 text-emerald-100"
-      />
+      <Sparkles size={130} className="absolute right-8 top-8 text-emerald-100" />
 
       <div className="relative z-10">
         <div className="mb-4 flex items-center gap-2 text-emerald-700">
@@ -18,13 +23,11 @@ export default function HeroInsightCard() {
         </div>
 
         <h2 className="mb-5 max-w-2xl text-3xl font-bold leading-tight text-black">
-          Your wealth is projected to grow by 12% this quarter.
+          {headline}
         </h2>
 
         <p className="max-w-2xl text-sm leading-7 text-[#565e74]">
-          Aura analyzed 242 transactions this month. We found 3 major saving
-          opportunities in recurring subscriptions and a slight overspend in
-          your Dining category compared to your 6-month average.
+          {description}
         </p>
 
         <div className="mt-8 flex flex-wrap gap-4">

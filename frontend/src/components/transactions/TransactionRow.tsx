@@ -2,7 +2,7 @@ import {
   Sparkles,
   User,
   Edit,
-  FolderOpen,
+  ScanSearch,
   Trash2,
   CheckCircle2,
   Brain,
@@ -19,6 +19,7 @@ type TransactionRowProps = {
   onDeleteAction: (id: string) => void;
   onCategoryChangeAction: (id: string, category: string) => void;
   openDropdownUp: boolean;
+  onFindSimilarAction: (id: string) => void;
 };
 
 export default function TransactionRow({
@@ -28,6 +29,7 @@ export default function TransactionRow({
   onDeleteAction,
   onCategoryChangeAction,
   openDropdownUp,
+  onFindSimilarAction,
 }: TransactionRowProps) {
 
   const categoryOptions = [
@@ -163,9 +165,20 @@ export default function TransactionRow({
             <Edit size={18} />
           </button>
 
-          <button className="hover:text-emerald-700">
-            <FolderOpen size={18} />
-          </button>
+          <div className="group/tooltip relative inline-flex items-center">
+            <button
+              onClick={() => onFindSimilarAction(transaction.id)}
+              className="flex items-center text-[#565e74] transition hover:text-emerald-700"
+            >
+              <ScanSearch size={18} />
+            </button>
+
+            <div className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-[99999] whitespace-nowrap rounded-xl border border-[#dce9ff] bg-white px-3 py-2 text-xs text-[#565e74] opacity-0 shadow-[0_12px_30px_rgba(15,23,42,0.16)] transition-all duration-200 group-hover/tooltip:opacity-100">
+              Find similar transactions
+
+              <div className="absolute right-3 top-full h-2 w-2 -translate-y-1 rotate-45 border-b border-r border-[#dce9ff] bg-white" />
+            </div>
+          </div>
 
           <button
             onClick={() => onDeleteAction(transaction.id)}

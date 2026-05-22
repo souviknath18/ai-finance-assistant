@@ -7,10 +7,12 @@ type TransactionsTableProps = {
   loading: boolean;
   error: string;
   selectedIds: string[];
+  emptyMessage?: string;
   onToggleSelectAction: (id: string) => void;
   onToggleSelectAllAction: () => void;
   onDeleteAction: (id: string) => void;
   onCategoryChangeAction: (id: string, category: string) => void;
+  onFindSimilarAction: (id: string) => void;
 };
 
 export default function TransactionsTable({
@@ -22,9 +24,15 @@ export default function TransactionsTable({
   onToggleSelectAllAction,
   onDeleteAction,
   onCategoryChangeAction,
+  onFindSimilarAction,
+  emptyMessage = "No transactions found.",
 }: TransactionsTableProps) {
   if (loading) {
-    return <div className="p-8 text-sm font-semibold text-[#565e74]">Loading transactions...</div>;
+    return (
+      <div className="p-8 text-sm font-semibold text-[#565e74]">
+        Loading transactions...
+      </div>
+    );
   }
 
   if (error) {
@@ -34,7 +42,7 @@ export default function TransactionsTable({
   if (transactions.length === 0) {
     return (
       <div className="p-8 text-sm font-semibold text-[#565e74]">
-        No transactions found. Upload a bank statement first.
+        {emptyMessage}
       </div>
     );
   }
@@ -75,6 +83,7 @@ export default function TransactionsTable({
               onToggleSelectAction={onToggleSelectAction}
               onDeleteAction={onDeleteAction}
               onCategoryChangeAction={onCategoryChangeAction}
+              onFindSimilarAction={onFindSimilarAction}
               openDropdownUp={index >= transactions.length - 2}
             />
           ))}

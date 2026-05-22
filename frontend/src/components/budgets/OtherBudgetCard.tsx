@@ -4,6 +4,7 @@ type OtherBudgetCardProps = {
   subtitle: string;
   amount: string;
   progress: number;
+  onManageAction: () => void;
 };
 
 export default function OtherBudgetCard({
@@ -12,6 +13,7 @@ export default function OtherBudgetCard({
   subtitle,
   amount,
   progress,
+  onManageAction,
 }: OtherBudgetCardProps) {
   return (
     <div className="flex flex-col gap-5 rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm md:col-span-12 md:flex-row md:items-center md:justify-between">
@@ -37,7 +39,10 @@ export default function OtherBudgetCard({
         </div>
       </div>
 
-      <button className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#e5eeff]">
+      <button
+        onClick={onManageAction}
+        className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#e5eeff]"
+      >
         Manage
       </button>
     </div>

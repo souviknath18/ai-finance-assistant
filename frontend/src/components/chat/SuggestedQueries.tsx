@@ -1,6 +1,12 @@
 import { suggestedQueries } from "./data";
 
-export default function SuggestedQueries() {
+type SuggestedQueriesProps = {
+  onSelectAction: (query: string) => void;
+};
+
+export default function SuggestedQueries({
+  onSelectAction,
+}: SuggestedQueriesProps) {
   return (
     <div className="flex flex-wrap gap-3">
       {suggestedQueries.map((query) => {
@@ -9,6 +15,7 @@ export default function SuggestedQueries() {
         return (
           <button
             key={query.label}
+            onClick={() => onSelectAction(query.label)}
             className="flex items-center gap-2 rounded-full border border-[#c6c6cd] bg-white px-5 py-3 text-sm text-black transition hover:border-emerald-700 hover:bg-emerald-50 hover:text-emerald-700"
           >
             <Icon size={17} />
