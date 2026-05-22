@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
 
 export type SelectOption = {
@@ -13,6 +13,8 @@ type CustomSelectProps = {
   value: string;
   options: SelectOption[];
   placeholder?: string;
+  open?: boolean;
+  onOpenChangeAction?: (open: boolean) => void;
   onChangeAction: (name: string, value: string) => void;
 };
 
@@ -21,30 +23,65 @@ export default function CustomSelect({
   value,
   options,
   placeholder = "Select",
+  open: controlledOpen,
+  onOpenChangeAction,
   onChangeAction,
 }: CustomSelectProps) {
-  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [internalOpen, setInternalOpen] = useState(false);
 
-  const selectedOption = options.find(
-    (option) => option.value === value
-  );
+  const open = controlledOpen ?? internalOpen;
+
+  const selectedOption = options.find((option) => option.value === value);
+
+  const setOpen = (value: boolean) => {
+    if (onOpenChangeAction) {
+      onOpenChangeAction(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleScroll = (event: Event) => {
+      const target = event.target as Node;
+
+      if (wrapperRef.current?.contains(target)) return;
+
+      setOpen(false);
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (wrapperRef.current?.contains(target)) return;
+
+      setOpen(false);
+    };
+
+    window.addEventListener("scroll", handleScroll, true);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
 
   return (
-    <div className="relative z-[100]">
+    <div ref={wrapperRef} className="relative z-[100]">
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className="flex h-[50px] w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-4 text-left text-sm text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
       >
-        <span>
-          {selectedOption?.label || placeholder}
-        </span>
+        <span>{selectedOption?.label || placeholder}</span>
 
         <ChevronDown
           size={18}
-          className={`text-[#565e74] transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`text-[#565e74] transition ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -68,7 +105,6 @@ export default function CustomSelect({
                 }`}
               >
                 <span>{option.label}</span>
-
                 {selected && <Check size={16} />}
               </button>
             );

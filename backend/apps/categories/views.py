@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 
 from .services import (
     create_category,
+    get_category_options,
     get_category_summary,
-    get_user_categories,
+    get_custom_categories,
     soft_delete_category,
 )
 from .serializers import CategorySerializer
@@ -16,7 +17,7 @@ class CategoryListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        categories = get_user_categories(request.user)
+        categories = get_custom_categories(request.user)
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
@@ -35,6 +36,15 @@ class CategoryListCreateView(APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class CategoryOptionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        categories = get_category_options(request.user)
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
 
 
 class CategorySummaryView(APIView):

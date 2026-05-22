@@ -2,6 +2,8 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404
 from .models import Category
 from apps.transactions.models import Transaction
+from ai_engine.categorization.category_constants import ALLOWED_CATEGORIES
+from ai_engine.categorization.category_rules import CATEGORY_RULES
 
 
 def create_category(user, validated_data):
@@ -14,8 +16,39 @@ def create_category(user, validated_data):
     )
 
 
-def get_user_categories(user):
-    return Category.objects.filter(user=user, is_active=True)
+def create_default_categories_for_user(user):
+    for category_name in ALLOWED_CATEGORIES:
+        if category_name == "Uncategorized":
+            continue
+
+        Category.objects.get_or_create(
+            user=user,
+            name=category_name,
+            defaults={
+                "description": "Default system category.",
+                "category_type": "both",
+                "keywords": ", ".join(CATEGORY_RULES.get(category_name, [])),
+                "is_system": True,
+                "is_active": True,
+            },
+        )
+
+
+def get_custom_categories(user):
+    return Category.objects.filter(
+        user=user,
+        is_active=True,
+        is_system=False,
+    ).order_by("name")
+
+
+def get_category_options(user):
+    create_default_categories_for_user(user)
+
+    return Category.objects.filter(
+        user=user,
+        is_active=True,
+    ).order_by("-is_system", "name")
 
 
 def get_category_summary(user):

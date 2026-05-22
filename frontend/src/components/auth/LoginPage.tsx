@@ -9,7 +9,7 @@ export default function LoginPage() {
       <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-emerald-200/30 blur-3xl" />
       <div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-blue-200/30 blur-3xl" />
 
-      <section className="relative z-10 flex flex-1 items-center justify-center px-6 pb-20 pt-40">
+      <section className="relative z-10 flex flex-1 items-center justify-center px-6 pb-20 pt-26">
         <LoginForm />
       </section>
 

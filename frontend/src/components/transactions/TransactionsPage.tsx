@@ -16,6 +16,9 @@ import {
   getTransactions,
   updateTransactionCategory,
 } from "@/lib/api/transactionApi";
+import { semanticSearchTransactions, findSimilarTransactions  } from "@/lib/api/searchApi";
+import SemanticSearchBanner from "./SemanticSearchBanner";
+import { getCategoryOptions } from "@/lib/api/categoryApi";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<TransactionTableItem[]>([]);
@@ -30,12 +33,46 @@ export default function TransactionsPage() {
     transactionId: "",
   });
   const [deleting, setDeleting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [semanticMode, setSemanticMode] = useState(false);
+  const [allTransactions, setAllTransactions] = useState<TransactionTableItem[]>([]);
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    category: "all",
+    transactionType: "all",
+    statusFilter: "all",
+  });
+  const [categoryOptions, setCategoryOptions] = useState([
+    { label: "All Categories", value: "all" },
+  ]);
+
+  const handleFilterChange = (name: string, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
     const loadTransactions = async () => {
       try {
         const data = await getTransactions();
         setTransactions(data);
+        setAllTransactions(data);
+
+        const categories = await getCategoryOptions();
+
+        setCategoryOptions([
+          { label: "All Categories", value: "all" },
+          ...categories.map((category) => ({
+            label: category.name,
+            value: category.name,
+          })),
+        ]);
       } catch {
         setError("Failed to load transactions.");
       } finally {
@@ -46,14 +83,46 @@ export default function TransactionsPage() {
     loadTransactions();
   }, []);
 
-  const totalPages = Math.ceil(transactions.length / rowsPerPage);
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
+      const matchesCategory =
+        filters.category === "all" || transaction.category === filters.category;
+
+      const matchesType =
+        filters.transactionType === "all" ||
+        transaction.type === filters.transactionType;
+
+      const matchesStatus =
+        filters.statusFilter === "all" ||
+        transaction.status === filters.statusFilter;
+
+      const transactionDate = new Date(transaction.date);
+      const start = filters.startDate ? new Date(filters.startDate) : null;
+      const end = filters.endDate ? new Date(filters.endDate) : null;
+
+      const matchesStartDate = !start || transactionDate >= start;
+      const matchesEndDate = !end || transactionDate <= end;
+
+      return (
+        matchesCategory &&
+        matchesType &&
+        matchesStatus &&
+        matchesStartDate &&
+        matchesEndDate
+      );
+    });
+  }, [transactions, filters]);
+
+
+  const totalPages = Math.ceil(filteredTransactions.length / rowsPerPage);
 
   const paginatedTransactions = useMemo(() => {
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
 
-    return transactions.slice(startIndex, endIndex);
-  }, [transactions, currentPage, rowsPerPage]);
+    return filteredTransactions.slice(startIndex, endIndex);
+  }, [filteredTransactions, currentPage, rowsPerPage]);
 
   const handleRowsPerPageChange = (value: number) => {
     setRowsPerPage(value);
@@ -150,16 +219,96 @@ export default function TransactionsPage() {
     );
   };
 
+  const handleSemanticSearch = async (queryOverride?: string) => {
+    const query = queryOverride || searchQuery;
+
+    if (!query.trim()) return;
+
+    setSearching(true);
+
+    try {
+      const results = await semanticSearchTransactions(query);
+
+      const matchedIds = results.map((result) => result.transaction_id);
+
+      const matchedTransactions = allTransactions.filter((transaction) =>
+        matchedIds.includes(transaction.id)
+      );
+
+      setTransactions(matchedTransactions);
+      setSearchQuery(query);
+      setSemanticMode(true);
+      setCurrentPage(1);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setTransactions(allTransactions);
+    setSemanticMode(false);
+    setCurrentPage(1);
+  };
+
+  const handleFindSimilar = async (transactionId: string) => {
+    setSearching(true);
+
+    try {
+      const results = await findSimilarTransactions(transactionId);
+
+      const matchedIds = results.map((result) => result.transaction_id);
+
+      const matchedTransactions = allTransactions.filter((transaction) =>
+        matchedIds.includes(transaction.id)
+      );
+
+      setTransactions(matchedTransactions);
+      setSearchQuery("Similar transactions");
+      setSemanticMode(true);
+      setCurrentPage(1);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleQuickSearch = async (query: string) => {
+    await handleSemanticSearch(query);
+  };
+
   return (
     <>
       <TransactionsHeader />
-      <TransactionsFilters />
+      <TransactionsFilters
+        searchQuery={searchQuery}
+        semanticMode={semanticMode}
+        searching={searching}
+        startDate={filters.startDate}
+        endDate={filters.endDate}
+        category={filters.category}
+        transactionType={filters.transactionType}
+        statusFilter={filters.statusFilter}
+        onSearchQueryChangeAction={setSearchQuery}
+        onSemanticSearchAction={handleSemanticSearch}
+        onQuickSearchAction={handleQuickSearch}
+        onClearSearchAction={handleClearSearch}
+        onFilterChangeAction={handleFilterChange}
+        categoryOptions={categoryOptions}
+      />
 
       {selectedIds.length > 0 && (
         <SelectedToolbar
           selectedCount={selectedIds.length}
           onClearAction={() => setSelectedIds([])}
           onDeleteSelectedAction={openBulkDeleteModal}
+        />
+      )}
+
+      {semanticMode && (
+        <SemanticSearchBanner
+          query={searchQuery}
+          count={transactions.length}
+          onClearAction={handleClearSearch}
         />
       )}
 
@@ -173,10 +322,18 @@ export default function TransactionsPage() {
           onToggleSelectAllAction={toggleSelectAllVisible}
           onDeleteAction={openSingleDeleteModal}
           onCategoryChangeAction={handleCategoryChange}
+          onFindSimilarAction={handleFindSimilar}
+          emptyMessage={
+            allTransactions.length === 0
+              ? "No transactions found. Upload a bank statement first."
+              : semanticMode
+              ? "No matching transactions found for your semantic search."
+              : "No transactions found for the selected filters."
+          }
         />
 
         <Pagination
-          total={transactions.length}
+          total={filteredTransactions.length}
           currentPage={currentPage}
           totalPages={totalPages}
           rowsPerPage={rowsPerPage}

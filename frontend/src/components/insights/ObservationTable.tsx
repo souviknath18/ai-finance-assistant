@@ -1,6 +1,13 @@
 import ObservationRow from "./ObservationRow";
+import { InsightObservation } from "@/types/insights";
 
-export default function ObservationTable() {
+type ObservationTableProps = {
+  observations: InsightObservation[];
+};
+
+export default function ObservationTable({
+  observations,
+}: ObservationTableProps) {
   return (
     <section>
       <h2 className="mb-5 text-2xl font-bold text-black">
@@ -20,30 +27,28 @@ export default function ObservationTable() {
             </thead>
 
             <tbody className="divide-y divide-[#e5eeff]">
-              <ObservationRow
-                title="Lower Insurance Rate Found"
-                desc="Geico quote is 15% lower than current Progressive rate."
-                category="Fixed Costs"
-                impact="-₹24,000/yr"
-                action="Compare"
-              />
-
-              <ObservationRow
-                title="Unused Subscription"
-                desc="No logins to Masterclass in 90 days."
-                category="Lifestyle"
-                impact="-₹1,500/mo"
-                action="Cancel"
-              />
-
-              <ObservationRow
-                title="Upcoming Large Bill"
-                desc="Annual Amazon Prime renewal due next Tuesday."
-                category="Recurring"
-                impact="₹13,900"
-                action="Prepare"
-                neutral
-              />
+              {observations.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-8 text-sm font-semibold text-[#565e74]"
+                  >
+                    No observations yet. Upload more transactions to generate insights.
+                  </td>
+                </tr>
+              ) : (
+                observations.map((item, index) => (
+                  <ObservationRow
+                    key={`${item.title}-${index}`}
+                    title={item.title}
+                    desc={item.description}
+                    category={item.category}
+                    impact={item.impact}
+                    action={item.action}
+                    neutral={item.tone === "neutral"}
+                  />
+                ))
+              )}
             </tbody>
           </table>
         </div>

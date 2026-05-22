@@ -4,12 +4,16 @@ type WealthTipCardProps = {
   icon: React.ReactNode;
   title: string;
   description: string;
+  potentialEarn: string;
+  potentialDescription: string;
 };
 
 export default function WealthTipCard({
   icon,
   title,
   description,
+  potentialEarn,
+  potentialDescription,
 }: WealthTipCardProps) {
   return (
     <div className="flex flex-col justify-between rounded-3xl border border-transparent bg-white p-6 shadow-sm transition hover:border-[#c6c6cd] hover:shadow-md">
@@ -22,13 +26,9 @@ export default function WealthTipCard({
           </h3>
         </div>
 
-        <h4 className="mb-3 text-2xl font-bold text-black">
-          {title}
-        </h4>
+        <h4 className="mb-3 text-2xl font-bold text-black">{title}</h4>
 
-        <p className="text-sm leading-7 text-[#565e74]">
-          {description}
-        </p>
+        <p className="text-sm leading-7 text-[#565e74]">{description}</p>
       </div>
 
       <div className="mt-6">
@@ -38,11 +38,11 @@ export default function WealthTipCard({
           </p>
 
           <p className="text-2xl font-bold text-emerald-700">
-            +₹1,840/mo
+            {potentialEarn}
           </p>
 
           <p className="text-sm text-[#565e74]">
-            by moving to High-Yield Savings.
+            {potentialDescription}
           </p>
         </div>
 

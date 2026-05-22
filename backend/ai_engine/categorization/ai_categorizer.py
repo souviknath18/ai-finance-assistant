@@ -31,6 +31,7 @@ Categorize this transaction.
     )
 
     raw_text = response.output_text.strip()
+    print("AI categorization raw output:", raw_text)
     data = json.loads(raw_text)
 
     return {

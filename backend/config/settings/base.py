@@ -61,6 +61,9 @@ INSTALLED_APPS = [
     "apps.insights.apps.InsightsConfig",
     "apps.chat.apps.ChatConfig",
     "apps.onboarding.apps.OnboardingConfig",
+    "apps.search.apps.SearchConfig",
+    "apps.subscriptions.apps.SubscriptionsConfig",
+    "apps.budgets.apps.BudgetsConfig",
 ]
 
 MIDDLEWARE = [
