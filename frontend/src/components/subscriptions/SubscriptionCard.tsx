@@ -7,6 +7,8 @@ type SubscriptionCardProps = {
   primaryAction: string;
   secondaryAction: string;
   danger?: boolean;
+  onPrimaryAction?: () => void;
+  onSecondaryAction?: () => void;
 };
 
 export default function SubscriptionCard({
@@ -18,6 +20,8 @@ export default function SubscriptionCard({
   primaryAction,
   secondaryAction,
   danger = false,
+  onPrimaryAction,
+  onSecondaryAction,
 }: SubscriptionCardProps) {
   const toneClass =
     tone === "red"
@@ -55,11 +59,15 @@ export default function SubscriptionCard({
       </div>
 
       <div className="flex gap-2 md:border-l md:border-[#c6c6cd] md:pl-6">
-        <button className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]">
+        <button
+          onClick={onSecondaryAction}
+          className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]"
+        >
           {secondaryAction}
         </button>
 
         <button
+          onClick={onPrimaryAction}
           className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
             danger
               ? "border border-red-600 text-red-600 hover:bg-red-50"

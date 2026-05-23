@@ -1,13 +1,20 @@
 import { TrendingDown } from "lucide-react";
 import MetricCard from "./MetricCard";
 import AIOptimizationCard from "./AIOptimizationCard";
-import { DetectedSubscription } from "@/types/subscription";
+import {
+  DetectedSubscription,
+  DuplicateSubscriptionGroup,
+} from "@/types/subscription";
 
 type SummaryMetricsProps = {
   subscriptions: DetectedSubscription[];
+  duplicates: DuplicateSubscriptionGroup[];
 };
 
-export default function SummaryMetrics({ subscriptions }: SummaryMetricsProps) {
+export default function SummaryMetrics({
+  subscriptions,
+  duplicates,
+}: SummaryMetricsProps) {
   const monthlySpend = subscriptions.reduce(
     (total, item) => total + Number(item.average_amount),
     0
@@ -35,7 +42,10 @@ export default function SummaryMetrics({ subscriptions }: SummaryMetricsProps) {
         trend="Based on detected subscriptions"
       />
 
-      <AIOptimizationCard />
+      <AIOptimizationCard
+        subscriptions={subscriptions}
+        duplicates={duplicates}
+      />
     </section>
   );
 }
