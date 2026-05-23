@@ -10,6 +10,7 @@ from ai_engine.parsers.subscription_parser import parse_subscription_transaction
 from apps.transactions.models import Transaction
 from ai_engine.categorization.categorize_transactions import categorize_transaction
 from ai_engine.embeddings.vector_store import store_transaction_vector
+from apps.subscriptions.services import sync_detected_subscriptions
 
 
 ALLOWED_EXTENSIONS = [".pdf", ".csv", ".jpg", ".jpeg", ".png"]
@@ -183,6 +184,8 @@ def process_uploaded_file(uploaded_file: UploadedFile):
 
         else:
             raise ValueError("Unsupported file type.")
+
+        sync_detected_subscriptions(uploaded_file.user)
 
         uploaded_file.status = UploadedFile.Status.SUCCESS
         uploaded_file.error_message = None

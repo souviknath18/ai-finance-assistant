@@ -70,6 +70,20 @@ export default function UploadsPage() {
     }
   };
 
+  useEffect(() => {
+    const hasProcessing = files.some(
+      (file) => file.status === "pending" || file.status === "processing"
+    );
+
+    if (!hasProcessing) return;
+
+    const interval = window.setInterval(() => {
+      loadFiles();
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [files]);
+
   const processingFiles = files.filter(
     (file) => file.status === "pending" || file.status === "processing"
   );

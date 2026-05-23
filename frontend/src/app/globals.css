@@ -77,3 +77,28 @@ body {
 .custom-select-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #10b981;
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #c6d7ff transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  margin-block: 10px;
+  background: transparent;
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #dce9ff, #c6d7ff);
+  border-radius: 999px;
+  border: 2px solid white;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c7d8ff, #b3c9ff);
+}

@@ -6,6 +6,7 @@ type RecommendationCardProps = {
   title: string;
   description: string;
   buttonText: string;
+  onClickAction?: () => void;
 };
 
 export default function RecommendationCard({
@@ -14,6 +15,7 @@ export default function RecommendationCard({
   title,
   description,
   buttonText,
+  onClickAction,
 }: RecommendationCardProps) {
   const warning = type === "warning";
 
@@ -41,6 +43,7 @@ export default function RecommendationCard({
       <p className="mb-5 text-sm leading-6 text-[#565e74]">{description}</p>
 
       <button
+        onClick={onClickAction}
         className={`w-full rounded-xl py-3 text-sm font-bold ${
           warning
             ? "bg-red-600 text-white"
