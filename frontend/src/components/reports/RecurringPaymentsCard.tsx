@@ -1,27 +1,21 @@
-import { Cloud, Dumbbell, Film } from "lucide-react";
+import { Cloud } from "lucide-react";
 
-const payments = [
-  {
-    name: "AWS Cloud Services",
-    detail: "Monthly • Renewing Jan 12",
-    amount: "$124.50",
-    icon: Cloud,
-  },
-  {
-    name: "Equinox Global",
-    detail: "Monthly • Renewing Jan 1",
-    amount: "$210.00",
-    icon: Dumbbell,
-  },
-  {
-    name: "Max Premium",
-    detail: "Annual • Renewing Dec 28",
-    amount: "$19.99",
-    icon: Film,
-  },
-];
+type RecurringPayment = {
+  merchant: string;
+  average_amount: string;
+  next_billing_date?: string;
+  billing_cycle?: string;
+};
 
-export default function RecurringPaymentsCard() {
+type RecurringPaymentsCardProps = {
+  payments: RecurringPayment[];
+  count: number;
+};
+
+export default function RecurringPaymentsCard({
+  payments,
+  count,
+}: RecurringPaymentsCardProps) {
   return (
     <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl md:col-span-6">
       <div className="mb-8 flex items-center justify-between">
@@ -30,38 +24,53 @@ export default function RecurringPaymentsCard() {
         </h2>
 
         <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">
-          12 active subs
+          {count} active subs
         </span>
       </div>
 
       <div className="space-y-4">
-        {payments.map((payment) => {
-          const Icon = payment.icon;
-
-          return (
+        {payments.length === 0 ? (
+          <p className="text-sm font-semibold text-[#565e74]">
+            No recurring payments detected yet.
+          </p>
+        ) : (
+          payments.map((payment) => (
             <div
-              key={payment.name}
+              key={payment.merchant}
               className="flex items-center justify-between gap-4 rounded-2xl bg-[#eff4ff] p-4"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#c6c6cd] bg-white">
-                  <Icon size={18} />
+                  <Cloud size={18} />
                 </div>
 
                 <div>
                   <p className="text-sm font-bold text-black">
-                    {payment.name}
+                    {payment.merchant}
                   </p>
-                  <p className="text-sm text-[#565e74]">{payment.detail}</p>
+                  <p className="text-sm text-[#565e74]">
+                    {payment.billing_cycle || "Monthly"} •{" "}
+                    {payment.next_billing_date
+                      ? `Renewing ${new Date(
+                          payment.next_billing_date
+                        ).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                        })}`
+                      : "Renewal date unknown"}
+                  </p>
                 </div>
               </div>
 
               <span className="text-sm font-bold text-black">
-                {payment.amount}
+                ₹
+                {Number(payment.average_amount).toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}
               </span>
             </div>
-          );
-        })}
+          ))
+        )}
       </div>
     </div>
   );

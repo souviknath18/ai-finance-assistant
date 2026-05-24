@@ -1,67 +1,103 @@
 import { ArrowUp, CheckCircle2 } from "lucide-react";
+import { ReportDashboard } from "@/types/report";
 
-const bars = ["40%", "65%", "55%", "80%", "30%", "90%", "45%", "70%"];
+type PerformanceCardProps = {
+  data: ReportDashboard;
+};
 
-export default function PerformanceCard() {
+export default function PerformanceCard({ data }: PerformanceCardProps) {
+  
+  const chartItems = data.performance.chart;
+
+  const maxAmount = Math.max(
+    ...chartItems.flatMap((item) => [item.income, item.expense]),
+    1
+  );
+
   return (
     <div className="relative z-0 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl md:col-span-8">
       <div className="mb-8 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-black">
-            Q4 Financial Performance
+            {data.period.title}
           </h2>
           <p className="mt-1 text-sm text-[#565e74]">
-            Oct 1 - Dec 31, 2023
+            {data.period.range}
           </p>
         </div>
 
         <span className="rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-bold text-emerald-800">
-          Status: Optimized
+          Status: {data.period.status}
         </span>
       </div>
 
       <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
         <Metric
           label="Total Income"
-          value="$24,450.00"
+          value={data.performance.income}
           tone="green"
-          helper="12% vs Q3"
+          helper="Current period"
           icon={<ArrowUp size={15} />}
         />
 
         <Metric
           label="Total Expenses"
-          value="$18,210.00"
+          value={data.performance.expenses}
           tone="red"
-          helper="4% vs Q3"
+          helper="Current period"
           icon={<ArrowUp size={15} />}
         />
 
         <Metric
           label="Net Savings"
-          value="$6,240.00"
+          value={data.performance.savings}
           tone="blue"
-          helper="Target Reached"
+          helper="Calculated from income"
           icon={<CheckCircle2 size={15} />}
         />
       </div>
 
-      <div className="relative flex h-64 items-end overflow-hidden rounded-2xl bg-[#eff4ff] px-6 pb-6">
-        <div className="flex h-full flex-1 items-end gap-3 pt-6">
-          {bars.map((height, index) => (
-            <div
-              key={`${height}-${index}`}
-              className={`flex-1 rounded-t-md ${
-                index % 2 === 0 ? "bg-black/10" : "bg-emerald-700"
-              }`}
-              style={{ height }}
-            />
-          ))}
-        </div>
-
-        <div className="absolute right-6 top-6 space-y-2">
+      <div className="rounded-2xl bg-[#eff4ff] p-6">
+        <div className="mb-4 flex justify-end gap-4">
           <Legend color="bg-emerald-700" label="Income" />
           <Legend color="bg-black/10" label="Expenses" />
+        </div>
+
+        <div className="flex h-56 items-end overflow-hidden">
+          {chartItems.length === 0 ? (
+            <p className="m-auto text-sm font-semibold text-[#565e74]">
+              No chart data available yet.
+            </p>
+          ) : (
+            <div className="flex h-full w-full items-end gap-4 pt-6">
+              {chartItems.map((item) => (
+                <div
+                  key={item.month}
+                  className="flex flex-1 flex-col items-center justify-end gap-2"
+                >
+                  <div className="flex h-48 w-full items-end gap-1">
+                    <div
+                      className="flex-1 rounded-t-md bg-emerald-700"
+                      style={{
+                        height: `${Math.max((item.income / maxAmount) * 100, 8)}%`,
+                      }}
+                    />
+
+                    <div
+                      className="flex-1 rounded-t-md bg-black/10"
+                      style={{
+                        height: `${Math.max((item.expense / maxAmount) * 100, 8)}%`,
+                      }}
+                    />
+                  </div>
+
+                  <span className="text-xs font-bold text-[#565e74]">
+                    {item.month}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

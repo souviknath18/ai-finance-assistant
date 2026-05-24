@@ -1,6 +1,11 @@
 import { Sparkles } from "lucide-react";
+import { ReportDashboard } from "@/types/report";
 
-export default function AIReportInsight() {
+type AIReportInsightProps = {
+  data: ReportDashboard["ai_insight"];
+};
+
+export default function AIReportInsight({ data }: AIReportInsightProps) {
   return (
     <div className="relative rounded-3xl border border-emerald-200 bg-white p-6 shadow-lg md:col-span-4">
       <div className="mb-5 flex items-center gap-3 text-emerald-700">
@@ -11,9 +16,7 @@ export default function AIReportInsight() {
       </div>
 
       <p className="mb-6 text-sm leading-7 text-black">
-        Your Q4 savings rate increased by <strong>4.2%</strong>. However, AI
-        detected <span className="text-red-600">unusual spending</span> in the
-        Lifestyle category during December, likely due to holiday travel.
+        {data.summary}
       </p>
 
       <div className="mt-auto space-y-4">
@@ -24,14 +27,16 @@ export default function AIReportInsight() {
 
           <div className="flex justify-between gap-4">
             <span className="text-sm font-bold text-black">
-              Luxury Travel Gear
+              {data.top_unusual_title}
             </span>
-            <span className="text-sm font-bold text-red-600">$1,240</span>
+            <span className="text-sm font-bold text-red-600">
+              {data.top_unusual_amount}
+            </span>
           </div>
         </div>
 
         <button className="w-full rounded-xl border border-emerald-700 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-700 hover:text-white">
-          Apply Q1 Recommendation
+          Review Insight
         </button>
       </div>
     </div>
