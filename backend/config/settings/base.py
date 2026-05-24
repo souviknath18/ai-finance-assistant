@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "apps.search.apps.SearchConfig",
     "apps.subscriptions.apps.SubscriptionsConfig",
     "apps.budgets.apps.BudgetsConfig",
+    "apps.reports.apps.ReportsConfig",
 ]
 
 MIDDLEWARE = [

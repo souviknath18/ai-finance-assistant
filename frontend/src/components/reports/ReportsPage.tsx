@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ReportGenerator from "./ReportGenerator";
 import PerformanceCard from "./PerformanceCard";
 import AIReportInsight from "./AIReportInsight";
@@ -5,7 +9,63 @@ import CategorySpendingCard from "./CategorySpendingCard";
 import RecurringPaymentsCard from "./RecurringPaymentsCard";
 import ReportActions from "./ReportActions";
 
+import {
+  getReportDashboard,
+  generateReport,
+  exportReportPDF,
+} from "@/lib/api/reportApi";
+import { ReportDashboard } from "@/types/report";
+
 export default function ReportsPage() {
+  const router = useRouter();
+  const [data, setData] = useState<ReportDashboard | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  const loadReport = async () => {
+    setLoading(true);
+
+    try {
+      const result = await getReportDashboard();
+      setData(result);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadReport();
+  }, []);
+
+  const handleGenerateReport = async (interval: string) => {
+    setGenerating(true);
+
+    try {
+      const result = await generateReport(interval);
+      router.push(`/reports/${result.report_id}`);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+
+  if (loading) {
+    return (
+      <p className="text-sm font-semibold text-[#565e74]">
+        Loading reports...
+      </p>
+    );
+  }
+
+  if (!data) {
+    return (
+      <p className="text-sm font-semibold text-red-600">
+        Failed to load report.
+      </p>
+    );
+  }
+
   return (
     <>
       <section className="mb-8">
@@ -18,16 +78,20 @@ export default function ReportsPage() {
         </p>
       </section>
 
-      <ReportGenerator />
+      <ReportGenerator
+        loading={generating}
+        onGenerateAction={handleGenerateReport}
+      />
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-12">
-        <PerformanceCard />
-        <AIReportInsight />
-        <CategorySpendingCard />
-        <RecurringPaymentsCard />
+        <PerformanceCard data={data} />
+        <AIReportInsight data={data.ai_insight} />
+        <CategorySpendingCard categories={data.categories} />
+        <RecurringPaymentsCard
+          payments={data.recurring_payments}
+          count={data.recurring_count}
+        />
       </section>
-
-      <ReportActions />
     </>
   );
 }

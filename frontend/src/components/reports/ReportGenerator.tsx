@@ -12,7 +12,15 @@ const intervalOptions = [
   { label: "Custom Range", value: "custom" },
 ];
 
-export default function ReportGenerator() {
+type ReportGeneratorProps = {
+  loading?: boolean;
+  onGenerateAction: (interval: string) => void;
+};
+
+export default function ReportGenerator({
+  loading = false,
+  onGenerateAction,
+}: ReportGeneratorProps) {
   const [form, setForm] = useState({
     interval: "monthly",
   });
@@ -59,13 +67,17 @@ export default function ReportGenerator() {
 
             <div className="flex h-[50px] items-center gap-2 rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-4 text-sm text-[#0b1c30]">
               <CalendarDays size={17} className="text-[#565e74]" />
-              Oct 2023 - Dec 2023
+              Current Month
             </div>
           </div>
 
-          <button className="flex h-[50px] items-center justify-center gap-2 rounded-xl bg-black px-6 text-sm font-bold text-white transition hover:opacity-90">
+          <button
+            onClick={() => onGenerateAction(form.interval)}
+            disabled={loading}
+            className="flex h-[50px] items-center justify-center gap-2 rounded-xl bg-black px-6 text-sm font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <Rocket size={17} />
-            Generate Report
+            {loading ? "Generating..." : "Generate Report"}
           </button>
         </div>
       </div>
