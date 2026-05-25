@@ -20,8 +20,8 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_URL = "/media/"
+# MEDIA_ROOT = BASE_DIR / "media"
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "apps.subscriptions.apps.SubscriptionsConfig",
     "apps.budgets.apps.BudgetsConfig",
     "apps.reports.apps.ReportsConfig",
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -187,10 +188,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+USE_R2_STORAGE = config("USE_R2_STORAGE", default=False, cast=bool)
+
+if USE_R2_STORAGE:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    AWS_ACCESS_KEY_ID = config("R2_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = config("R2_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = config("R2_BUCKET_NAME")
+    AWS_S3_ENDPOINT_URL = config("R2_ENDPOINT_URL")
+    AWS_S3_REGION_NAME = "auto"
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = True
+    AWS_S3_FILE_OVERWRITE = False
+else:
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
