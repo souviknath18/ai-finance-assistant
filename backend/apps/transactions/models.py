@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from django.conf import settings
 from django.utils import timezone
+from pgvector.django import VectorField
 
 
 class Transaction(models.Model):
@@ -118,3 +119,33 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.transaction_id} - {self.description}"
+    
+
+
+class TransactionEmbedding(models.Model):
+    transaction = models.OneToOneField(
+        Transaction,
+        on_delete=models.CASCADE,
+        related_name="embedding",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="transaction_embeddings",
+    )
+
+    embedding = VectorField(dimensions=1536)
+    document = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "transaction_embeddings"
+        indexes = [
+            models.Index(fields=["user"]),
+        ]
+
+    def __str__(self):
+        return f"Embedding for {self.transaction.transaction_id}"

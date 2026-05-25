@@ -1,17 +1,5 @@
-from decouple import config
-import chromadb
-
 from ai_engine.embeddings.generate_embeddings import generate_embedding
-
-CHROMA_DB_PATH = config("CHROMA_DB_PATH", default="./chroma_db")
-
-print("CHROMA_DB_PATH:", CHROMA_DB_PATH)
-
-client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-
-transaction_collection = client.get_or_create_collection(
-    name="transactions"
-)
+from apps.transactions.models import TransactionEmbedding
 
 
 def build_transaction_document(transaction):
@@ -29,38 +17,23 @@ Source File: {transaction.uploaded_file.original_filename if transaction.uploade
 
 
 def store_transaction_vector(transaction):
-    print("Preparing vector for:", transaction.transaction_id)
-
     document = build_transaction_document(transaction)
     embedding = generate_embedding(document)
 
-    print("Embedding generated for:", transaction.transaction_id)
-
-    transaction_collection.upsert(
-        ids=[transaction.transaction_id],
-        embeddings=[embedding],
-        documents=[document],
-        metadatas=[
-            {
-                "user_id": str(transaction.user.id),
-                "transaction_id": transaction.transaction_id,
-                "category": transaction.category or "Uncategorized",
-                "transaction_type": transaction.transaction_type,
-                "amount": str(transaction.amount),
-                "date": str(transaction.date),
-                "merchant": transaction.merchant_name or "Unknown",
-                "description": transaction.description or "",
-            }
-        ],
+    TransactionEmbedding.objects.update_or_create(
+        transaction=transaction,
+        defaults={
+            "user": transaction.user,
+            "embedding": embedding,
+            "document": document,
+        },
     )
 
     transaction.is_vectorized = True
     transaction.save(update_fields=["is_vectorized", "updated_at"])
 
-    print("Stored vector:", transaction.transaction_id)
-    print("Vector count now:", transaction_collection.count())
-
 
 def delete_transaction_vector(transaction_id: str):
-    transaction_collection.delete(ids=[transaction_id])
-    print("Deleted vector:", transaction_id)
+    TransactionEmbedding.objects.filter(
+        transaction__transaction_id=transaction_id
+    ).delete()
