@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from .models import UploadedFile
 from .serializers import UploadedFileSerializer, UploadCreateSerializer
 from .services import detect_file_type, process_uploaded_file
+from django.core.files.storage import default_storage
 
 
 class UploadFileView(APIView):
@@ -18,6 +19,7 @@ class UploadFileView(APIView):
 
         if serializer.is_valid():
             file = serializer.validated_data["file"]
+            print("DEFAULT STORAGE:", default_storage.__class__)
 
             uploaded_file = UploadedFile.objects.create(
                 user=request.user,
