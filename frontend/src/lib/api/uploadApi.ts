@@ -1,4 +1,4 @@
-import { UploadedFile } from "@/types/upload";
+import { UploadedFile, UploadAITip } from "@/types/upload";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -53,6 +53,25 @@ export async function retryUploadProcessing(id: number): Promise<UploadedFile> {
 
   const response = await fetch(`${API_URL}/api/uploads/${id}/retry/`, {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+export async function getUploadAITip(): Promise<UploadAITip> {
+  const token = getAccessToken();
+
+  const response = await fetch(`${API_URL}/api/uploads/ai-tip/`, {
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
-export default function AuthNavbar() {
+export default function LandingNavbar() {
   return (
     <nav className="fixed top-0 z-50 flex h-14 w-full items-center justify-between border-b border-[#d3e4fe]/60 bg-white/80 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
-      
-      {/* LOGO + BRAND */}
       <Link href="/" className="flex items-center gap-2.5">
         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-black text-white">
           <Sparkles size={16} />
@@ -18,31 +16,26 @@ export default function AuthNavbar() {
         </h1>
       </Link>
 
-      {/* NAV LINKS */}
       <div className="hidden items-center gap-7 md:flex">
-        <Link
-          href="#"
+        <a
           className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
         >
           Features
-        </Link>
+        </a>
 
-        <Link
-          href="#"
+        <a
           className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
         >
           How it Works
-        </Link>
+        </a>
 
-        <Link
-          href="#"
+        <a
           className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
         >
           Pricing
-        </Link>
+        </a>
       </div>
 
-      {/* AUTH BUTTONS */}
       <div className="flex items-center gap-4 sm:gap-5">
         <Link
           href="/auth/login"

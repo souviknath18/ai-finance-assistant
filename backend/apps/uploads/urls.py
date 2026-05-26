@@ -4,11 +4,13 @@ from .views import (
     UploadedFileListView,
     UploadedFileDetailView,
     RetryUploadProcessingView,
+    UploadAITipView,
 )
 
 urlpatterns = [
     path("", UploadedFileListView.as_view(), name="uploaded-file-list"),
     path("upload/", UploadFileView.as_view(), name="upload-file"),
+    path("ai-tip/", UploadAITipView.as_view(), name="upload-ai-tip"),
     path("<int:pk>/", UploadedFileDetailView.as_view(), name="uploaded-file-detail"),
     path("<int:pk>/retry/", RetryUploadProcessingView.as_view(), name="retry-upload"),
 ]
