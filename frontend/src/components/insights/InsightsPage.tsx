@@ -39,35 +39,43 @@ export default function InsightsPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-sm font-semibold text-[#565e74]">Loading insights...</div>;
+    return (
+      <div className="text-[13px] font-semibold text-[#565e74]">
+        Loading insights...
+      </div>
+    );
   }
 
   if (!data) {
-    return <div className="text-sm font-semibold text-red-600">Failed to load insights.</div>;
+    return (
+      <div className="text-[13px] font-semibold text-red-600">
+        Failed to load insights.
+      </div>
+    );
   }
 
   return (
     <>
-      <section className="mb-10">
-        <h1 className="text-4xl font-bold tracking-tight text-black">
+      <section className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-black">
           Insights
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-[#565e74]">
+        <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
           Intelligent observations about your spending, budgets, subscriptions,
           and saving opportunities.
         </p>
       </section>
 
-      <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-12">
+      <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-12">
         <HeroInsightCard
           headline={data.executive_summary.headline}
           description={data.executive_summary.description}
         />
 
-        <div className="flex flex-col gap-6 md:col-span-4">
+        <div className="flex flex-col gap-4 md:col-span-4">
           <AlertInsightCard
-            icon={<AlertTriangle size={20} />}
+            icon={<AlertTriangle size={18} />}
             tag="Critical"
             title={data.alerts.budget_warning.title}
             description={data.alerts.budget_warning.description}
@@ -75,7 +83,7 @@ export default function InsightsPage() {
           />
 
           <AlertInsightCard
-            icon={<PiggyBank size={20} />}
+            icon={<PiggyBank size={18} />}
             tag="Opportunity"
             title={data.alerts.saving_opportunity.title}
             description={data.alerts.saving_opportunity.description}
@@ -84,9 +92,9 @@ export default function InsightsPage() {
         </div>
       </section>
 
-      <section className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+      <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
         <InsightMetricCard
-          icon={<TrendingUp size={20} />}
+          icon={<TrendingUp size={18} />}
           title="Spending Spikes"
           value={data.metrics.spending_spikes}
           description={data.metrics.spending_spikes_description}
@@ -95,15 +103,17 @@ export default function InsightsPage() {
         </InsightMetricCard>
 
         <InsightMetricCard
-          icon={<CircleAlert size={20} />}
+          icon={<CircleAlert size={18} />}
           title="Unusual Activity"
           value={`${data.metrics.unusual_activity_count} Alerts`}
           description="High-value or unusual transactions detected from your financial records."
           tone="red"
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             {data.anomalies.alerts.length === 0 ? (
-              <p className="text-sm text-[#565e74]">No unusual transactions detected.</p>
+              <p className="text-[13px] text-[#565e74]">
+                No unusual transactions detected.
+              </p>
             ) : (
               data.anomalies.alerts.slice(0, 2).map((alert, index) => (
                 <div key={index}>
@@ -111,8 +121,9 @@ export default function InsightsPage() {
                     title={alert.title}
                     desc={`${alert.category} • ${alert.amount_display}`}
                   />
+
                   {index !== data.anomalies.alerts.slice(0, 2).length - 1 && (
-                    <div className="h-px bg-[#e5eeff]" />
+                    <div className="mt-3 h-px bg-[#e5eeff]" />
                   )}
                 </div>
               ))
@@ -121,13 +132,13 @@ export default function InsightsPage() {
         </InsightMetricCard>
 
         <InsightMetricCard
-          icon={<RefreshCcw size={20} />}
+          icon={<RefreshCcw size={18} />}
           title="Recurring"
           value={data.metrics.recurring_total}
           description={data.metrics.recurring_description}
         >
-          <div className="rounded-2xl bg-[#eff4ff] p-4">
-            <p className="text-sm italic leading-6 text-black">
+          <div className="rounded-xl bg-[#eff4ff] p-3.5">
+            <p className="text-[13px] italic leading-5 text-black">
               “{data.alerts.saving_opportunity.description}”
             </p>
           </div>
@@ -136,7 +147,7 @@ export default function InsightsPage() {
         <CategoryBreakdownCard items={data.category_breakdown} />
 
         <WealthTipCard
-          icon={<Lightbulb size={20} />}
+          icon={<Lightbulb size={18} />}
           title={data.wealth_tip.title}
           description={data.wealth_tip.description}
           potentialEarn={data.wealth_tip.potential_earn}
@@ -158,10 +169,11 @@ function AlertRow({
 }) {
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-wide text-black">
+      <p className="text-[11px] font-bold uppercase tracking-wide text-black">
         {title}
       </p>
-      <p className="mt-1 text-sm text-[#565e74]">{desc}</p>
+
+      <p className="mt-1 text-[13px] text-[#565e74]">{desc}</p>
     </div>
   );
 }

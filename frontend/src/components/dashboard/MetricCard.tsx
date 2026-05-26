@@ -21,17 +21,17 @@ export default function MetricCard({
       : "text-[#565e74]";
 
   return (
-    <div className="rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm transition hover:shadow-md">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#565e74]">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm transition hover:shadow-md">
+      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#565e74]">
         {label}
       </p>
 
-      <h2 className="text-2xl font-bold tracking-tight text-black">
+      <h2 className="text-xl font-bold tracking-tight text-black">
         {value}
       </h2>
 
-      <div className={`mt-3 flex items-center gap-1 text-xs font-semibold ${statusClass}`}>
-        {statusType === "positive" ? <Verified size={15} /> : <TrendingUp size={15} />}
+      <div className={`mt-2 flex items-center gap-1 text-[11px] font-semibold ${statusClass}`}>
+        {statusType === "positive" ? <Verified size={14} /> : <TrendingUp size={14} />}
         <span>{status}</span>
       </div>
     </div>

@@ -10,17 +10,19 @@ export default function AIMessage({
   time = "Just now",
 }: AIMessageProps) {
   return (
-    <div className="flex max-w-[90%] gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black text-white">
-        <Sparkles size={18} />
+    <div className="flex max-w-[90%] gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white">
+        <Sparkles size={16} />
       </div>
 
-      <div className="space-y-2">
-        <div className="rounded-3xl rounded-tl-none bg-[#eff4ff] p-5 text-sm leading-7 text-black shadow-sm">
+      <div className="space-y-1.5">
+        <div className="rounded-2xl rounded-tl-none bg-[#eff4ff] p-4 text-[13px] leading-6 text-black shadow-sm">
           {children}
         </div>
 
-        <span className="text-xs font-semibold text-[#7c839b]">{time}</span>
+        <span className="text-[11px] font-semibold text-[#7c839b]">
+          {time}
+        </span>
       </div>
     </div>
   );

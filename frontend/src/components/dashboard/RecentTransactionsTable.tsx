@@ -33,15 +33,15 @@ const transactions = [
 
 export default function RecentTransactionsTable() {
   return (
-    <div className="rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-      <div className="mb-8 flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-black">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-black">
           Recent Transactions
         </h3>
 
-        <button className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-emerald-700 hover:underline">
+        <button className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-emerald-700 hover:underline">
           View All
-          <ArrowRight size={15} />
+          <ArrowRight size={14} />
         </button>
       </div>
 
@@ -49,16 +49,16 @@ export default function RecentTransactionsTable() {
         <table className="w-full min-w-[720px]">
           <thead>
             <tr className="border-b border-[#c6c6cd] text-left">
-              <th className="pb-4 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+              <th className="pb-3 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
                 Date
               </th>
-              <th className="pb-4 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+              <th className="pb-3 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
                 Description
               </th>
-              <th className="pb-4 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+              <th className="pb-3 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
                 Category
               </th>
-              <th className="pb-4 text-right text-xs font-bold uppercase tracking-wide text-[#565e74]">
+              <th className="pb-3 text-right text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
                 Amount
               </th>
             </tr>
@@ -70,17 +70,17 @@ export default function RecentTransactionsTable() {
                 key={`${transaction.date}-${transaction.description}`}
                 className="transition hover:bg-[#eff4ff]"
               >
-                <td className="py-5 text-sm text-[#0b1c30]">
+                <td className="py-3.5 text-[13px] text-[#0b1c30]">
                   {transaction.date}
                 </td>
 
-                <td className="py-5 text-sm font-semibold text-black">
+                <td className="py-3.5 text-[13px] font-semibold text-black">
                   {transaction.description}
                 </td>
 
-                <td className="py-5">
+                <td className="py-3.5">
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                       transaction.type === "income"
                         ? "bg-emerald-50 text-emerald-700"
                         : "bg-[#e5eeff] text-[#0b1c30]"
@@ -91,7 +91,7 @@ export default function RecentTransactionsTable() {
                 </td>
 
                 <td
-                  className={`py-5 text-right text-sm font-bold ${
+                  className={`py-3.5 text-right text-[13px] font-bold ${
                     transaction.type === "income"
                       ? "text-emerald-700"
                       : "text-black"

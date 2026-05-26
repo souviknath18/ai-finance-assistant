@@ -51,29 +51,29 @@ export default function NotificationCard({
 
   return (
     <div
-      className={`flex gap-5 rounded-3xl border-l-4 ${current.border} bg-white p-6 shadow-sm transition hover:shadow-md`}
+      className={`flex gap-4 rounded-2xl border-l-4 ${current.border} bg-white p-5 shadow-sm transition hover:shadow-md`}
     >
       <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${current.iconBg} ${current.iconText}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${current.iconBg} ${current.iconText}`}
       >
         {icon}
       </div>
 
       <div className="flex-1">
-        <div className="mb-2 flex items-start justify-between gap-4">
-          <h3 className="text-lg font-bold text-black">{title}</h3>
+        <div className="mb-1.5 flex items-start justify-between gap-4">
+          <h3 className="text-base font-bold text-black">{title}</h3>
 
-          <span className="whitespace-nowrap text-xs font-bold text-[#565e74]">
+          <span className="whitespace-nowrap text-[11px] font-bold text-[#565e74]">
             {time}
           </span>
         </div>
 
-        <p className="mb-4 text-sm leading-6 text-[#565e74]">
+        <p className="mb-3.5 text-[13px] leading-5 text-[#565e74]">
           {description}
         </p>
 
         {progress !== undefined && (
-          <div className="mb-4 h-1.5 w-full rounded-full bg-[#e5eeff]">
+          <div className="mb-3.5 h-1.5 w-full rounded-full bg-[#e5eeff]">
             <div
               className="h-1.5 rounded-full bg-black"
               style={{ width: `${progress}%` }}
@@ -81,11 +81,11 @@ export default function NotificationCard({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3">
           {actions.map((action) => (
             <button
               key={action}
-              className={`border-b pb-px text-xs font-bold uppercase tracking-wide transition hover:opacity-70 ${
+              className={`border-b pb-px text-[11px] font-bold uppercase tracking-wide transition hover:opacity-70 ${
                 action === dangerAction
                   ? "border-red-600 text-red-600"
                   : action === "Dismiss"

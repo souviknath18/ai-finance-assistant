@@ -23,14 +23,14 @@ export default function SummaryMetrics({
   const yearlyForecast = monthlySpend * 12;
 
   return (
-    <section className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
+    <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
       <MetricCard
         label="Monthly Spend"
         value={`₹${monthlySpend.toLocaleString("en-IN", {
           minimumFractionDigits: 2,
         })}`}
         trend={`${subscriptions.length} active recurring services`}
-        icon={<TrendingDown size={16} />}
+        icon={<TrendingDown size={15} />}
         trendTone="green"
       />
 

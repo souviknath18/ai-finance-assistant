@@ -23,21 +23,21 @@ export default function AlertInsightCard({
 
   return (
     <div
-      className={`flex-1 rounded-3xl border-l-4 ${border} bg-white p-6 shadow-sm`}
+      className={`flex-1 rounded-2xl border-l-4 ${border} bg-white p-5 shadow-sm`}
     >
-      <div className="mb-5 flex items-start justify-between">
-        <div className={`rounded-xl p-3 ${iconClass}`}>{icon}</div>
+      <div className="mb-4 flex items-start justify-between">
+        <div className={`rounded-xl p-2.5 ${iconClass}`}>{icon}</div>
 
-        <span className="text-xs font-semibold text-[#565e74]">
+        <span className="text-[11px] font-semibold text-[#565e74]">
           {tag}
         </span>
       </div>
 
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-black">
+      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-black">
         {title}
       </p>
 
-      <p className="text-sm leading-6 text-[#565e74]">{description}</p>
+      <p className="text-[13px] leading-5 text-[#565e74]">{description}</p>
     </div>
   );
 }

@@ -13,9 +13,9 @@ export default function MiniBars({ items = [] }: MiniBarsProps) {
     : [];
 
   return (
-    <div className="flex h-16 items-end gap-1 rounded-2xl bg-[#eff4ff] px-3 pb-2">
+    <div className="flex h-14 items-end gap-1 rounded-xl bg-[#eff4ff] px-3 pb-2">
       {bars.length === 0 ? (
-        <p className="self-center text-xs font-semibold text-[#565e74]">
+        <p className="self-center text-[11px] font-semibold text-[#565e74]">
           No trend data yet
         </p>
       ) : (

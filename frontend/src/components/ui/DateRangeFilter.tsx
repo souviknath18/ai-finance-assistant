@@ -228,13 +228,13 @@ export default function DateRangeFilter({
         ref={buttonRef}
         type="button"
         onClick={toggleCalendar}
-        className="flex h-[50px] w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-4 text-left text-sm text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+        className="flex h-11 w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
       >
         <span className={value ? "text-[#0b1c30]" : "text-[#76777d]"}>
           {value || "Select date"}
         </span>
 
-        <CalendarDays size={18} className="text-[#565e74]" />
+        <CalendarDays size={16} className="text-[#565e74]" />
       </button>
 
       {calendarPopup}

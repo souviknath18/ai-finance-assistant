@@ -17,27 +17,27 @@ export default function ObservationRow({
 }: ObservationRowProps) {
   return (
     <tr className="transition hover:bg-[#f8f9ff]">
-      <td className="px-6 py-5">
-        <p className="text-sm font-bold text-black">{title}</p>
-        <p className="mt-1 text-sm text-[#565e74]">{desc}</p>
+      <td className="px-5 py-4">
+        <p className="text-[13px] font-bold text-black">{title}</p>
+        <p className="mt-1 text-[13px] text-[#565e74]">{desc}</p>
       </td>
 
-      <td className="px-6 py-5">
-        <span className="rounded-full bg-[#dce9ff] px-3 py-1 text-xs font-bold text-black">
+      <td className="px-5 py-4">
+        <span className="rounded-full bg-[#dce9ff] px-2.5 py-1 text-[11px] font-bold text-black">
           {category}
         </span>
       </td>
 
       <td
-        className={`px-6 py-5 text-sm font-bold ${
+        className={`px-5 py-4 text-[13px] font-bold ${
           neutral ? "text-[#565e74]" : "text-emerald-700"
         }`}
       >
         {impact}
       </td>
 
-      <td className="px-6 py-5">
-        <button className="text-sm font-bold text-black underline">
+      <td className="px-5 py-4">
+        <button className="text-[13px] font-bold text-black underline">
           {action}
         </button>
       </td>

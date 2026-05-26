@@ -7,12 +7,10 @@ import PerformanceCard from "./PerformanceCard";
 import AIReportInsight from "./AIReportInsight";
 import CategorySpendingCard from "./CategorySpendingCard";
 import RecurringPaymentsCard from "./RecurringPaymentsCard";
-import ReportActions from "./ReportActions";
 
 import {
   getReportDashboard,
   generateReport,
-  exportReportPDF,
 } from "@/lib/api/reportApi";
 import { ReportDashboard } from "@/types/report";
 
@@ -49,10 +47,9 @@ export default function ReportsPage() {
     }
   };
 
-
   if (loading) {
     return (
-      <p className="text-sm font-semibold text-[#565e74]">
+      <p className="text-[13px] font-semibold text-[#565e74]">
         Loading reports...
       </p>
     );
@@ -60,7 +57,7 @@ export default function ReportsPage() {
 
   if (!data) {
     return (
-      <p className="text-sm font-semibold text-red-600">
+      <p className="text-[13px] font-semibold text-red-600">
         Failed to load report.
       </p>
     );
@@ -68,11 +65,12 @@ export default function ReportsPage() {
 
   return (
     <>
-      <section className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-black">
+      <section className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-black">
           Financial Reports
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#565e74]">
+
+        <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
           Generate AI-powered financial reports, spending summaries, and
           export-ready insights.
         </p>
@@ -83,7 +81,7 @@ export default function ReportsPage() {
         onGenerateAction={handleGenerateReport}
       />
 
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-12">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-12">
         <PerformanceCard data={data} />
         <AIReportInsight data={data.ai_insight} />
         <CategorySpendingCard categories={data.categories} />

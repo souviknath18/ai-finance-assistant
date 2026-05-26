@@ -20,7 +20,6 @@ export default function ReviewServicesModal({
   subscriptions,
   onCloseAction,
 }: ReviewServicesModalProps) {
-
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -55,20 +54,20 @@ export default function ReviewServicesModal({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
+      <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
         <div className="flex max-h-[90vh] flex-col">
-          <div className="sticky top-0 z-20 flex items-start justify-between gap-5 border-b border-[#eef2ff] bg-white px-6 pb-4 pt-6">
+          <div className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
             <div className="flex items-start gap-3">
-              <div className="shrink-0 rounded-xl bg-red-50 p-3 text-red-600">
-                <AlertTriangle size={22} />
+              <div className="shrink-0 rounded-xl bg-red-50 p-2.5 text-red-600">
+                <AlertTriangle size={18} />
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold leading-tight text-black">
+                <h2 className="text-xl font-bold leading-tight text-black">
                   Review Similar Services
                 </h2>
 
-                <p className="mt-2 text-sm text-[#565e74]">
+                <p className="mt-1 text-[13px] text-[#565e74]">
                   Aura found overlapping subscriptions in {duplicate.group}.
                 </p>
               </div>
@@ -76,14 +75,14 @@ export default function ReviewServicesModal({
 
             <button
               onClick={onCloseAction}
-              className="rounded-xl p-2 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
+              className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
             >
-              <X size={20} />
+              <X size={17} />
             </button>
           </div>
 
-          <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-5">
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4">
+            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
               <InfoBox label="Similar Services" value={`${duplicate.count}`} />
 
               <InfoBox
@@ -102,15 +101,15 @@ export default function ReviewServicesModal({
               />
             </div>
 
-            <div className="mb-6 rounded-3xl bg-[#eff4ff] p-5">
-              <div className="mb-3 flex items-center gap-2 text-emerald-700">
-                <Sparkles size={18} />
-                <span className="text-xs font-bold uppercase tracking-wider">
+            <div className="mb-4 rounded-2xl bg-[#eff4ff] p-4">
+              <div className="mb-2.5 flex items-center gap-2 text-emerald-700">
+                <Sparkles size={16} />
+                <span className="text-[11px] font-bold uppercase tracking-wider">
                   Aura Recommendation
                 </span>
               </div>
 
-              <p className="text-sm leading-7 text-[#565e74]">
+              <p className="text-[13px] leading-6 text-[#565e74]">
                 You have {duplicate.count} similar services:{" "}
                 <strong className="text-black">
                   {duplicate.services.join(", ")}
@@ -129,7 +128,7 @@ export default function ReviewServicesModal({
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {matchedSubscriptions.map((subscription) => {
                 const isCheapest =
                   subscription.merchant === cheapest?.merchant;
@@ -137,46 +136,44 @@ export default function ReviewServicesModal({
                 return (
                   <div
                     key={subscription.merchant}
-                    className="rounded-3xl border border-[#e5eeff] bg-white p-5"
+                    className="rounded-2xl border border-[#e5eeff] bg-white p-4"
                   >
-                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#dce9ff] text-lg font-black text-black">
+                    <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#dce9ff] text-base font-black text-black">
                           {subscription.merchant.charAt(0)}
                         </div>
 
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-base font-bold text-black">
+                            <h3 className="text-[15px] font-bold text-black">
                               {subscription.merchant}
                             </h3>
 
                             {isCheapest && (
-                              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700">
                                 Lowest Cost
                               </span>
                             )}
 
                             {subscription.preference_status ===
                               "confirmed" && (
-                              <span className="rounded-full bg-[#dce9ff] px-3 py-1 text-xs font-bold text-black">
+                              <span className="rounded-full bg-[#dce9ff] px-2.5 py-1 text-[11px] font-bold text-black">
                                 Confirmed
                               </span>
                             )}
 
                             {subscription.preference_status ===
                               "cancel_candidate" && (
-                              <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600">
+                              <span className="rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-600">
                                 Not Needed
                               </span>
                             )}
                           </div>
 
-                          <p className="mt-1 text-sm text-[#565e74]">
+                          <p className="mt-1 text-[13px] text-[#565e74]">
                             {subscription.transactions_count} detected payment
-                            {subscription.transactions_count !== 1
-                              ? "s"
-                              : ""}{" "}
+                            {subscription.transactions_count !== 1 ? "s" : ""}{" "}
                             • Last paid on{" "}
                             {subscription.last_payment_date
                               ? new Date(
@@ -192,7 +189,7 @@ export default function ReviewServicesModal({
                       </div>
 
                       <div className="text-left md:text-right">
-                        <p className="text-lg font-bold text-black">
+                        <p className="text-base font-bold text-black">
                           ₹
                           {Number(subscription.average_amount).toLocaleString(
                             "en-IN",
@@ -203,7 +200,7 @@ export default function ReviewServicesModal({
                           /mo
                         </p>
 
-                        <p className="text-xs font-semibold text-[#7c839b]">
+                        <p className="text-[11px] font-semibold text-[#7c839b]">
                           ₹
                           {(
                             Number(subscription.average_amount) * 12
@@ -220,15 +217,15 @@ export default function ReviewServicesModal({
             </div>
           </div>
 
-          <div className="sticky bottom-0 z-20 flex flex-col-reverse gap-3 border-t border-[#eef2ff] bg-white px-6 py-5 sm:flex-row sm:justify-end">
+          <div className="sticky bottom-0 z-20 flex flex-col-reverse gap-2.5 border-t border-[#eef2ff] bg-white px-5 py-4 sm:flex-row sm:justify-end">
             <button
               onClick={onCloseAction}
-              className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]"
+              className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
             >
               Close
             </button>
 
-            <button className="rounded-xl bg-black px-5 py-3 text-sm font-bold text-white transition hover:opacity-90">
+            <button className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
               Keep Reviewing
             </button>
           </div>
@@ -248,13 +245,13 @@ function InfoBox({
   highlight?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-[#e5eeff] bg-white p-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#7c839b]">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-3.5">
+      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-[#7c839b]">
         {label}
       </p>
 
       <p
-        className={`text-xl font-bold ${
+        className={`text-lg font-bold ${
           highlight ? "text-emerald-700" : "text-black"
         }`}
       >

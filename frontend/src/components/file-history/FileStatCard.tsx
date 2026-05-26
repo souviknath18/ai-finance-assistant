@@ -21,14 +21,14 @@ export default function FileStatCard({
 
   return (
     <div
-      className={`rounded-3xl border p-6 shadow-sm ${
+      className={`rounded-2xl border p-5 shadow-sm ${
         highlighted
           ? "border-emerald-200 bg-emerald-100"
           : "border-[#dce9ff] bg-white"
       }`}
     >
       <p
-        className={`mb-2 text-xs font-bold uppercase tracking-wide ${
+        className={`mb-1.5 text-[11px] font-bold uppercase tracking-wide ${
           highlighted ? "text-emerald-900" : "text-[#565e74]"
         }`}
       >
@@ -36,7 +36,7 @@ export default function FileStatCard({
       </p>
 
       <h2
-        className={`text-2xl font-bold ${
+        className={`text-xl font-bold ${
           highlighted ? "text-emerald-900" : "text-black"
         }`}
       >
@@ -44,7 +44,7 @@ export default function FileStatCard({
       </h2>
 
       {progress !== undefined && (
-        <div className="mt-4 h-1.5 w-full rounded-full bg-[#e5eeff]">
+        <div className="mt-3.5 h-1.5 w-full rounded-full bg-[#e5eeff]">
           <div
             className="h-1.5 rounded-full bg-emerald-700"
             style={{ width: `${progress}%` }}
@@ -54,7 +54,7 @@ export default function FileStatCard({
 
       {helper && (
         <p
-          className={`mt-3 flex items-center gap-1 text-xs font-bold ${
+          className={`mt-2.5 flex items-center gap-1 text-[11px] font-bold ${
             tone === "green"
               ? "text-emerald-700"
               : highlighted

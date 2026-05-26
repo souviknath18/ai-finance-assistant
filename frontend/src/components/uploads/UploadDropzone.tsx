@@ -33,7 +33,7 @@ export default function UploadDropzone({
         setDragging(false);
         handleFile(event.dataTransfer.files[0]);
       }}
-      className={`group flex min-h-[400px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed bg-white p-10 text-center shadow-sm transition hover:border-emerald-600 hover:shadow-md ${
+      className={`group flex min-h-[320px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-white p-8 text-center shadow-sm transition hover:border-emerald-600 hover:shadow-md ${
         dragging ? "border-emerald-600 bg-emerald-50" : "border-[#c6c6cd]"
       }`}
     >
@@ -45,34 +45,34 @@ export default function UploadDropzone({
         onChange={(event) => handleFile(event.target.files?.[0])}
       />
 
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#e5eeff] transition group-hover:scale-110">
-        <Upload size={30} className="text-black" />
+      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#e5eeff] transition group-hover:scale-110">
+        <Upload size={26} className="text-black" />
       </div>
 
-      <h2 className="mb-2 text-2xl font-bold text-black">
+      <h2 className="mb-2 text-xl font-bold text-black">
         Drag and drop bank statements
       </h2>
 
-      <p className="mb-8 text-sm text-[#565e74]">
+      <p className="mb-6 text-[13px] text-[#565e74]">
         Supports expense CSVs, invoices, bills, screenshots, or salary slips
       </p>
 
-      <div className="mb-8 flex flex-wrap justify-center gap-3">
-        <FileBadge icon={<FileText size={16} />} label="PDF" tone="red" />
-        <FileBadge icon={<FileSpreadsheet size={16} />} label="CSV" tone="green" />
-        <FileBadge icon={<FileImage size={16} />} label="JPG/PNG" tone="blue" />
+      <div className="mb-6 flex flex-wrap justify-center gap-2.5">
+        <FileBadge icon={<FileText size={15} />} label="PDF" tone="red" />
+        <FileBadge icon={<FileSpreadsheet size={15} />} label="CSV" tone="green" />
+        <FileBadge icon={<FileImage size={15} />} label="JPG/PNG" tone="blue" />
       </div>
 
       <button
         type="button"
         disabled={uploading}
         onClick={() => inputRef.current?.click()}
-        className="rounded-xl bg-black px-8 py-3 text-sm font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="rounded-xl bg-black px-6 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {uploading ? "Uploading..." : "Select Files from Computer"}
       </button>
 
-      <p className="mt-6 text-sm italic text-[#76777d]">
+      <p className="mt-5 text-[13px] italic text-[#76777d]">
         All data is encrypted end-to-end and handled with secure processing.
       </p>
     </div>

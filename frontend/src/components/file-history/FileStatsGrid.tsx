@@ -3,12 +3,12 @@ import FileStatCard from "./FileStatCard";
 
 export default function FileStatsGrid() {
   return (
-    <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+    <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
       <FileStatCard
         label="Total Uploads"
         value="124"
         helper="+12 this month"
-        icon={<TrendingUp size={16} />}
+        icon={<TrendingUp size={15} />}
         tone="green"
       />
 

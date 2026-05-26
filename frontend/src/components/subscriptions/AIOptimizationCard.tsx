@@ -32,26 +32,26 @@ export default function AIOptimizationCard({
     : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border-2 border-emerald-100 bg-white p-6 shadow-sm md:col-span-2">
-      <Sparkles size={70} className="absolute right-5 top-5 text-emerald-100" />
+    <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-100 bg-white p-5 shadow-sm md:col-span-2">
+      <Sparkles size={56} className="absolute right-4 top-4 text-emerald-100" />
 
       <div className="relative z-10">
         <div className="mb-2 flex items-center gap-2 text-emerald-700">
-          <Bolt size={18} />
+          <Bolt size={16} />
 
-          <span className="text-xs font-bold uppercase tracking-wider">
+          <span className="text-[11px] font-bold uppercase tracking-wider">
             AI Optimization Opportunity
           </span>
         </div>
 
-        <h3 className="mb-2 text-2xl font-bold text-black">
+        <h3 className="mb-1.5 text-xl font-bold text-black">
           Save ₹{estimatedSavings.toLocaleString("en-IN", {
             minimumFractionDigits: 2,
           })}
           /mo
         </h3>
 
-        <p className="text-sm leading-6 text-[#565e74]">
+        <p className="text-[13px] leading-5 text-[#565e74]">
           {duplicates.length > 0
             ? `We found ${duplicates.length} duplicate service group${
                 duplicates.length > 1 ? "s" : ""

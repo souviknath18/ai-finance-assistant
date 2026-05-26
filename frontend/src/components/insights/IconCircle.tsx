@@ -18,7 +18,7 @@ export default function IconCircle({
 
   return (
     <div
-      className={`flex h-10 w-10 items-center justify-center rounded-full ${cls}`}
+      className={`flex h-9 w-9 items-center justify-center rounded-full ${cls}`}
     >
       {children}
     </div>

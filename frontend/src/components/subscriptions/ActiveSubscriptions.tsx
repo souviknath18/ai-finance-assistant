@@ -24,7 +24,7 @@ export default function ActiveSubscriptions({
 
   const [manageSubscription, setManageSubscription] =
     useState<DetectedSubscription | null>(null);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 6;
 
@@ -41,9 +41,9 @@ export default function ActiveSubscriptions({
 
   if (loading) {
     return (
-      <section className="space-y-6 lg:col-span-2">
-        <h2 className="text-2xl font-bold text-black">Active Services</h2>
-        <div className="rounded-3xl border border-[#dce9ff] bg-white p-6 text-sm font-semibold text-[#565e74]">
+      <section className="space-y-4 lg:col-span-2">
+        <h2 className="text-lg font-bold text-black">Active Services</h2>
+        <div className="rounded-2xl border border-[#dce9ff] bg-white p-5 text-[13px] font-semibold text-[#565e74]">
           Detecting subscriptions...
         </div>
       </section>
@@ -52,17 +52,17 @@ export default function ActiveSubscriptions({
 
   return (
     <>
-      <section className="space-y-6 lg:col-span-2">
+      <section className="space-y-4 lg:col-span-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-black">Active Services</h2>
+          <h2 className="text-lg font-bold text-black">Active Services</h2>
         </div>
 
         {subscriptions.length === 0 ? (
-          <div className="rounded-3xl border border-[#dce9ff] bg-white p-6 text-sm font-semibold text-[#565e74]">
+          <div className="rounded-2xl border border-[#dce9ff] bg-white p-5 text-[13px] font-semibold text-[#565e74]">
             {emptyMessage}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {visibleSubscriptions.map((subscription) => {
               const amount = `₹${Number(
                 subscription.average_amount
@@ -116,8 +116,8 @@ export default function ActiveSubscriptions({
             })}
 
             {subscriptions.length > PAGE_SIZE && (
-              <div className="flex flex-col gap-3 rounded-3xl border border-[#dce9ff] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-semibold text-[#565e74]">
+              <div className="flex flex-col gap-3 rounded-2xl border border-[#dce9ff] bg-white p-3.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[13px] font-semibold text-[#565e74]">
                   Showing {startIndex + 1}–
                   {Math.min(endIndex, subscriptions.length)} of{" "}
                   {subscriptions.length}
@@ -127,7 +127,7 @@ export default function ActiveSubscriptions({
                   <button
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((prev) => prev - 1)}
-                    className="rounded-xl border border-[#c6c6cd] px-4 py-2 text-sm font-bold text-black transition hover:bg-[#eff4ff] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-xl border border-[#c6c6cd] px-3.5 py-2 text-[13px] font-bold text-black transition hover:bg-[#eff4ff] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Previous
                   </button>
@@ -135,7 +135,7 @@ export default function ActiveSubscriptions({
                   <button
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((prev) => prev + 1)}
-                    className="rounded-xl bg-black px-4 py-2 text-sm font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-xl bg-black px-3.5 py-2 text-[13px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
                   </button>

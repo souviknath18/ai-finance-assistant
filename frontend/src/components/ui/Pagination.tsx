@@ -31,24 +31,24 @@ export default function Pagination({
   const end = Math.min(currentPage * rowsPerPage, total);
 
   return (
-    <div className="relative z-20 flex flex-col items-center justify-between gap-4 border-t border-[#c6c6cd] p-5 lg:flex-row">
+    <div className="relative z-20 flex flex-col items-center justify-between gap-3 border-t border-[#c6c6cd] p-4 lg:flex-row">
       <div className="flex flex-col items-center gap-3 sm:flex-row">
-        <span className="text-sm text-[#565e74]">
+        <span className="text-[13px] text-[#565e74]">
           Showing <strong>{start}-{end}</strong> of {total} {itemLabel}
         </span>
 
         <div className="relative flex items-center gap-2">
-          <span className="text-sm text-[#565e74]">Rows:</span>
+          <span className="text-[13px] text-[#565e74]">Rows:</span>
 
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="flex h-9 min-w-[76px] items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-sm font-semibold text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="flex h-8 min-w-[70px] items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-[13px] font-semibold text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
           >
             {rowsPerPage}
 
             <ChevronDown
-              size={16}
+              size={15}
               className={`text-[#565e74] transition ${
                 open ? "rotate-180" : ""
               }`}
@@ -56,7 +56,7 @@ export default function Pagination({
           </button>
 
           {open && (
-            <div className="absolute left-[48px] top-[calc(100%+6px)] z-[999] w-[76px] overflow-hidden rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)]">
+            <div className="absolute left-[44px] top-[calc(100%+6px)] z-[999] w-[70px] overflow-hidden rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)]">
               {rowOptions.map((option) => {
                 const selected = option === rowsPerPage;
 
@@ -68,14 +68,14 @@ export default function Pagination({
                       onRowsPerPageChangeAction(option);
                       setOpen(false);
                     }}
-                    className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition ${
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-[13px] transition ${
                       selected
                         ? "bg-emerald-50 font-semibold text-emerald-700"
                         : "text-[#45464d] hover:bg-[#eff4ff] hover:text-black"
                     }`}
                   >
                     <span>{option}</span>
-                    {selected && <Check size={15} />}
+                    {selected && <Check size={14} />}
                   </button>
                 );
               })}
@@ -89,7 +89,7 @@ export default function Pagination({
           disabled={currentPage === 1}
           onClick={() => onPageChangeAction(currentPage - 1)}
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={16} />
         </PaginationButton>
 
         <div className="flex items-center gap-1">
@@ -107,13 +107,13 @@ export default function Pagination({
               return (
                 <div key={page} className="flex items-center gap-1">
                   {previousPage && page - previousPage > 1 && (
-                    <span className="px-1 text-sm text-[#7b8191]">...</span>
+                    <span className="px-1 text-[13px] text-[#7b8191]">...</span>
                   )}
 
                   <button
                     type="button"
                     onClick={() => onPageChangeAction(page)}
-                    className={`flex h-8 min-w-8 items-center justify-center rounded-lg border text-sm font-semibold transition ${
+                    className={`flex h-8 min-w-8 items-center justify-center rounded-lg border text-[13px] font-semibold transition ${
                       currentPage === page
                         ? "border-black bg-black text-white"
                         : "border-[#c6c6cd] bg-white text-[#0b1c30] hover:bg-[#edf3ff]"
@@ -130,7 +130,7 @@ export default function Pagination({
           disabled={currentPage === totalPages || totalPages === 0}
           onClick={() => onPageChangeAction(currentPage + 1)}
         >
-          <ChevronRight size={18} />
+          <ChevronRight size={16} />
         </PaginationButton>
       </div>
     </div>

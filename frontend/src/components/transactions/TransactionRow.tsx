@@ -31,7 +31,6 @@ export default function TransactionRow({
   openDropdownUp,
   onFindSimilarAction,
 }: TransactionRowProps) {
-
   const categoryOptions = [
     { label: "Food", value: "Food" },
     { label: "Groceries", value: "Groceries" },
@@ -61,7 +60,7 @@ export default function TransactionRow({
           : ""
       } ${transaction.review ? "bg-[#eff4ff]/50" : ""}`}
     >
-      <td className="p-5">
+      <td className="p-4">
         <input
           type="checkbox"
           checked={selected}
@@ -70,24 +69,24 @@ export default function TransactionRow({
         />
       </td>
 
-      <td className="p-5 text-sm text-black">{transaction.date}</td>
+      <td className="p-4 text-[13px] text-black">{transaction.date}</td>
 
-      <td className="p-5">
+      <td className="p-4">
         <div className="flex flex-col">
           <Link
             href={`/transactions/${transaction.id}`}
-            className="text-sm font-bold text-black hover:underline"
+            className="text-[13px] font-bold text-black hover:underline"
           >
             {transaction.title}
           </Link>
 
-          <span className="text-xs text-[#565e74]">
+          <span className="text-[11px] text-[#565e74]">
             {transaction.subtitle}
           </span>
         </div>
       </td>
 
-      <td className="p-5">
+      <td className="p-4">
         {transaction.review ? (
           <TableSelect
             value={transaction.category}
@@ -99,7 +98,7 @@ export default function TransactionRow({
           />
         ) : (
           <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
+            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
               transaction.type === "income"
                 ? "bg-emerald-100 text-emerald-800"
                 : "bg-[#e5eeff] text-black"
@@ -111,14 +110,16 @@ export default function TransactionRow({
       </td>
 
       <td
-        className={`p-5 text-right text-sm font-bold ${
-          transaction.type === "income" ? "text-emerald-700" : "text-red-600"
+        className={`p-4 text-right text-[13px] font-bold ${
+          transaction.type === "income"
+            ? "text-emerald-700"
+            : "text-red-600"
         }`}
       >
         {transaction.amount}
       </td>
 
-      <td className="p-5">
+      <td className="p-4">
         <div
           className={`flex items-center gap-2 ${
             transaction.status === "AI Verified"
@@ -133,36 +134,27 @@ export default function TransactionRow({
           }`}
         >
           {transaction.status === "AI Verified" ? (
-            <Sparkles size={17} />
+            <Sparkles size={15} />
           ) : transaction.status === "Rule Verified" ? (
-            <CheckCircle2 size={17} />
+            <CheckCircle2 size={15} />
           ) : transaction.status === "User Verified" ? (
-            <User size={17} />
+            <User size={15} />
           ) : transaction.review ? (
-            <Brain size={17} />
+            <Brain size={15} />
           ) : (
-            <User size={17} />
+            <User size={15} />
           )}
 
-          <span className="text-xs font-bold">{transaction.status}</span>
+          <span className="text-[11px] font-bold">
+            {transaction.status}
+          </span>
         </div>
       </td>
 
-      <td className="p-5">
-        <div className="flex justify-center gap-3 text-[#76777d]">
-          {/* <button
-            disabled={!transaction.review}
-            className={`transition ${
-              transaction.review
-                ? "hover:text-emerald-700 text-[#76777d]"
-                : "cursor-not-allowed text-emerald-700/40"
-            }`}
-          >
-            <CheckCircle2 size={18} />
-          </button> */}
-
+      <td className="p-4">
+        <div className="flex justify-center gap-2.5 text-[#76777d]">
           <button className="hover:text-black">
-            <Edit size={18} />
+            <Edit size={16} />
           </button>
 
           <div className="group/tooltip relative inline-flex items-center">
@@ -170,10 +162,10 @@ export default function TransactionRow({
               onClick={() => onFindSimilarAction(transaction.id)}
               className="flex items-center text-[#565e74] transition hover:text-emerald-700"
             >
-              <ScanSearch size={18} />
+              <ScanSearch size={16} />
             </button>
 
-            <div className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-[99999] whitespace-nowrap rounded-xl border border-[#dce9ff] bg-white px-3 py-2 text-xs text-[#565e74] opacity-0 shadow-[0_12px_30px_rgba(15,23,42,0.16)] transition-all duration-200 group-hover/tooltip:opacity-100">
+            <div className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-[99999] whitespace-nowrap rounded-xl border border-[#dce9ff] bg-white px-3 py-2 text-[11px] text-[#565e74] opacity-0 shadow-[0_12px_30px_rgba(15,23,42,0.16)] transition-all duration-200 group-hover/tooltip:opacity-100">
               Find similar transactions
 
               <div className="absolute right-3 top-full h-2 w-2 -translate-y-1 rotate-45 border-b border-r border-[#dce9ff] bg-white" />
@@ -184,7 +176,7 @@ export default function TransactionRow({
             onClick={() => onDeleteAction(transaction.id)}
             className="hover:text-red-600"
           >
-            <Trash2 size={18} />
+            <Trash2 size={16} />
           </button>
         </div>
       </td>

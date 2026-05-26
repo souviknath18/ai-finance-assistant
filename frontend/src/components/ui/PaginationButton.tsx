@@ -14,7 +14,7 @@ export default function PaginationButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="rounded-lg border border-[#c6c6cd] px-3 py-1.5 text-xs font-bold text-black transition hover:bg-[#e5eeff] disabled:cursor-not-allowed disabled:opacity-50"
+      className="rounded-lg border border-[#c6c6cd] px-2.5 py-1.5 text-[11px] font-bold text-black transition hover:bg-[#e5eeff] disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
     </button>

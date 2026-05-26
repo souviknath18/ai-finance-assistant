@@ -312,7 +312,7 @@ export default function TransactionsPage() {
         />
       )}
 
-      <div className="overflow-visible rounded-3xl border border-[#e5eeff] bg-white shadow-sm">
+      <div className="overflow-visible rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
         <TransactionsTable
           transactions={paginatedTransactions}
           loading={loading}
@@ -342,7 +342,7 @@ export default function TransactionsPage() {
         />
       </div>
 
-      <section className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <SpendingVelocityCard />
         <AIPulseCard />
       </section>

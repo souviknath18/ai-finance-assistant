@@ -48,7 +48,6 @@ export default function SubscriptionsPage() {
     loadSubscriptions();
   }, []);
 
-
   const filteredSubscriptions = dashboard.subscriptions.filter((subscription) => {
     const amount = Number(subscription.average_amount);
 
@@ -93,7 +92,7 @@ export default function SubscriptionsPage() {
         duplicates={dashboard.duplicates}
       />
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ActiveSubscriptions
           subscriptions={filteredSubscriptions}
           loading={loading}

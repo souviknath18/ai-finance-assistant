@@ -9,9 +9,9 @@ type ActiveUploadsCardProps = {
 export default function ActiveUploadsCard({ files }: ActiveUploadsCardProps) {
   if (files.length === 0) {
     return (
-      <div className="mt-8 rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-        <h3 className="text-2xl font-bold text-black">Active Uploads</h3>
-        <p className="mt-3 text-sm text-[#565e74]">
+      <div className="mt-4 rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+        <h3 className="text-lg font-bold text-black">Active Uploads</h3>
+        <p className="mt-2 text-[13px] text-[#565e74]">
           No files are currently processing.
         </p>
       </div>
@@ -19,24 +19,24 @@ export default function ActiveUploadsCard({ files }: ActiveUploadsCardProps) {
   }
 
   return (
-    <div className="mt-8 rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-      <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-black">Active Uploads</h3>
+    <div className="mt-4 rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-black">Active Uploads</h3>
 
-        <span className="rounded-full bg-[#e5eeff] px-4 py-1.5 text-xs font-bold text-black">
+        <span className="rounded-full bg-[#e5eeff] px-3 py-1 text-[11px] font-bold text-black">
           {files.length} item{files.length > 1 ? "s" : ""} remaining
         </span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {files.map((file) => (
           <ProgressItem
             key={file.id}
             icon={
               file.status === "processing" ? (
-                <Brain size={18} className="text-emerald-700" />
+                <Brain size={16} className="text-emerald-700" />
               ) : (
-                <FileText size={18} />
+                <FileText size={16} />
               )
             }
             title={`${file.status === "processing" ? "AI Processing" : "Queued"} - ${

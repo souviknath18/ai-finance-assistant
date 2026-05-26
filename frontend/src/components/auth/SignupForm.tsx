@@ -92,7 +92,8 @@ export default function SignupForm() {
     } else if (form.full_name.trim().length < 3) {
       newErrors.full_name = "Full name must be at least 3 characters.";
     } else if (!nameRegex.test(form.full_name.trim())) {
-      newErrors.full_name = "Full name can contain only letters and spaces.";
+      newErrors.full_name =
+        "Full name can contain only letters and spaces.";
     }
 
     if (!form.email.trim()) {
@@ -113,7 +114,8 @@ export default function SignupForm() {
     if (!form.confirm_password) {
       newErrors.confirm_password = "Confirm password is required.";
     } else if (form.password !== form.confirm_password) {
-      newErrors.confirm_password = "Password and confirm password do not match.";
+      newErrors.confirm_password =
+        "Password and confirm password do not match.";
     }
 
     setErrors(newErrors);
@@ -162,6 +164,7 @@ export default function SignupForm() {
       });
 
       saveAuthData(data);
+
       router.push("/onboarding");
     } catch (err: any) {
       setErrors({
@@ -173,27 +176,28 @@ export default function SignupForm() {
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-xl border bg-[#eff4ff] px-4 py-3.5 text-[15px] outline-none transition focus:ring-2 ${
+    `w-full rounded-xl border bg-[#eff4ff] px-3.5 py-3 text-[13px] outline-none transition focus:ring-2 ${
       hasError
         ? "border-red-400 focus:border-red-500 focus:ring-red-100"
         : "border-[#c6c6cd] focus:border-emerald-500 focus:ring-emerald-100"
     }`;
 
   return (
-    <div className="w-full max-w-[500px] rounded-3xl border border-[#d3e4fe]/50 bg-white p-8 shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
-      <div className="mb-10 text-center">
-        <h1 className="mb-3 text-4xl font-bold tracking-tight text-black">
+    <div className="w-full max-w-[440px] rounded-2xl border border-[#d3e4fe]/50 bg-white p-6 shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
+      <div className="mb-7 text-center">
+        <h1 className="mb-2 text-3xl font-bold tracking-tight text-black">
           Join Aura Finance
         </h1>
 
-        <p className="text-[15px] leading-7 text-[#565e74]">
+        <p className="text-[13px] leading-6 text-[#565e74]">
           Step into the future of precision wealth management.
         </p>
       </div>
 
-      <form onSubmit={handleSignup} noValidate className="space-y-5">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#565e74]">
+      <form onSubmit={handleSignup} noValidate className="space-y-4">
+        {/* Full Name */}
+        <div className="space-y-1.5">
+          <label className="text-[13px] font-medium text-[#565e74]">
             Full Name
           </label>
 
@@ -204,27 +208,28 @@ export default function SignupForm() {
               placeholder="John Doe"
               value={form.full_name}
               onChange={handleChange}
-              className={`${inputClass(Boolean(errors.full_name))} pr-12`}
+              className={`${inputClass(Boolean(errors.full_name))} pr-10`}
             />
 
             {form.full_name.length > 2 && !errors.full_name && (
               <CheckCircle2
-                size={18}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"
+                size={16}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500"
               />
             )}
           </div>
 
           {errors.full_name && (
-            <p className="flex items-center gap-1 text-xs font-medium text-red-500">
-              <AlertCircle size={14} />
+            <p className="flex items-center gap-1 text-[11px] font-medium text-red-500">
+              <AlertCircle size={13} />
               {errors.full_name}
             </p>
           )}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#565e74]">
+        {/* Email */}
+        <div className="space-y-1.5">
+          <label className="text-[13px] font-medium text-[#565e74]">
             Email Address
           </label>
 
@@ -238,15 +243,16 @@ export default function SignupForm() {
           />
 
           {errors.email && (
-            <p className="flex items-center gap-1 text-xs font-medium text-red-500">
-              <AlertCircle size={14} />
+            <p className="flex items-center gap-1 text-[11px] font-medium text-red-500">
+              <AlertCircle size={13} />
               {errors.email}
             </p>
           )}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#565e74]">
+        {/* Password */}
+        <div className="space-y-1.5">
+          <label className="text-[13px] font-medium text-[#565e74]">
             Password
           </label>
 
@@ -257,63 +263,45 @@ export default function SignupForm() {
               placeholder="••••••••"
               value={form.password}
               onChange={handleChange}
-              className={`${inputClass(Boolean(errors.password))} pr-12`}
+              className={`${inputClass(Boolean(errors.password))} pr-10`}
             />
 
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#565e74] transition hover:text-black"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#565e74] transition hover:text-black"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
 
           {form.password.length > 0 && (
-            <div className="space-y-2">
-              <div className="h-2 w-full overflow-hidden rounded-full bg-[#dce9ff]">
+            <div className="space-y-1.5">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#dce9ff]">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${passwordStrength.width} ${passwordStrength.color}`}
                 />
               </div>
 
               <p
-                className={`text-xs font-semibold ${passwordStrength.textColor}`}
+                className={`text-[11px] font-semibold ${passwordStrength.textColor}`}
               >
                 Password strength: {passwordStrength.label}
               </p>
-
-              <div className="grid grid-cols-1 gap-1 text-xs text-[#565e74]">
-                <p className={passwordRules.minLength ? "text-emerald-600" : ""}>
-                  {passwordRules.minLength ? "✓" : "•"} Minimum 8 characters
-                </p>
-                <p className={passwordRules.uppercase ? "text-emerald-600" : ""}>
-                  {passwordRules.uppercase ? "✓" : "•"} One uppercase letter
-                </p>
-                <p className={passwordRules.lowercase ? "text-emerald-600" : ""}>
-                  {passwordRules.lowercase ? "✓" : "•"} One lowercase letter
-                </p>
-                <p className={passwordRules.number ? "text-emerald-600" : ""}>
-                  {passwordRules.number ? "✓" : "•"} One number
-                </p>
-                <p className={passwordRules.special ? "text-emerald-600" : ""}>
-                  {passwordRules.special ? "✓" : "•"} One special character
-                </p>
-              </div>
             </div>
           )}
 
           {errors.password && (
-            <p className="flex items-start gap-1 text-xs font-medium text-red-500">
-              <AlertCircle size={14} className="mt-[1px]" />
+            <p className="flex items-start gap-1 text-[11px] font-medium text-red-500">
+              <AlertCircle size={13} className="mt-[1px]" />
               {errors.password}
             </p>
           )}
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[#565e74]">
+        {/* Confirm Password */}
+        <div className="space-y-1.5">
+          <label className="text-[13px] font-medium text-[#565e74]">
             Confirm Password
           </label>
 
@@ -324,7 +312,7 @@ export default function SignupForm() {
               placeholder="••••••••"
               value={form.confirm_password}
               onChange={handleChange}
-              className={`${inputClass(Boolean(errors.confirm_password))} pr-12`}
+              className={`${inputClass(Boolean(errors.confirm_password))} pr-10`}
             />
 
             <button
@@ -332,51 +320,52 @@ export default function SignupForm() {
               onClick={() =>
                 setShowConfirmPassword(!showConfirmPassword)
               }
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#565e74] transition hover:text-black"
-              aria-label={
-                showConfirmPassword ? "Hide password" : "Show password"
-              }
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#565e74] transition hover:text-black"
             >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showConfirmPassword ? (
+                <EyeOff size={16} />
+              ) : (
+                <Eye size={16} />
+              )}
             </button>
           </div>
 
           {form.confirm_password.length > 0 &&
             form.password === form.confirm_password &&
             !errors.confirm_password && (
-              <p className="flex items-center gap-1 text-xs font-medium text-emerald-600">
-                <CheckCircle2 size={14} />
+              <p className="flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                <CheckCircle2 size={13} />
                 Passwords match.
               </p>
             )}
 
           {errors.confirm_password && (
-            <p className="flex items-center gap-1 text-xs font-medium text-red-500">
-              <AlertCircle size={14} />
+            <p className="flex items-center gap-1 text-[11px] font-medium text-red-500">
+              <AlertCircle size={13} />
               {errors.confirm_password}
             </p>
           )}
         </div>
 
         {errors.server && (
-          <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            <AlertCircle size={16} />
+          <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] text-red-600">
+            <AlertCircle size={15} />
             {errors.server}
           </div>
         )}
 
-        <div className="mt-6 rounded-2xl border border-emerald-300/50 bg-gradient-to-br from-white to-emerald-50 p-4">
+        <div className="rounded-2xl border border-emerald-300/50 bg-gradient-to-br from-white to-emerald-50 p-3.5">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-              <Brain size={18} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <Brain size={16} />
             </div>
 
             <div>
-              <h3 className="mb-1 text-sm font-bold text-black">
+              <h3 className="mb-1 text-[13px] font-bold text-black">
                 Smart AI Onboarding
               </h3>
 
-              <p className="text-xs leading-6 text-[#565e74]">
+              <p className="text-[11px] leading-5 text-[#565e74]">
                 Your account will be optimized by our AI engine for instant
                 financial insights after setup.
               </p>
@@ -387,14 +376,14 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 w-full rounded-xl bg-black py-4 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-black py-3 text-[13px] font-semibold text-white transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? "Creating Account..." : "Create Account"}
         </button>
       </form>
 
-      <div className="mt-8 text-center">
-        <p className="text-sm text-[#565e74]">
+      <div className="mt-6 text-center">
+        <p className="text-[13px] text-[#565e74]">
           Already have an account?{" "}
           <Link
             href="/auth/login"
@@ -405,8 +394,8 @@ export default function SignupForm() {
         </p>
       </div>
 
-      <div className="mt-8 flex items-center justify-center gap-2 border-t border-[#d3e4fe]/60 pt-6 text-xs text-[#565e74]">
-        <Lock size={14} />
+      <div className="mt-6 flex items-center justify-center gap-2 border-t border-[#d3e4fe]/60 pt-5 text-[11px] text-[#565e74]">
+        <Lock size={13} />
         Secure SSL Encryption
       </div>
     </div>

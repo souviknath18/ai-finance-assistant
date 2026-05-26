@@ -13,7 +13,7 @@ export default function FileBadge({ icon, label, tone }: FileBadgeProps) {
       : "text-indigo-600";
 
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-[#e5eeff] px-4 py-2 text-xs font-bold text-black">
+    <div className="flex items-center gap-2 rounded-lg bg-[#e5eeff] px-3 py-1.5 text-[11px] font-bold text-black">
       <span className={toneClass}>{icon}</span>
       {label}
     </div>

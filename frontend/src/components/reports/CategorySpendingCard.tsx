@@ -14,25 +14,25 @@ export default function CategorySpendingCard({
   categories,
 }: CategorySpendingCardProps) {
   return (
-    <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl md:col-span-6">
-      <h2 className="mb-8 text-2xl font-bold text-black">
+    <div className="rounded-2xl border border-white/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl md:col-span-6">
+      <h2 className="mb-6 text-lg font-bold text-black">
         Spending by Category
       </h2>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {categories.length === 0 ? (
-          <p className="text-sm font-semibold text-[#565e74]">
+          <p className="text-[13px] font-semibold text-[#565e74]">
             No category spending data available yet.
           </p>
         ) : (
           categories.map((category, index) => (
             <div key={category.label} className="space-y-2">
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wide text-black">
+              <div className="flex justify-between text-[11px] font-bold uppercase tracking-wide text-black">
                 <span>{category.label}</span>
                 <span>{category.value}</span>
               </div>
 
-              <div className="h-2 w-full rounded-full bg-[#e5eeff]">
+              <div className="h-1.5 w-full rounded-full bg-[#e5eeff]">
                 <div
                   className={`h-full rounded-full ${
                     colors[index % colors.length]

@@ -105,18 +105,18 @@ export default function UploadsPage() {
       <UploadHeader />
 
       {error && (
-        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-[13px] font-semibold text-red-600">
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section className="lg:col-span-8">
           <UploadDropzone onUploadAction={handleUpload} uploading={uploading} />
           <ActiveUploadsCard files={processingFiles} />
         </section>
 
-        <aside className="space-y-6 lg:col-span-4">
+        <aside className="space-y-4 lg:col-span-4">
           <ParsedResultsCard files={successfulFiles} />
           <IssuesFoundCard files={failedFiles} onRetryAction={loadFiles} />
           <AITipCard />

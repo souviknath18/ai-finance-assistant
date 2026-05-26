@@ -27,7 +27,7 @@ export default function BudgetGrid({
 
   if (budgets.length === 0) {
     return (
-      <div className="rounded-3xl border border-[#e5eeff] bg-white p-8 text-sm font-semibold text-[#565e74] shadow-sm">
+      <div className="rounded-2xl border border-[#e5eeff] bg-white p-6 text-[13px] font-semibold text-[#565e74] shadow-sm">
         No budgets created yet. Create a budget to start tracking spending.
       </div>
     );
@@ -43,12 +43,12 @@ export default function BudgetGrid({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
         <LargeBudgetCard
           budget={mainBudget}
           icon={(() => {
             const Icon = getCategoryIcon(mainBudget.category);
-            return <Icon size={22} />;
+            return <Icon size={20} />;
           })()}
         />
 
@@ -57,7 +57,7 @@ export default function BudgetGrid({
             key={budget.budget_id}
             icon={(() => {
               const Icon = getCategoryIcon(budget.category);
-              return <Icon size={20} />;
+              return <Icon size={18} />;
             })()}
             title={budget.category}
             subtitle={`${budget.period === "weekly" ? "Weekly" : "Monthly"} budget`}
@@ -86,7 +86,7 @@ export default function BudgetGrid({
 
         {remainingBudgets.length > 0 && (
           <OtherBudgetCard
-            icon={<MoreHorizontal size={20} />}
+            icon={<MoreHorizontal size={18} />}
             title="Other Categories"
             subtitle={`${remainingBudgets.length} more active budgets`}
             amount={`${remainingBudgets.length} budgets`}

@@ -75,18 +75,18 @@ export default function CustomSelect({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex h-[50px] w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-4 text-left text-sm text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+        className="flex h-11 w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
       >
         <span>{selectedOption?.label || placeholder}</span>
 
         <ChevronDown
-          size={18}
+          size={16}
           className={`text-[#565e74] transition ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-[9999] mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)] custom-select-scrollbar">
+        <div className="absolute left-0 top-full z-[9999] mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)] custom-select-scrollbar">
           {options.map((option) => {
             const selected = option.value === value;
 
@@ -98,14 +98,14 @@ export default function CustomSelect({
                   onChangeAction(name, option.value);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition ${
+                className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-[13px] transition ${
                   selected
                     ? "bg-emerald-50 font-semibold text-emerald-700"
                     : "text-[#45464d] hover:bg-[#eff4ff] hover:text-black"
                 }`}
               >
                 <span>{option.label}</span>
-                {selected && <Check size={16} />}
+                {selected && <Check size={14} />}
               </button>
             );
           })}

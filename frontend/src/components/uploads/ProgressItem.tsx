@@ -17,20 +17,20 @@ export default function ProgressItem({
 }: ProgressItemProps) {
   return (
     <div
-      className={`rounded-2xl border p-4 ${
+      className={`rounded-xl border p-3.5 ${
         analyzing
           ? "border-emerald-100 bg-emerald-50"
           : "border-[#c6c6cd] bg-[#f8f9ff]"
       }`}
     >
-      <div className="mb-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="mb-2.5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5">
           <span className="text-[#565e74]">{icon}</span>
-          <span className="text-sm font-semibold text-black">{title}</span>
+          <span className="text-[13px] font-semibold text-black">{title}</span>
         </div>
 
         <span
-          className={`text-xs font-bold ${
+          className={`text-[11px] font-bold ${
             analyzing ? "text-emerald-700" : "text-black"
           }`}
         >
@@ -41,7 +41,7 @@ export default function ProgressItem({
         </span>
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-[#c6c6cd]">
+      <div className="h-1.5 overflow-hidden rounded-full bg-[#c6c6cd]">
         <div className={`h-full rounded-full ${color}`} style={{ width }} />
       </div>
     </div>

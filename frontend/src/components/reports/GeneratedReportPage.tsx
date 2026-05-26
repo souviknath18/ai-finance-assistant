@@ -38,7 +38,7 @@ export default function GeneratedReportPage({ reportId }: Props) {
 
   if (!data) {
     return (
-      <p className="text-sm font-semibold text-[#565e74]">
+      <p className="text-[13px] font-semibold text-[#565e74]">
         Loading generated report...
       </p>
     );
@@ -46,16 +46,17 @@ export default function GeneratedReportPage({ reportId }: Props) {
 
   return (
     <>
-      <section className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-black">
+      <section className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-black">
           Generated Financial Report
         </h1>
-        <p className="mt-2 text-sm leading-6 text-[#565e74]">
+
+        <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
           Report ID: {reportId}
         </p>
       </section>
 
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-12">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-12">
         <PerformanceCard data={data} />
         <AIReportInsight data={data.ai_insight} />
         <CategorySpendingCard categories={data.categories} />

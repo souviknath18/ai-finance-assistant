@@ -47,7 +47,7 @@ const files = [
 
 export default function FileHistoryTable() {
   return (
-    <div className="overflow-hidden rounded-3xl border border-[#dce9ff] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
       <FileHistoryTabs />
 
       <div className="overflow-x-auto">
@@ -85,7 +85,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#565e74] ${
+      className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >

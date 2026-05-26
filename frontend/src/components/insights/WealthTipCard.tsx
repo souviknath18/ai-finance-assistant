@@ -16,37 +16,37 @@ export default function WealthTipCard({
   potentialDescription,
 }: WealthTipCardProps) {
   return (
-    <div className="flex flex-col justify-between rounded-3xl border border-transparent bg-white p-6 shadow-sm transition hover:border-[#c6c6cd] hover:shadow-md">
+    <div className="flex flex-col justify-between rounded-2xl border border-transparent bg-white p-5 shadow-sm transition hover:border-[#c6c6cd] hover:shadow-md">
       <div>
-        <div className="mb-5 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-3">
           <IconCircle tone="purple">{icon}</IconCircle>
 
-          <h3 className="text-xs font-bold uppercase tracking-wide text-black">
+          <h3 className="text-[11px] font-bold uppercase tracking-wide text-black">
             Wealth Tip
           </h3>
         </div>
 
-        <h4 className="mb-3 text-2xl font-bold text-black">{title}</h4>
+        <h4 className="mb-2 text-xl font-bold text-black">{title}</h4>
 
-        <p className="text-sm leading-7 text-[#565e74]">{description}</p>
+        <p className="text-[13px] leading-6 text-[#565e74]">{description}</p>
       </div>
 
-      <div className="mt-6">
-        <div className="mb-5 rounded-3xl bg-[#dce9ff] p-5">
-          <p className="mb-1 text-xs font-bold uppercase tracking-wide text-black">
+      <div className="mt-5">
+        <div className="mb-4 rounded-2xl bg-[#dce9ff] p-4">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-black">
             Potential Earn
           </p>
 
-          <p className="text-2xl font-bold text-emerald-700">
+          <p className="text-xl font-bold text-emerald-700">
             {potentialEarn}
           </p>
 
-          <p className="text-sm text-[#565e74]">
+          <p className="text-[13px] text-[#565e74]">
             {potentialDescription}
           </p>
         </div>
 
-        <button className="w-full rounded-xl bg-black py-3 text-sm font-bold text-white transition hover:opacity-90">
+        <button className="w-full rounded-xl bg-black py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
           Execute Transfer
         </button>
       </div>

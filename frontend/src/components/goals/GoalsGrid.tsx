@@ -6,13 +6,13 @@ import SmartAllocationCard from "./SmartAllocationCard";
 
 export default function GoalsGrid() {
   return (
-    <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-12">
+    <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-12">
       <PrimaryGoalCard />
 
       <CircularGoalCard />
 
       <SmallGoalCard
-        icon={<Plane size={20} />}
+        icon={<Plane size={18} />}
         title="Japan Trip"
         current="₹3,20,000"
         target="₹5,00,000"
