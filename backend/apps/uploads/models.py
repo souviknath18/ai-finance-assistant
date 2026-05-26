@@ -62,6 +62,9 @@ class UploadedFile(models.Model):
     )
 
     error_message = models.TextField(blank=True, null=True)
+    ai_tip_message = models.TextField(blank=True, null=True)
+    ai_tip_source = models.CharField(max_length=20, blank=True, null=True)
+    ai_tip_generated_at = models.DateTimeField(null=True, blank=True)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

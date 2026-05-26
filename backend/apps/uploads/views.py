@@ -3,11 +3,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .models import UploadedFile
 from .serializers import UploadedFileSerializer, UploadCreateSerializer
-from .services import detect_file_type, process_uploaded_file
+from .services import detect_file_type
+from .tasks import process_uploaded_file_task
 from django.core.files.storage import default_storage
+from ai_engine.insights.upload_tip_generator import get_cached_upload_ai_tip
 
 
 class UploadFileView(APIView):
@@ -30,7 +31,7 @@ class UploadFileView(APIView):
                 status=UploadedFile.Status.PENDING,
             )
 
-            process_uploaded_file(uploaded_file)
+            process_uploaded_file_task.delay(uploaded_file.id)
 
             response_serializer = UploadedFileSerializer(
                 uploaded_file,
@@ -93,11 +94,23 @@ class RetryUploadProcessingView(APIView):
     def post(self, request, pk):
         uploaded_file = UploadedFile.objects.get(id=pk, user=request.user)
 
-        processed_file = process_uploaded_file(uploaded_file)
+        uploaded_file.status = UploadedFile.Status.PENDING
+        uploaded_file.error_message = None
+        uploaded_file.save(update_fields=["status", "error_message"])
+
+        process_uploaded_file_task.delay(uploaded_file.id)
 
         serializer = UploadedFileSerializer(
-            processed_file,
+            uploaded_file,
             context={"request": request},
         )
 
         return Response(serializer.data)
+    
+
+class UploadAITipView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        tip = get_cached_upload_ai_tip(request.user)
+        return Response(tip)

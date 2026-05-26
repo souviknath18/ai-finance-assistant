@@ -71,7 +71,7 @@ export default function CustomSelect({
   }, [open]);
 
   return (
-    <div ref={wrapperRef} className="relative z-[100]">
+    <div ref={wrapperRef} className={`relative ${open ? "z-[29]" : "z-10"}`}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -86,7 +86,7 @@ export default function CustomSelect({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-[9999] mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)] custom-select-scrollbar">
+        <div className="absolute left-0 top-full z-[29] mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)] custom-select-scrollbar">
           {options.map((option) => {
             const selected = option.value === value;
 

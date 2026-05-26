@@ -11,6 +11,7 @@ from apps.transactions.models import Transaction
 from ai_engine.categorization.categorize_transactions import categorize_transaction
 from ai_engine.embeddings.vector_store import store_transaction_vector
 from apps.subscriptions.services import sync_detected_subscriptions
+from ai_engine.insights.upload_tip_generator import generate_and_store_upload_ai_tip
 
 
 ALLOWED_EXTENSIONS = [".pdf", ".csv", ".jpg", ".jpeg", ".png"]
@@ -191,9 +192,12 @@ def process_uploaded_file(uploaded_file: UploadedFile):
         uploaded_file.error_message = None
         uploaded_file.processed_at = timezone.now()
 
+        uploaded_file.save()
+        generate_and_store_upload_ai_tip(uploaded_file.user, uploaded_file)
+        return uploaded_file
+
     except Exception as error:
         uploaded_file.status = UploadedFile.Status.FAILED
         uploaded_file.error_message = str(error)
-
-    uploaded_file.save()
-    return uploaded_file
+        uploaded_file.save()
+        return uploaded_file

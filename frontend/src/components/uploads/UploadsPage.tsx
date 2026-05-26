@@ -11,13 +11,43 @@ import AITipCard from "./AITipCard";
 import SecurityCard from "./SecurityCard";
 import AppToast from "@/components/ui/AppToast";
 
-import { UploadedFile } from "@/types/upload";
-import { getUploadedFiles, uploadFile } from "@/lib/api/uploadApi";
+import { UploadedFile, UploadAITip } from "@/types/upload";
+import { getUploadedFiles, uploadFile, getUploadAITip } from "@/lib/api/uploadApi";
+
+function getFriendlyUploadError(err: any) {
+  const message =
+    err?.file?.[0] ||
+    err?.detail ||
+    err?.message ||
+    "Upload failed. Please try again.";
+
+  const lower = String(message).toLowerCase();
+
+  if (lower.includes("file size") || lower.includes("10mb")) {
+    return "This file is too large. Please upload a file smaller than 10MB.";
+  }
+
+  if (
+    lower.includes("only pdf") ||
+    lower.includes("allowed") ||
+    lower.includes("unsupported") ||
+    lower.includes("file type")
+  ) {
+    return "This file type is not supported. Please upload a PDF, CSV, JPG, JPEG, or PNG file.";
+  }
+
+  if (lower.includes("network") || lower.includes("fetch")) {
+    return "Network issue detected. Please check your internet connection and try again.";
+  }
+
+  return "We could not upload this file. Please check the file and try again.";
+}
 
 export default function UploadsPage() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [aiTip, setAiTip] = useState<UploadAITip | null>(null);
 
   const [toast, setToast] = useState({
     show: false,
@@ -31,12 +61,22 @@ export default function UploadsPage() {
       const data = await getUploadedFiles();
       setFiles(data);
     } catch {
-      setError("Failed to load uploaded files.");
+      setError("We could not load your uploaded files. Please refresh the page.");
+    }
+  };
+
+  const loadAITip = async () => {
+    try {
+      const data = await getUploadAITip();
+      setAiTip(data);
+    } catch {
+      setAiTip(null);
     }
   };
 
   useEffect(() => {
     loadFiles();
+    loadAITip();
   }, []);
 
   const handleUpload = async (file: File) => {
@@ -46,12 +86,13 @@ export default function UploadsPage() {
     try {
       const uploaded = await uploadFile(file);
       setFiles((prev) => [uploaded, ...prev]);
+      await loadAITip();
 
       setToast({
         show: true,
         type: "success",
         title: "File uploaded successfully",
-        message: `${uploaded.original_filename} has been processed successfully.`,
+        message: `${uploaded.original_filename} is queued for AI processing.`,
       });
 
       window.clearTimeout((window as any).__toastTimer);
@@ -60,11 +101,7 @@ export default function UploadsPage() {
         setToast((prev) => ({ ...prev, show: false }));
       }, 5000);
     } catch (err: any) {
-      setError(
-        err?.file?.[0] ||
-          err?.detail ||
-          "Upload failed. Please try again."
-      );
+      setError(getFriendlyUploadError(err));
     } finally {
       setUploading(false);
     }
@@ -79,6 +116,7 @@ export default function UploadsPage() {
 
     const interval = window.setInterval(() => {
       loadFiles();
+      loadAITip();
     }, 3000);
 
     return () => window.clearInterval(interval);
@@ -90,7 +128,13 @@ export default function UploadsPage() {
 
   const successfulFiles = files.filter((file) => file.status === "success");
 
-  const failedFiles = files.filter((file) => file.status === "failed");
+  const failedFiles = files
+    .filter((file) => file.status === "failed")
+    .sort(
+      (a, b) =>
+        new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime()
+    )
+    .slice(0, 1);
 
   return (
     <>
@@ -118,8 +162,12 @@ export default function UploadsPage() {
 
         <aside className="space-y-4 lg:col-span-4">
           <ParsedResultsCard files={successfulFiles} />
-          <IssuesFoundCard files={failedFiles} onRetryAction={loadFiles} />
-          <AITipCard />
+          {failedFiles.length > 0 && (
+            <IssuesFoundCard files={failedFiles} onRetryAction={loadFiles} />
+          )}
+          <AITipCard
+            message={aiTip?.message}
+          />
           <SecurityCard />
         </aside>
       </div>

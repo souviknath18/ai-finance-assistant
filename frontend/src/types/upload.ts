@@ -18,3 +18,8 @@ export type UploadedFile = {
   uploaded_at: string;
   processed_at: string | null;
 };
+
+export type UploadAITip = {
+  message: string;
+  source: string;
+};

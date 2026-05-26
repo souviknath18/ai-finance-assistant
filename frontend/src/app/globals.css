@@ -102,3 +102,20 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #c7d8ff, #b3c9ff);
 }
+
+@keyframes uploadProgress {
+  0% {
+    transform: translateX(-100%);
+    width: 35%;
+  }
+
+  50% {
+    transform: translateX(80%);
+    width: 55%;
+  }
+
+  100% {
+    transform: translateX(280%);
+    width: 35%;
+  }
+}
