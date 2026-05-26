@@ -10,9 +10,19 @@ type AppLayoutProps = {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const sidebarWidth = sidebarCollapsed ? "md:ml-20" : "md:ml-64";
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+
+    return localStorage.getItem("sidebarCollapsed") === "true";
+  });
+
+  const handleSidebarCollapsedChange = (value: boolean) => {
+    setSidebarCollapsed(value);
+    localStorage.setItem("sidebarCollapsed", String(value));
+  };
+
+  const sidebarWidth = sidebarCollapsed ? "md:ml-[76px]" : "md:ml-[248px]";
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
@@ -26,14 +36,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <DashboardTopbar
           setSidebarOpenAction={setSidebarOpen}
           sidebarCollapsed={sidebarCollapsed}
-          setSidebarCollapsedAction={setSidebarCollapsed}
+          setSidebarCollapsedAction={handleSidebarCollapsedChange}
         />
 
         <main
-          className="mx-auto w-full max-w-7xl px-6 pb-16 pt-24 lg:px-12"
+          className="mx-auto w-full max-w-7xl px-4 pb-14 pt-[88px] sm:px-6 lg:px-8"
           style={
             {
-              "--sidebar-offset": sidebarCollapsed ? "5rem" : "16rem",
+              "--sidebar-offset": sidebarCollapsed ? "76px" : "248px",
             } as React.CSSProperties
           }
         >

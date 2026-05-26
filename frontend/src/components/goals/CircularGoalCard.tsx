@@ -1,30 +1,30 @@
 export default function CircularGoalCard() {
-  const radius = 58;
+  const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const progress = 60;
   const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center justify-center rounded-3xl border border-[#c6c6cd] bg-white p-6 text-center shadow-sm md:col-span-4">
-      <div className="relative h-32 w-32">
-        <svg className="h-full w-full -rotate-90">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-[#c6c6cd] bg-white p-5 text-center shadow-sm md:col-span-4">
+      <div className="relative h-28 w-28">
+        <svg className="h-full w-full -rotate-90" viewBox="0 0 112 112">
           <circle
-            cx="64"
-            cy="64"
+            cx="56"
+            cy="56"
             r={radius}
             fill="transparent"
             stroke="currentColor"
-            strokeWidth="8"
+            strokeWidth="7"
             className="text-[#e5eeff]"
           />
 
           <circle
-            cx="64"
-            cy="64"
+            cx="56"
+            cy="56"
             r={radius}
             fill="transparent"
             stroke="currentColor"
-            strokeWidth="8"
+            strokeWidth="7"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             className="text-emerald-700"
@@ -32,15 +32,17 @@ export default function CircularGoalCard() {
         </svg>
 
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold text-black">60%</span>
+          <span className="text-xl font-bold text-black">60%</span>
         </div>
       </div>
 
-      <h3 className="mt-6 text-2xl font-bold text-black">MacBook Pro</h3>
+      <h3 className="mt-5 text-lg font-bold text-black">MacBook Pro</h3>
 
-      <p className="mt-2 text-sm text-[#565e74]">Target: ₹2,40,000</p>
+      <p className="mt-1.5 text-[13px] text-[#565e74]">
+        Target: ₹2,40,000
+      </p>
 
-      <button className="mt-6 w-full rounded-xl border border-[#76777d] py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]">
+      <button className="mt-5 w-full rounded-xl border border-[#76777d] py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]">
         Add Funds
       </button>
     </div>

@@ -31,24 +31,24 @@ export default function SubscriptionCard({
       : "bg-[#dce9ff] text-black";
 
   return (
-    <div className="flex flex-col gap-5 rounded-3xl border border-[#dce9ff] bg-white p-6 shadow-sm transition hover:shadow-md md:flex-row md:items-center">
+    <div className="flex flex-col gap-4 rounded-2xl border border-[#dce9ff] bg-white p-5 shadow-sm transition hover:shadow-md md:flex-row md:items-center">
       <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${toneClass}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClass}`}
       >
-        <span className="text-lg font-black">{name.charAt(0)}</span>
+        <span className="text-base font-black">{name.charAt(0)}</span>
       </div>
 
       <div className="flex-1">
         <div className="flex justify-between gap-4">
           <div>
-            <h3 className="text-lg font-bold text-black">{name}</h3>
-            <p className="text-sm text-[#565e74]">{detail}</p>
+            <h3 className="text-base font-bold text-black">{name}</h3>
+            <p className="text-[13px] text-[#565e74]">{detail}</p>
           </div>
 
           <div className="text-right">
-            <p className="text-lg font-bold text-black">{amount}</p>
+            <p className="text-base font-bold text-black">{amount}</p>
             <p
-              className={`text-xs font-bold ${
+              className={`text-[11px] font-bold ${
                 next.includes("Est") ? "text-emerald-700" : "text-[#7c839b]"
               }`}
             >
@@ -58,17 +58,17 @@ export default function SubscriptionCard({
         </div>
       </div>
 
-      <div className="flex gap-2 md:border-l md:border-[#c6c6cd] md:pl-6">
+      <div className="flex gap-2 md:border-l md:border-[#c6c6cd] md:pl-5">
         <button
           onClick={onSecondaryAction}
-          className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]"
+          className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
         >
           {secondaryAction}
         </button>
 
         <button
           onClick={onPrimaryAction}
-          className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
+          className={`rounded-xl px-4 py-2.5 text-[13px] font-bold transition ${
             danger
               ? "border border-red-600 text-red-600 hover:bg-red-50"
               : "bg-black text-white hover:opacity-90"

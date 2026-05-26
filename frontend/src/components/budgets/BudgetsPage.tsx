@@ -56,7 +56,7 @@ export default function BudgetsPage() {
 
   if (loading) {
     return (
-      <div className="text-sm font-semibold text-[#565e74]">
+      <div className="text-[13px] font-semibold text-[#565e74]">
         Loading budgets...
       </div>
     );
@@ -64,7 +64,7 @@ export default function BudgetsPage() {
 
   if (!data) {
     return (
-      <div className="text-sm font-semibold text-red-600">
+      <div className="text-[13px] font-semibold text-red-600">
         Failed to load budgets.
       </div>
     );

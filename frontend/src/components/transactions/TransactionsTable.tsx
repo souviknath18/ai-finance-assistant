@@ -29,19 +29,19 @@ export default function TransactionsTable({
 }: TransactionsTableProps) {
   if (loading) {
     return (
-      <div className="p-8 text-sm font-semibold text-[#565e74]">
+      <div className="p-6 text-[13px] font-semibold text-[#565e74]">
         Loading transactions...
       </div>
     );
   }
 
   if (error) {
-    return <div className="p-8 text-sm font-semibold text-red-600">{error}</div>;
+    return <div className="p-6 text-[13px] font-semibold text-red-600">{error}</div>;
   }
 
   if (transactions.length === 0) {
     return (
-      <div className="p-8 text-sm font-semibold text-[#565e74]">
+      <div className="p-6 text-[13px] font-semibold text-[#565e74]">
         {emptyMessage}
       </div>
     );
@@ -56,7 +56,7 @@ export default function TransactionsTable({
       <table className="w-full min-w-[950px] border-collapse text-left">
         <thead>
           <tr className="border-b border-[#c6c6cd] bg-[#f8f9ff]">
-            <th className="w-12 p-5">
+            <th className="w-12 p-4">
               <input
                 type="checkbox"
                 checked={allVisibleSelected}

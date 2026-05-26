@@ -8,8 +8,8 @@ export default function NotificationsPage() {
     <>
       <NotificationsHeader />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <aside className="space-y-6 lg:col-span-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <aside className="space-y-4 lg:col-span-3">
           <NotificationFilters />
           <AuraAIAlertCard />
         </aside>

@@ -56,6 +56,12 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
 
+  const handleSidebarLinkClick = () => {
+    if (sidebarOpen) {
+      setSidebarOpenAction(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -74,24 +80,31 @@ export default function DashboardSidebar({
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-[#c6c6cd]/60 bg-[#eff4ff] py-5 pl-4 pr-2 transition-all duration-300 md:z-40 ${
-          sidebarCollapsed ? "md:w-20" : "md:w-64"
+        className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-[#c6c6cd]/50 bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
+          sidebarCollapsed ? "md:w-[76px]" : "md:w-[248px]"
         } ${
           sidebarOpen
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0"
         } w-64`}
       >
-        <div className="mb-6 flex shrink-0 items-center justify-between px-2">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white">
-              <Sparkles size={18} />
+        <div className="mb-5 flex shrink-0 items-center justify-between px-2">
+          <Link
+            href="/dashboard"
+            onClick={handleSidebarLinkClick}
+            className="flex items-center gap-3"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black text-white">
+              <Sparkles size={16} />
             </div>
 
             {!sidebarCollapsed && (
               <div>
-                <h1 className="text-lg font-bold text-black">Aura Finance</h1>
-                <p className="text-xs font-semibold text-[#565e74]">
+                <h1 className="text-[15px] font-bold tracking-tight text-black">
+                  Aura Finance
+                </h1>
+
+                <p className="text-[11px] font-semibold text-[#565e74]">
                   Intelligent Wealth
                 </p>
               </div>
@@ -100,15 +113,16 @@ export default function DashboardSidebar({
 
           <button
             onClick={() => setSidebarOpenAction(false)}
-            className="rounded-lg p-2 text-[#565e74] hover:bg-[#dce9ff] md:hidden"
+            className="rounded-lg p-2 text-[#565e74] transition hover:bg-[#dce9ff] hover:text-black md:hidden"
           >
-            <X size={18} />
+            <X size={17} />
           </button>
         </div>
 
-        <nav className="sidebar-scroll flex-1 space-y-1 overflow-y-auto pr-[2px]">
+        <nav className="sidebar-scroll flex-1 space-y-[2px] overflow-y-auto pr-[2px]">
           {navItems.map((item) => {
             const Icon = item.icon;
+
             const active =
               pathname === item.href ||
               pathname.startsWith(`${item.href}/`);
@@ -117,23 +131,26 @@ export default function DashboardSidebar({
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setSidebarOpenAction(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition ${
+                onClick={handleSidebarLinkClick}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 ${
                   active
                     ? "bg-emerald-100 text-emerald-800"
                     : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
                 }`}
               >
-                <Icon size={18} className="shrink-0" />
-                {!sidebarCollapsed && <span>{item.label}</span>}
+                <Icon size={17} className="shrink-0" />
+
+                {!sidebarCollapsed && (
+                  <span className="truncate">{item.label}</span>
+                )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="mt-3 shrink-0 border-t border-[#c6c6cd]/60 pt-3">
+        <div className="mt-3 shrink-0 border-t border-[#c6c6cd]/50 pt-3">
           {!sidebarCollapsed && (
-            <button className="mb-3 w-full rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
+            <button className="mb-3 w-full rounded-lg bg-black px-4 py-2 text-[12px] font-bold text-white transition hover:opacity-90 active:scale-[0.99]">
               Upgrade Plan
             </button>
           )}
@@ -141,6 +158,7 @@ export default function DashboardSidebar({
           <div className="space-y-[2px]">
             {bottomItems.map((item) => {
               const Icon = item.icon;
+
               const active =
                 pathname === item.href ||
                 pathname.startsWith(`${item.href}/`);
@@ -149,24 +167,28 @@ export default function DashboardSidebar({
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setSidebarOpenAction(false)}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold transition ${
+                  onClick={handleSidebarLinkClick}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all duration-200 ${
                     active
                       ? "bg-emerald-100 text-emerald-800"
                       : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
                   }`}
                 >
-                  <Icon size={17} className="shrink-0" />
-                  {!sidebarCollapsed && <span>{item.label}</span>}
+                  <Icon size={16} className="shrink-0" />
+
+                  {!sidebarCollapsed && (
+                    <span className="truncate">{item.label}</span>
+                  )}
                 </Link>
               );
             })}
 
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold text-red-600 transition hover:bg-red-50"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50"
             >
-              <LogOut size={17} className="shrink-0" />
+              <LogOut size={16} className="shrink-0" />
+
               {!sidebarCollapsed && <span>Logout</span>}
             </button>
           </div>

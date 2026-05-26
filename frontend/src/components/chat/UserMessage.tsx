@@ -8,17 +8,19 @@ export default function UserMessage({
   time = "2 minutes ago",
 }: UserMessageProps) {
   return (
-    <div className="ml-auto flex max-w-[85%] flex-row-reverse gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#c6c6cd] bg-[#dce9ff] font-bold text-black">
+    <div className="ml-auto flex max-w-[85%] flex-row-reverse gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#c6c6cd] bg-[#dce9ff] text-[13px] font-bold text-black">
         S
       </div>
 
-      <div className="space-y-2 text-right">
-        <div className="rounded-3xl rounded-tr-none bg-black p-5 text-sm leading-7 text-white shadow-sm">
+      <div className="space-y-1.5 text-right">
+        <div className="rounded-2xl rounded-tr-none bg-black p-4 text-[13px] leading-6 text-white shadow-sm">
           {children}
         </div>
 
-        <span className="text-xs font-semibold text-[#7c839b]">{time}</span>
+        <span className="text-[11px] font-semibold text-[#7c839b]">
+          {time}
+        </span>
       </div>
     </div>
   );

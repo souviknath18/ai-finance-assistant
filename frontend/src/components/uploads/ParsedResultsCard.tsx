@@ -10,15 +10,15 @@ export default function ParsedResultsCard({ files }: ParsedResultsCardProps) {
   const router = useRouter();
 
   return (
-    <div className="rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-      <h3 className="mb-6 text-2xl font-bold text-black">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <h3 className="mb-5 text-lg font-bold text-black">
         Recent Parsed Results
       </h3>
 
       {files.length === 0 ? (
-        <p className="text-sm text-[#565e74]">No parsed files yet.</p>
+        <p className="text-[13px] text-[#565e74]">No parsed files yet.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {files.slice(0, 3).map((file) => (
             <ParsedResult
               key={file.id}
@@ -31,7 +31,7 @@ export default function ParsedResultsCard({ files }: ParsedResultsCardProps) {
 
       <button
         onClick={() => router.push("/history")}
-        className="mt-6 w-full rounded-xl border border-black py-3 text-sm font-bold text-black transition hover:bg-black hover:text-white"
+        className="mt-5 w-full rounded-xl border border-black py-2.5 text-[13px] font-bold text-black transition hover:bg-black hover:text-white"
       >
         Review All Results
       </button>

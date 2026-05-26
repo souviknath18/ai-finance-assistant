@@ -15,13 +15,13 @@ export default function CategoryAIInsights({ categories }: Props) {
     .sort((a, b) => Number(b.spending) - Number(a.spending))[0];
 
   return (
-    <div className="rounded-3xl border border-emerald-200 bg-white p-6 shadow-sm lg:col-span-4">
-      <div className="mb-5 flex items-center gap-3 text-emerald-700">
-        <Sparkles size={20} />
-        <h2 className="text-2xl font-bold text-black">AI Insights</h2>
+    <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm lg:col-span-4">
+      <div className="mb-4 flex items-center gap-2 text-emerald-700">
+        <Sparkles size={18} />
+        <h2 className="text-lg font-bold text-black">AI Insights</h2>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <InsightBox
           text={
             <>
@@ -60,12 +60,12 @@ function InsightBox({
   action: string;
 }) {
   return (
-    <div className="rounded-2xl border border-emerald-100 bg-[#eff4ff] p-4">
-      <p className="text-sm leading-6 text-[#565e74]">{text}</p>
+    <div className="rounded-xl border border-emerald-100 bg-[#eff4ff] p-3.5">
+      <p className="text-[13px] leading-5 text-[#565e74]">{text}</p>
 
-      <button className="mt-3 flex items-center gap-2 text-sm font-bold text-emerald-700 transition hover:gap-3">
+      <button className="mt-3 flex items-center gap-2 text-[13px] font-bold text-emerald-700 transition hover:gap-3">
         {action}
-        <ArrowRight size={15} />
+        <ArrowRight size={14} />
       </button>
     </div>
   );

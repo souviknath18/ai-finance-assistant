@@ -25,16 +25,14 @@ export default function BudgetCard({
 
   return (
     <div
-      className={`flex flex-col rounded-3xl border bg-white p-6 shadow-sm ${
+      className={`flex flex-col rounded-2xl border bg-white p-5 shadow-sm ${
         isRed ? "border-red-100" : "border-[#e5eeff]"
       } ${className}`}
     >
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-5 flex items-start justify-between">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-            isRed
-              ? "bg-red-50 text-red-600"
-              : "bg-[#e5eeff] text-black"
+          className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+            isRed ? "bg-red-50 text-red-600" : "bg-[#e5eeff] text-black"
           }`}
         >
           {icon}
@@ -42,10 +40,8 @@ export default function BudgetCard({
 
         {badge && (
           <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
-              isRed
-                ? "bg-red-50 text-red-600"
-                : "bg-[#e5eeff] text-[#565e74]"
+            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
+              isRed ? "bg-red-50 text-red-600" : "bg-[#e5eeff] text-[#565e74]"
             }`}
           >
             {badge}
@@ -53,16 +49,16 @@ export default function BudgetCard({
         )}
       </div>
 
-      <h3 className="text-2xl font-bold text-black">{title}</h3>
+      <h3 className="text-lg font-bold text-black">{title}</h3>
 
-      <p className="mb-6 mt-1 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+      <p className="mb-5 mt-1 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
         {subtitle}
       </p>
 
       <div className="mt-auto">
         <div className="mb-2 flex items-end justify-between gap-3">
           <p
-            className={`text-xl font-bold ${
+            className={`text-base font-bold ${
               isRed ? "text-red-600" : "text-black"
             }`}
           >
@@ -70,7 +66,7 @@ export default function BudgetCard({
           </p>
 
           <span
-            className={`text-xs font-bold ${
+            className={`text-[11px] font-bold ${
               isRed ? "text-red-600" : "text-[#565e74]"
             }`}
           >
@@ -78,7 +74,7 @@ export default function BudgetCard({
           </span>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-[#e5eeff]">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e5eeff]">
           <div
             className={`h-full rounded-full ${
               isRed ? "bg-red-600" : "bg-emerald-500"
@@ -88,7 +84,7 @@ export default function BudgetCard({
         </div>
 
         {warning && (
-          <p className="mt-3 text-sm font-semibold text-red-600">
+          <p className="mt-2.5 text-[13px] font-semibold text-red-600">
             {warning}
           </p>
         )}

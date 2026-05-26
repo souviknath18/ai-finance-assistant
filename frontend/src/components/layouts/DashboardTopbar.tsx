@@ -26,7 +26,9 @@ export default function DashboardTopbar({
   setSidebarCollapsedAction,
 }: DashboardTopbarProps) {
   const router = useRouter();
+
   const menuRef = useRef<HTMLDivElement | null>(null);
+
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -56,77 +58,101 @@ export default function DashboardTopbar({
 
   return (
     <header
-      className={`fixed right-0 top-0 z-30 h-16 border-b border-[#d3e4fe]/70 bg-white/85 backdrop-blur-xl transition-all duration-300 ${
+      className={`fixed right-0 top-0 z-30 h-14 border-b border-[#d3e4fe]/60 bg-white/85 backdrop-blur-xl transition-all duration-300 ${
         sidebarCollapsed
-          ? "md:left-20 md:w-[calc(100%-5rem)]"
-          : "md:left-64 md:w-[calc(100%-16rem)]"
+          ? "md:left-[76px] md:w-[calc(100%-76px)]"
+          : "md:left-[248px] md:w-[calc(100%-248px)]"
       } left-0 w-full`}
     >
-      <div className="flex h-full items-center justify-between px-6 lg:px-12">
-        <div className="flex items-center gap-4">
+      <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+        
+        {/* LEFT */}
+        <div className="flex items-center gap-3">
+          
+          {/* MOBILE SIDEBAR BUTTON */}
           <button
             onClick={() => setSidebarOpenAction(true)}
-            className="rounded-xl border border-[#c6c6cd] p-2 text-[#45464d] hover:bg-[#eff4ff] md:hidden"
+            className="rounded-lg border border-[#c6c6cd] p-2 text-[#45464d] transition hover:bg-[#eff4ff] hover:text-black md:hidden"
           >
-            <Menu size={18} />
+            <Menu size={17} />
           </button>
 
+          {/* DESKTOP COLLAPSE BUTTON */}
           <button
-            onClick={() => setSidebarCollapsedAction(!sidebarCollapsed)}
-            className="hidden rounded-xl border border-[#c6c6cd] p-2 text-[#45464d] hover:bg-[#eff4ff] md:block"
+            onClick={() =>
+              setSidebarCollapsedAction(!sidebarCollapsed)
+            }
+            className="hidden rounded-lg border border-[#c6c6cd] p-2 text-[#45464d] transition hover:bg-[#eff4ff] hover:text-black md:flex"
           >
             {sidebarCollapsed ? (
-              <PanelLeftOpen size={18} />
+              <PanelLeftOpen size={17} />
             ) : (
-              <PanelLeftClose size={18} />
+              <PanelLeftClose size={17} />
             )}
           </button>
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[#565e74]">
+          {/* WELCOME */}
+          <div className="leading-tight">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#7c839b]">
               Welcome back
             </p>
-            <h2 className="text-lg font-bold text-black">Souvik</h2>
+
+            <h2 className="mt-0.5 text-[15px] font-bold text-black">
+              Souvik
+            </h2>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* RIGHT */}
+        <div className="flex items-center gap-2">
+          
+          {/* AI CHAT */}
           <button
             onClick={() => router.push("/chat")}
-            className="hidden items-center gap-2 rounded-full bg-black px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 sm:flex"
+            className="hidden items-center gap-2 rounded-full bg-black px-3 py-2 text-[11px] font-bold text-white transition hover:opacity-90 sm:flex"
           >
-            <MessageCircle size={15} />
+            <MessageCircle size={14} />
             AI Chat
           </button>
 
+          {/* NOTIFICATIONS */}
           <button
             onClick={() => router.push("/notifications")}
-            className="rounded-xl border border-[#c6c6cd] p-2 text-[#45464d] hover:bg-[#eff4ff]"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#c6c6cd] text-[#45464d] transition hover:bg-[#eff4ff] hover:text-black"
           >
-            <Bell size={18} />
+            <Bell size={17} />
           </button>
 
+          {/* PROFILE */}
           <div ref={menuRef} className="relative">
             <button
               type="button"
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#c6c6cd] bg-[#dce9ff] text-black transition hover:ring-2 hover:ring-emerald-100"
+              onClick={() =>
+                setProfileMenuOpen(!profileMenuOpen)
+              }
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#c6c6cd] bg-[#dce9ff] text-black transition hover:ring-2 hover:ring-emerald-100"
             >
-              <User size={18} />
+              <User size={16} />
             </button>
 
             {profileMenuOpen && (
-              <div className="absolute right-0 top-[calc(100%+10px)] z-[80] w-64 overflow-hidden rounded-2xl border border-[#d3e4fe] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.14)]">
+              <div className="absolute right-0 top-[calc(100%+10px)] z-[80] w-60 overflow-hidden rounded-2xl border border-[#d3e4fe] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.14)]">
+                
+                {/* PROFILE HEADER */}
                 <div className="border-b border-[#e5eeff] p-4">
-                  <p className="text-sm font-bold text-black">Souvik Nath</p>
-                  <p className="mt-1 truncate text-xs text-[#565e74]">
+                  <p className="text-sm font-bold text-black">
+                    Souvik Nath
+                  </p>
+
+                  <p className="mt-1 truncate text-[11px] text-[#565e74]">
                     souviknath18@gmail.com
                   </p>
                 </div>
 
+                {/* MENU ITEMS */}
                 <div className="p-2">
                   <ProfileMenuButton
-                    icon={<User size={17} />}
+                    icon={<User size={16} />}
                     label="Profile"
                     onClick={() => {
                       setProfileMenuOpen(false);
@@ -135,7 +161,7 @@ export default function DashboardTopbar({
                   />
 
                   <ProfileMenuButton
-                    icon={<Settings size={17} />}
+                    icon={<Settings size={16} />}
                     label="Settings"
                     onClick={() => {
                       setProfileMenuOpen(false);
@@ -144,7 +170,7 @@ export default function DashboardTopbar({
                   />
 
                   <ProfileMenuButton
-                    icon={<CreditCard size={17} />}
+                    icon={<CreditCard size={16} />}
                     label="Billing"
                     onClick={() => {
                       setProfileMenuOpen(false);
@@ -153,12 +179,13 @@ export default function DashboardTopbar({
                   />
                 </div>
 
+                {/* LOGOUT */}
                 <div className="border-t border-[#e5eeff] p-2">
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold text-red-600 transition hover:bg-red-50"
                   >
-                    <LogOut size={17} />
+                    <LogOut size={16} />
                     Logout
                   </button>
                 </div>
@@ -183,7 +210,7 @@ function ProfileMenuButton({
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#45464d] transition hover:bg-[#eff4ff] hover:text-black"
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold text-[#45464d] transition hover:bg-[#eff4ff] hover:text-black"
     >
       {icon}
       {label}

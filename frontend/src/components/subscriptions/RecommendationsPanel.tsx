@@ -38,8 +38,10 @@ export default function RecommendationsPanel({
 
   return (
     <>
-      <aside className="space-y-6">
-        <h2 className="text-2xl font-bold text-black">Smart Recommendations</h2>
+      <aside className="space-y-4">
+        <h2 className="text-lg font-bold text-black">
+          Smart Recommendations
+        </h2>
 
         {highest && (
           <RecommendationCard

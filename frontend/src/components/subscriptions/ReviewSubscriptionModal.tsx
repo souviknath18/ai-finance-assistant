@@ -61,41 +61,37 @@ export default function ReviewSubscriptionModal({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
         <div className="flex max-h-[90vh] flex-col">
-          <div className="sticky top-0 z-20 flex items-start justify-between gap-5 border-b border-[#eef2ff] bg-white px-6 pb-4 pt-6">
-            <div>
-              <div className="mb-3">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#dce9ff] text-lg font-black text-black">
-                    {subscription.merchant.charAt(0)}
-                  </div>
+          <div className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#dce9ff] text-base font-black text-black">
+                {subscription.merchant.charAt(0)}
+              </div>
 
-                  <div>
-                    <h2 className="text-2xl leading-tight font-bold text-black">
-                      {subscription.merchant}
-                    </h2>
+              <div>
+                <h2 className="text-xl font-bold leading-tight text-black">
+                  {subscription.merchant}
+                </h2>
 
-                    <p className="mt-2 text-sm text-[#565e74]">
-                      Detected recurring subscription
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-1 text-[13px] text-[#565e74]">
+                  Detected recurring subscription
+                </p>
               </div>
             </div>
 
             <button
               onClick={onCloseAction}
-              className="rounded-xl p-2 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
+              className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
             >
-              <X size={20} />
+              <X size={17} />
             </button>
           </div>
 
-          <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-5">
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4">
+            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
               <InfoBox
-                icon={<CreditCard size={18} />}
+                icon={<CreditCard size={16} />}
                 label="Monthly Cost"
                 value={`₹${monthlyAmount.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
@@ -103,7 +99,7 @@ export default function ReviewSubscriptionModal({
               />
 
               <InfoBox
-                icon={<Repeat size={18} />}
+                icon={<Repeat size={16} />}
                 label="Yearly Forecast"
                 value={`₹${yearlyAmount.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
@@ -111,7 +107,7 @@ export default function ReviewSubscriptionModal({
               />
 
               <InfoBox
-                icon={<CalendarDays size={18} />}
+                icon={<CalendarDays size={16} />}
                 label="Last Payment"
                 value={
                   subscription.last_payment_date
@@ -128,15 +124,15 @@ export default function ReviewSubscriptionModal({
               />
             </div>
 
-            <div className="mb-6 rounded-3xl bg-[#eff4ff] p-5">
-              <div className="mb-3 flex items-center gap-2 text-emerald-700">
-                <Sparkles size={18} />
-                <span className="text-xs font-bold uppercase tracking-wider">
+            <div className="mb-4 rounded-2xl bg-[#eff4ff] p-4">
+              <div className="mb-2.5 flex items-center gap-2 text-emerald-700">
+                <Sparkles size={16} />
+                <span className="text-[11px] font-bold uppercase tracking-wider">
                   Aura Analysis
                 </span>
               </div>
 
-              <p className="text-sm leading-7 text-[#565e74]">
+              <p className="text-[13px] leading-6 text-[#565e74]">
                 Aura detected this service from{" "}
                 <strong className="text-black">
                   {subscription.transactions_count}
@@ -155,7 +151,7 @@ export default function ReviewSubscriptionModal({
               </p>
             </div>
 
-            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
               <DetailRow label="Category" value={subscription.category || "Unknown"} />
               <DetailRow label="Status" value={subscription.status.replace("_", " ")} />
               <DetailRow
@@ -178,10 +174,10 @@ export default function ReviewSubscriptionModal({
             </div>
           </div>
 
-          <div className="sticky bottom-0 z-20 flex flex-col-reverse gap-3 border-t border-[#eef2ff] bg-white px-6 py-5 sm:flex-row sm:justify-end">
+          <div className="sticky bottom-0 z-20 flex flex-col-reverse gap-2.5 border-t border-[#eef2ff] bg-white px-5 py-4 sm:flex-row sm:justify-end">
             <button
               onClick={onCloseAction}
-              className="rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]"
+              className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
             >
               Close
             </button>
@@ -189,7 +185,7 @@ export default function ReviewSubscriptionModal({
             <button
               disabled={saving}
               onClick={() => handlePreferenceUpdate("cancel_candidate")}
-              className="rounded-xl border border-red-200 px-5 py-3 text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+              className="rounded-xl border border-red-200 px-4 py-2.5 text-[13px] font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
             >
               {saving ? "Saving..." : "Mark as Not Needed"}
             </button>
@@ -197,7 +193,7 @@ export default function ReviewSubscriptionModal({
             <button
               disabled={saving}
               onClick={() => handlePreferenceUpdate("confirmed")}
-              className="rounded-xl bg-black px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+              className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
             >
               {saving ? "Saving..." : "Keep Tracking"}
             </button>
@@ -218,26 +214,26 @@ function InfoBox({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#e5eeff] bg-white p-4">
-      <div className="mb-3 flex items-center gap-2 text-[#565e74]">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-3.5">
+      <div className="mb-2.5 flex items-center gap-2 text-[#565e74]">
         {icon}
-        <span className="text-xs font-bold uppercase tracking-wide">
+        <span className="text-[11px] font-bold uppercase tracking-wide">
           {label}
         </span>
       </div>
 
-      <p className="text-lg font-bold text-black">{value}</p>
+      <p className="text-[15px] font-bold text-black">{value}</p>
     </div>
   );
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#e5eeff] p-4">
-      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-[#7c839b]">
+    <div className="rounded-2xl border border-[#e5eeff] p-3.5">
+      <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[#7c839b]">
         {label}
       </p>
-      <p className="text-sm font-bold capitalize text-black">{value}</p>
+      <p className="text-[13px] font-bold capitalize text-black">{value}</p>
     </div>
   );
 }

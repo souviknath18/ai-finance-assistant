@@ -11,10 +11,10 @@ import NotificationCard from "./NotificationCard";
 
 export default function NotificationTimeline() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <NotificationSection title="Today">
         <NotificationCard
-          icon={<AlertTriangle size={22} />}
+          icon={<AlertTriangle size={18} />}
           tone="red"
           title="Budget Warning: Dining Out"
           time="2h ago"
@@ -23,7 +23,7 @@ export default function NotificationTimeline() {
         />
 
         <NotificationCard
-          icon={<Repeat size={22} />}
+          icon={<Repeat size={18} />}
           tone="green"
           title="Subscription Increase"
           time="5h ago"
@@ -34,7 +34,7 @@ export default function NotificationTimeline() {
 
       <NotificationSection title="Yesterday" muted>
         <NotificationCard
-          icon={<TrendingUp size={22} />}
+          icon={<TrendingUp size={18} />}
           tone="dark"
           title="Goal Milestone Reached!"
           time="Yesterday, 4:30 PM"
@@ -44,7 +44,7 @@ export default function NotificationTimeline() {
         />
 
         <NotificationCard
-          icon={<ShoppingCart size={22} />}
+          icon={<ShoppingCart size={18} />}
           tone="purple"
           title="Unusual Spending Detected"
           time="Yesterday, 10:15 AM"
@@ -56,7 +56,7 @@ export default function NotificationTimeline() {
 
       <NotificationSection title="Earlier" faded>
         <NotificationCard
-          icon={<FileText size={22} />}
+          icon={<FileText size={18} />}
           tone="muted"
           title="August Financial Report"
           time="Sept 1"

@@ -64,13 +64,13 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="relative mx-auto flex min-h-[calc(100vh-96px)] w-full max-w-5xl flex-col pb-[220px]">
+    <div className="relative mx-auto flex min-h-[calc(100vh-96px)] w-full max-w-5xl flex-col pb-[190px]">
       <div className="pointer-events-none fixed right-[-10%] top-[-10%] -z-10 h-[50%] w-[50%] rounded-full bg-emerald-100/40 blur-[120px]" />
       <div className="pointer-events-none fixed bottom-[-10%] left-[-10%] -z-10 h-[40%] w-[40%] rounded-full bg-[#dae2fd]/60 blur-[100px]" />
 
       <ChatHeader />
 
-      <div className="flex-1 space-y-8">
+      <div className="flex-1 space-y-6">
         <ChatInsightGrid />
 
         {messages.map((message) =>
@@ -94,7 +94,7 @@ export default function ChatPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 right-0 z-30 border-t border-[#e5eeff] bg-white/85 px-6 pt-4 backdrop-blur-xl transition-all duration-300 left-0 md:left-[var(--sidebar-offset)] lg:px-12">
+      <div className="fixed bottom-0 right-0 z-30 border-t border-[#e5eeff] bg-white/85 px-4 pt-3 backdrop-blur-xl transition-all duration-300 left-0 md:left-[var(--sidebar-offset)] lg:px-8">
         <div className="mx-auto w-full max-w-5xl">
           <ChatInput loading={loading} onSendAction={handleSendMessage} />
         </div>

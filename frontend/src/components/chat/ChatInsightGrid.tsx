@@ -3,9 +3,9 @@ import ChatInsightCard from "./ChatInsightCard";
 
 export default function ChatInsightGrid() {
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
       <ChatInsightCard
-        icon={<TrendingDown size={20} />}
+        icon={<TrendingDown size={18} />}
         label="Market Context"
         description={
           <>
@@ -18,7 +18,7 @@ export default function ChatInsightGrid() {
       />
 
       <ChatInsightCard
-        icon={<CalendarDays size={20} />}
+        icon={<CalendarDays size={18} />}
         label="Upcoming Bills"
         description={
           <>

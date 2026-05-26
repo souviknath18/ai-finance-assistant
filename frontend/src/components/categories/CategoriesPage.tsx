@@ -85,7 +85,7 @@ export default function CategoriesPage() {
         onCreateCategoryAction={() => setCreateModalOpen(true)}
       />
 
-      <section className="mb-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
         <MonthlyDistributionCard categories={categories} />
         <CategoryAIInsights categories={categories} />
       </section>

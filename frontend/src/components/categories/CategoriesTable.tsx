@@ -39,18 +39,18 @@ export default function CategoriesTable({
 
   if (loading) {
     return (
-      <div className="rounded-3xl border border-[#dce9ff] bg-white p-8 text-sm font-semibold text-[#565e74] shadow-sm">
+      <div className="rounded-2xl border border-[#dce9ff] bg-white p-6 text-[13px] font-semibold text-[#565e74] shadow-sm">
         Loading categories...
       </div>
     );
   }
 
   return (
-    <div className="overflow-visible rounded-3xl border border-[#dce9ff] bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-[#e5eeff] bg-[#f8f9ff] px-6 py-5">
-        <h2 className="text-2xl font-bold text-black">Active Categories</h2>
+    <div className="overflow-visible rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-[#e5eeff] bg-[#f8f9ff] px-5 py-4">
+        <h2 className="text-lg font-bold text-black">Active Categories</h2>
 
-        <span className="text-sm text-[#565e74]">
+        <span className="text-[13px] text-[#565e74]">
           Show: <strong className="text-black">All ({categories.length})</strong>
         </span>
       </div>
@@ -59,7 +59,7 @@ export default function CategoriesTable({
         <table className="w-full min-w-[900px] border-collapse text-left">
           <thead>
             <tr className="bg-[#eff4ff]">
-              <th className="w-12 px-6 py-4">
+              <th className="w-12 px-5 py-3.5">
                 <input type="checkbox" className="h-4 w-4 rounded" />
               </th>
 
@@ -111,7 +111,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#565e74] ${
+      className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >

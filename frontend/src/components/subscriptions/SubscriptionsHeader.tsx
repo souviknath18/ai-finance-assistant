@@ -12,31 +12,31 @@ export default function SubscriptionsHeader({
   onFilterAction,
 }: SubscriptionsHeaderProps) {
   return (
-    <header className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+    <header className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
       <div>
-        <h1 className="text-4xl font-bold tracking-tight text-black">
+        <h1 className="text-2xl font-bold tracking-tight text-black">
           Subscriptions
         </h1>
 
-        <p className="mt-2 text-base leading-7 text-[#565e74]">
+        <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
           We&apos;ve identified {count} recurring payments from your accounts.
         </p>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2.5">
         <button
           onClick={onFilterAction}
-          className="flex items-center gap-2 rounded-xl bg-[#dce9ff] px-5 py-3 text-sm font-bold text-black"
+          className="flex items-center gap-2 rounded-xl bg-[#dce9ff] px-4 py-2.5 text-[13px] font-bold text-black"
         >
-          <Filter size={17} />
+          <Filter size={15} />
           Filter
         </button>
 
         <button
           onClick={onAddManualAction}
-          className="flex items-center gap-2 rounded-xl bg-black px-5 py-3 text-sm font-bold text-white"
+          className="flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white"
         >
-          <Plus size={17} />
+          <Plus size={15} />
           Add Manual
         </button>
       </div>

@@ -13,29 +13,29 @@ export default function ActiveSessionCard({
 }: ActiveSessionCardProps) {
   return (
     <div
-      className={`flex items-center justify-between gap-5 rounded-2xl border p-4 ${
+      className={`flex items-center justify-between gap-4 rounded-2xl border p-3.5 ${
         active ? "border-[#dce9ff] bg-[#f8f9ff]" : "border-[#e5eeff] bg-white"
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div className="text-[#565e74]">
-          {active ? <Monitor size={22} /> : <Smartphone size={22} />}
+          {active ? <Monitor size={18} /> : <Smartphone size={18} />}
         </div>
 
         <div>
-          <p className="text-sm font-bold text-black">{device}</p>
-          <p className="mt-1 text-xs font-semibold text-[#565e74]">
+          <p className="text-[13px] font-bold text-black">{device}</p>
+          <p className="mt-1 text-[11px] font-semibold text-[#565e74]">
             {location}
           </p>
         </div>
       </div>
 
       {active ? (
-        <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-700">
           Active
         </span>
       ) : (
-        <button className="text-xs font-bold uppercase tracking-wide text-red-600">
+        <button className="text-[11px] font-bold uppercase tracking-wide text-red-600">
           Revoke
         </button>
       )}

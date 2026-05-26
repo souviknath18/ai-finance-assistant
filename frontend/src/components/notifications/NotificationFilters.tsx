@@ -7,8 +7,8 @@ const filters = [
 
 export default function NotificationFilters() {
   return (
-    <div className="rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-xs font-bold uppercase tracking-widest text-[#565e74]">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <h2 className="mb-3.5 text-[11px] font-bold uppercase tracking-widest text-[#565e74]">
         Filter By Type
       </h2>
 
@@ -16,7 +16,7 @@ export default function NotificationFilters() {
         {filters.map((filter) => (
           <button
             key={filter.label}
-            className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-bold transition ${
+            className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-bold transition ${
               filter.active
                 ? "bg-emerald-100 text-emerald-800"
                 : "text-[#565e74] hover:bg-[#eff4ff] hover:text-black"
@@ -25,7 +25,7 @@ export default function NotificationFilters() {
             <span>{filter.label}</span>
 
             <span
-              className={`rounded-full px-2 py-0.5 text-xs ${
+              className={`rounded-full px-2 py-0.5 text-[11px] ${
                 filter.active
                   ? "bg-emerald-800 text-white"
                   : "text-[#565e74]"

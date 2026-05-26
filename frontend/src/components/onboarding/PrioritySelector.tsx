@@ -24,12 +24,12 @@ export default function PrioritySelector({
   onToggleAction,
 }: PrioritySelectorProps) {
   return (
-    <div className="space-y-4">
-      <label className="ml-1 text-sm text-[#565e74]">
+    <div className="space-y-3">
+      <label className="ml-1 text-[13px] text-[#565e74]">
         Main Financial Priorities
       </label>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2.5">
         {priorities.map((priority) => {
           const Icon = priority.icon;
           const active = selectedPriorities.includes(priority.value);
@@ -39,13 +39,13 @@ export default function PrioritySelector({
               key={priority.value}
               type="button"
               onClick={() => onToggleAction(priority.value)}
-              className={`flex items-center gap-2 rounded-full border px-5 py-3 text-sm transition ${
+              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-[13px] transition ${
                 active
                   ? "border-emerald-700 bg-emerald-50 font-semibold text-emerald-700"
                   : "border-[#c6c6cd] text-[#45464d] hover:border-emerald-600 hover:text-emerald-700"
               }`}
             >
-              <Icon size={17} />
+              <Icon size={15} />
               {priority.label}
             </button>
           );

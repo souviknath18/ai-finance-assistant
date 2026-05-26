@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react"; 
+
+import { useState } from "react";
 import { Search, X } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
 import DateRangeFilter from "../ui/DateRangeFilter";
@@ -50,11 +51,11 @@ export default function TransactionsFilters({
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
   return (
-    <div className="mb-6 overflow-visible rounded-3xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+    <div className="mb-5 overflow-visible rounded-2xl border border-[#e5eeff] bg-white p-4 shadow-sm">
       {/* SEARCH SECTION */}
-      <div className="mb-4 flex flex-col gap-3 rounded-2xl bg-[#eff4ff] p-3 md:flex-row md:items-center">
-        <div className="flex flex-1 items-center rounded-xl bg-white px-4 py-3">
-          <Search size={18} className="text-[#76777d]" />
+      <div className="mb-4 flex flex-col gap-3 rounded-xl bg-[#eff4ff] p-3 md:flex-row md:items-center">
+        <div className="flex flex-1 items-center rounded-xl bg-white px-3 py-2.5">
+          <Search size={16} className="text-[#76777d]" />
 
           <input
             value={searchQuery}
@@ -67,7 +68,7 @@ export default function TransactionsFilters({
               }
             }}
             placeholder='Try "bank fees", "subscriptions", "income deposits"...'
-            className="ml-3 w-full bg-transparent text-sm outline-none"
+            className="ml-3 w-full bg-transparent text-[13px] outline-none"
           />
         </div>
 
@@ -76,7 +77,7 @@ export default function TransactionsFilters({
             type="button"
             onClick={() => onSemanticSearchAction()}
             disabled={!searchQuery.trim() || searching}
-            className="rounded-xl bg-black px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {searching ? "Searching..." : "Smart Search"}
           </button>
@@ -85,9 +86,9 @@ export default function TransactionsFilters({
             <button
               type="button"
               onClick={onClearSearchAction}
-              className="flex items-center gap-2 rounded-xl border border-[#c6c6cd] bg-white px-4 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]"
+              className="flex items-center gap-2 rounded-xl border border-[#c6c6cd] bg-white px-3 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
             >
-              <X size={16} />
+              <X size={15} />
               Clear
             </button>
           )}
@@ -95,14 +96,14 @@ export default function TransactionsFilters({
       </div>
 
       {/* QUICK SEARCH CHIPS */}
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap gap-2">
         {quickSearches.map((chip) => (
           <button
             key={chip}
             type="button"
             onClick={() => onQuickSearchAction(chip)}
             disabled={searching}
-            className="rounded-full border border-[#dce9ff] bg-white px-4 py-2 text-xs font-bold text-[#565e74] transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full border border-[#dce9ff] bg-white px-3 py-1.5 text-[11px] font-bold text-[#565e74] transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {chip}
           </button>
@@ -110,8 +111,7 @@ export default function TransactionsFilters({
       </div>
 
       {/* FILTERS */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-5">
-        {/* START DATE */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <DateRangeFilter
           label="Start Date"
           name="startDate"
@@ -121,7 +121,6 @@ export default function TransactionsFilters({
           }
         />
 
-        {/* END DATE */}
         <DateRangeFilter
           label="End Date"
           name="endDate"
@@ -131,9 +130,8 @@ export default function TransactionsFilters({
           }
         />
 
-        {/* CATEGORY */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wide text-[#565e74]">
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
             Category
           </label>
 
@@ -141,15 +139,16 @@ export default function TransactionsFilters({
             name="category"
             value={category}
             open={openFilter === "category"}
-            onOpenChangeAction={(open) => setOpenFilter(open ? "category" : null)}
+            onOpenChangeAction={(open) =>
+              setOpenFilter(open ? "category" : null)
+            }
             options={categoryOptions}
             onChangeAction={onFilterChangeAction}
           />
         </div>
 
-        {/* TRANSACTION TYPE */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wide text-[#565e74]">
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
             Transaction Type
           </label>
 
@@ -170,9 +169,8 @@ export default function TransactionsFilters({
           />
         </div>
 
-        {/* STATUS */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wide text-[#565e74]">
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
             Status
           </label>
 

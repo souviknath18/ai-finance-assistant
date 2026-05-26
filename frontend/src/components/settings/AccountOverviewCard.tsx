@@ -2,23 +2,23 @@ import { CalendarDays, BadgeCheck } from "lucide-react";
 
 export default function AccountOverviewCard() {
   return (
-    <div className="rounded-3xl border border-[#dce9ff] bg-[#eff4ff] p-6 shadow-sm">
-      <h2 className="mb-5 text-xs font-bold uppercase tracking-widest text-[#565e74]">
+    <div className="rounded-2xl border border-[#dce9ff] bg-[#eff4ff] p-5 shadow-sm">
+      <h2 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#565e74]">
         Account Overview
       </h2>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <OverviewItem
           label="Active Plan"
           value="Premium AI Plus"
-          icon={<BadgeCheck size={18} />}
+          icon={<BadgeCheck size={16} />}
           highlighted
         />
 
         <OverviewItem
           label="Next Billing"
           value="Dec 14, 2024"
-          icon={<CalendarDays size={18} />}
+          icon={<CalendarDays size={16} />}
         />
       </div>
     </div>
@@ -37,12 +37,12 @@ function OverviewItem({
   highlighted?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl bg-white p-4">
+    <div className="flex items-center justify-between rounded-2xl bg-white p-3.5">
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-[#565e74]">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
           {label}
         </p>
-        <p className="mt-1 text-sm font-bold text-black">{value}</p>
+        <p className="mt-1 text-[13px] font-bold text-black">{value}</p>
       </div>
 
       <div

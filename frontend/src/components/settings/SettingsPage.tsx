@@ -10,13 +10,13 @@ export default function SettingsPage() {
     <>
       <SettingsHeader />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <aside className="space-y-6 lg:col-span-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <aside className="space-y-4 lg:col-span-4">
           <AIPersonalizationCard />
           <AccountOverviewCard />
         </aside>
 
-        <section className="space-y-10 lg:col-span-8">
+        <section className="space-y-8 lg:col-span-8">
           <SecuritySection />
           <AIPrivacySection />
           <DangerZone />

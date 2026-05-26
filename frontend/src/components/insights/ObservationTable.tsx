@@ -10,11 +10,11 @@ export default function ObservationTable({
 }: ObservationTableProps) {
   return (
     <section>
-      <h2 className="mb-5 text-2xl font-bold text-black">
+      <h2 className="mb-4 text-lg font-bold text-black">
         Recent Observations
       </h2>
 
-      <div className="overflow-hidden rounded-3xl border border-[#e5eeff] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-left">
             <thead className="border-b border-[#e5eeff] bg-[#eff4ff]">
@@ -31,7 +31,7 @@ export default function ObservationTable({
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-6 py-8 text-sm font-semibold text-[#565e74]"
+                    className="px-5 py-6 text-[13px] font-semibold text-[#565e74]"
                   >
                     No observations yet. Upload more transactions to generate insights.
                   </td>
@@ -59,7 +59,7 @@ export default function ObservationTable({
 
 function TableHead({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
       {children}
     </th>
   );

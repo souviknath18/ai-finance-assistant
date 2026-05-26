@@ -55,19 +55,19 @@ export default function ManageSubscriptionModal({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
         <div className="flex max-h-[90vh] flex-col">
-          <div className="flex items-start justify-between gap-5 border-b border-[#eef2ff] bg-white px-6 pb-4 pt-6">
+          <div className="flex items-start justify-between gap-4 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
             <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-[#dce9ff] p-3 text-black">
-                <Settings size={22} />
+              <div className="rounded-xl bg-[#dce9ff] p-2.5 text-black">
+                <Settings size={18} />
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold leading-tight text-black">
+                <h2 className="text-xl font-bold leading-tight text-black">
                   Manage {subscription.merchant}
                 </h2>
-                <p className="mt-2 text-sm text-[#565e74]">
+                <p className="mt-1 text-[13px] text-[#565e74]">
                   Choose how Aura should track this subscription.
                 </p>
               </div>
@@ -75,29 +75,31 @@ export default function ManageSubscriptionModal({
 
             <button
               onClick={onCloseAction}
-              className="rounded-xl p-2 text-[#565e74] hover:bg-[#eff4ff] hover:text-black"
+              className="rounded-xl p-1.5 text-[#565e74] hover:bg-[#eff4ff] hover:text-black"
             >
-              <X size={20} />
+              <X size={17} />
             </button>
           </div>
 
-          <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-5">
-            <div className="mb-5 rounded-3xl bg-[#eff4ff] p-5">
-              <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">
+          <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4">
+            <div className="mb-4 rounded-2xl bg-[#eff4ff] p-4">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-700">
                 Current Tracking Status
               </p>
-              <h3 className="mt-2 text-2xl font-bold capitalize text-black">
+
+              <h3 className="mt-1.5 text-xl font-bold capitalize text-black">
                 {subscription.preference_status?.replace("_", " ") || "Active"}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[#565e74]">
+
+              <p className="mt-1.5 text-[13px] leading-5 text-[#565e74]">
                 Aura uses this status to personalize future subscription insights,
                 duplicate warnings, and savings recommendations.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <ActionCard
-                icon={<CheckCircle2 size={20} />}
+                icon={<CheckCircle2 size={18} />}
                 title="Keep Tracking"
                 desc="Confirm this is an important active subscription."
                 onClick={() => updatePreference("confirmed")}
@@ -105,7 +107,7 @@ export default function ManageSubscriptionModal({
               />
 
               <ActionCard
-                icon={<AlertTriangle size={20} />}
+                icon={<AlertTriangle size={18} />}
                 title="Mark as Not Needed"
                 desc="Tell Aura this subscription may be a cancellation candidate."
                 onClick={() => updatePreference("cancel_candidate")}
@@ -114,7 +116,7 @@ export default function ManageSubscriptionModal({
               />
 
               <ActionCard
-                icon={<Trash2 size={20} />}
+                icon={<Trash2 size={18} />}
                 title="Ignore Recommendation"
                 desc="Hide this subscription from future optimization suggestions."
                 onClick={() => updatePreference("ignored")}
@@ -123,11 +125,11 @@ export default function ManageSubscriptionModal({
             </div>
           </div>
 
-          <div className="border-t border-[#eef2ff] bg-white px-6 py-5">
+          <div className="border-t border-[#eef2ff] bg-white px-5 py-4">
             <button
               onClick={onCloseAction}
               disabled={saving}
-              className="w-full rounded-xl border border-[#c6c6cd] px-5 py-3 text-sm font-bold text-black hover:bg-[#eff4ff] disabled:opacity-60"
+              className="w-full rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black hover:bg-[#eff4ff] disabled:opacity-60"
             >
               {saving ? "Saving..." : "Close"}
             </button>
@@ -157,15 +159,15 @@ function ActionCard({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-full rounded-3xl border p-5 text-left transition hover:shadow-sm disabled:opacity-60 ${
+      className={`w-full rounded-2xl border p-4 text-left transition hover:shadow-sm disabled:opacity-60 ${
         danger
           ? "border-red-100 bg-red-50 text-red-600"
           : "border-[#e5eeff] bg-white text-black hover:bg-[#f8f9ff]"
       }`}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3">
         <div
-          className={`rounded-xl p-3 ${
+          className={`rounded-xl p-2.5 ${
             danger ? "bg-white text-red-600" : "bg-[#dce9ff] text-black"
           }`}
         >
@@ -173,8 +175,12 @@ function ActionCard({
         </div>
 
         <div>
-          <h3 className="text-base font-bold">{title}</h3>
-          <p className={`mt-1 text-sm leading-6 ${danger ? "text-red-700" : "text-[#565e74]"}`}>
+          <h3 className="text-[15px] font-bold">{title}</h3>
+          <p
+            className={`mt-1 text-[13px] leading-5 ${
+              danger ? "text-red-700" : "text-[#565e74]"
+            }`}
+          >
             {desc}
           </p>
         </div>

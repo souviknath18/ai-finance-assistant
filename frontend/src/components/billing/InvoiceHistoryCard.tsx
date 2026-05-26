@@ -20,9 +20,9 @@ const invoices = [
 
 export default function InvoiceHistoryCard() {
   return (
-    <div className="rounded-3xl border border-[#dce9ff] bg-white shadow-sm">
-      <div className="border-b border-[#e5eeff] px-6 py-5">
-        <h3 className="text-2xl font-bold text-black">
+    <div className="rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
+      <div className="border-b border-[#e5eeff] px-5 py-4">
+        <h3 className="text-lg font-bold text-black">
           Invoice History
         </h3>
       </div>
@@ -52,8 +52,8 @@ export default function InvoiceHistoryCard() {
         </table>
       </div>
 
-      <div className="p-5 text-center">
-        <button className="text-sm font-bold text-[#565e74] transition hover:text-black">
+      <div className="p-4 text-center">
+        <button className="text-[13px] font-bold text-[#565e74] transition hover:text-black">
           View All Invoices
         </button>
       </div>
@@ -70,7 +70,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#565e74] ${
+      className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
         align === "right" ? "text-right" : "text-left"
       }`}
     >

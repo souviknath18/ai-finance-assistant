@@ -9,25 +9,25 @@ const chartData = [
 
 export default function BalanceChart() {
   return (
-    <div className="rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-      <div className="mb-10 flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-black">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-black">
           Monthly Balance
         </h3>
 
         <div className="flex gap-2">
-          <button className="rounded-xl bg-[#e5eeff] px-4 py-1.5 text-xs font-semibold text-[#565e74]">
+          <button className="rounded-lg bg-[#e5eeff] px-3 py-1 text-[11px] font-semibold text-[#565e74]">
             6M
           </button>
 
-          <button className="rounded-xl bg-black px-4 py-1.5 text-xs font-semibold text-white">
+          <button className="rounded-lg bg-black px-3 py-1 text-[11px] font-semibold text-white">
             1Y
           </button>
         </div>
       </div>
 
-      <div className="relative h-72 w-full">
-        <div className="absolute inset-0 flex items-end gap-6">
+      <div className="relative h-56 w-full">
+        <div className="absolute inset-0 flex items-end gap-4">
           {chartData.map((item) => (
             <div
               key={item.month}
@@ -37,7 +37,7 @@ export default function BalanceChart() {
           ))}
         </div>
 
-        <div className="absolute bottom-0 flex w-full justify-between border-t border-[#c6c6cd] pt-3 text-xs font-semibold text-[#565e74]">
+        <div className="absolute bottom-0 flex w-full justify-between border-t border-[#c6c6cd] pt-2 text-[11px] font-semibold text-[#565e74]">
           {chartData.map((item) => (
             <span key={item.month}>{item.month}</span>
           ))}

@@ -26,7 +26,7 @@ body {
 
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #006a61 #e5eeff;
+  scrollbar-color: #bfd4ff transparent;
 }
 
 .sidebar-scroll::-webkit-scrollbar {
@@ -34,17 +34,17 @@ body {
 }
 
 .sidebar-scroll::-webkit-scrollbar-track {
-  background: #e5eeff;
+  background: transparent;
   border-radius: 9999px;
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #006a61, #89f5e7);
+  background: linear-gradient(180deg, #dce9ff, #bfd4ff);
   border-radius: 9999px;
 }
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: #006a61;
+  background: linear-gradient(180deg, #c7d8ff, #aac5ff);
 }
 
 @keyframes toastSlide {

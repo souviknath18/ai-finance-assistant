@@ -18,11 +18,11 @@ export default function MoneyInput({
   onChange,
 }: MoneyInputProps) {
   return (
-    <div className="space-y-1">
-      <label className="ml-1 text-sm text-[#565e74]">{label}</label>
+    <div className="space-y-1.5">
+      <label className="ml-1 text-[13px] text-[#565e74]">{label}</label>
 
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#565e74]">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-[#565e74]">
           {symbol}
         </span>
 
@@ -33,7 +33,7 @@ export default function MoneyInput({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="h-[50px] w-full rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] pl-10 pr-4 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+          className="h-11 w-full rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] pl-8 pr-3 text-[13px] outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
         />
       </div>
     </div>

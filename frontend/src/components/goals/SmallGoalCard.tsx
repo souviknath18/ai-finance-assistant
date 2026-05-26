@@ -18,30 +18,30 @@ export default function SmallGoalCard({
   note,
 }: SmallGoalCardProps) {
   return (
-    <div className="flex flex-col rounded-3xl border border-[#c6c6cd] bg-white p-6 shadow-sm md:col-span-4">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="rounded-xl bg-[#e5eeff] p-3 text-black">
+    <div className="flex flex-col rounded-2xl border border-[#c6c6cd] bg-white p-5 shadow-sm md:col-span-4">
+      <div className="mb-5 flex items-center justify-between">
+        <div className="rounded-xl bg-[#e5eeff] p-2.5 text-black">
           {icon}
         </div>
 
-        <MoreVertical size={20} className="text-[#76777d]" />
+        <MoreVertical size={18} className="text-[#76777d]" />
       </div>
 
-      <h3 className="text-2xl font-bold text-black">{title}</h3>
+      <h3 className="text-lg font-bold text-black">{title}</h3>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-lg font-bold text-black">{current}</span>
-        <span className="text-sm text-[#565e74]">/ {target}</span>
+      <div className="mt-2.5 flex items-baseline gap-2">
+        <span className="text-base font-bold text-black">{current}</span>
+        <span className="text-[13px] text-[#565e74]">/ {target}</span>
       </div>
 
-      <div className="mt-6 h-2 w-full rounded-full bg-[#e5eeff]">
+      <div className="mt-5 h-1.5 w-full rounded-full bg-[#e5eeff]">
         <div
           className="h-full rounded-full bg-indigo-700"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <p className="mt-4 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+      <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
         {note}
       </p>
     </div>

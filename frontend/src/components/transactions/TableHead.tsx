@@ -9,7 +9,7 @@ export default function TableHead({
 }: TableHeadProps) {
   return (
     <th
-      className={`p-5 text-xs font-bold uppercase tracking-wide text-[#565e74] ${
+      className={`p-4 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
         align === "right"
           ? "text-right"
           : align === "center"

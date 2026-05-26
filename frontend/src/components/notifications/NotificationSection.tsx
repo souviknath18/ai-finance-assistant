@@ -13,9 +13,9 @@ export default function NotificationSection({
 }: NotificationSectionProps) {
   return (
     <section className={faded ? "opacity-70 transition hover:opacity-100" : ""}>
-      <div className="mb-5 flex items-center gap-4">
+      <div className="mb-4 flex items-center gap-3">
         <h2
-          className={`text-2xl font-bold text-black ${
+          className={`text-lg font-bold text-black ${
             muted ? "opacity-70" : ""
           } ${faded ? "opacity-50" : ""}`}
         >
@@ -25,7 +25,7 @@ export default function NotificationSection({
         <div className="h-px flex-1 bg-[#c6c6cd]/50" />
       </div>
 
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-3">{children}</div>
     </section>
   );
 }
