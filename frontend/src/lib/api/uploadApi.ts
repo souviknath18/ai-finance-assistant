@@ -20,7 +20,11 @@ export async function uploadFile(file: File): Promise<UploadedFile> {
     body: formData,
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get("content-type");
+
+  const data = contentType?.includes("application/json")
+    ? await response.json()
+    : { detail: await response.text() };
 
   if (!response.ok) {
     throw data;
