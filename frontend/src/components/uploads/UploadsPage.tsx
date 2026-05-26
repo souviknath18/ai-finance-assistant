@@ -40,7 +40,8 @@ function getFriendlyUploadError(err: any) {
     return "Network issue detected. Please check your internet connection and try again.";
   }
 
-  return "We could not upload this file. Please check the file and try again.";
+  // return "We could not upload this file. Please check the file and try again.";
+  return `Upload failed: ${String(message)}`;
 }
 
 export default function UploadsPage() {
@@ -101,6 +102,7 @@ export default function UploadsPage() {
         setToast((prev) => ({ ...prev, show: false }));
       }, 5000);
     } catch (err: any) {
+      console.log("UPLOAD ERROR:", err);
       setError(getFriendlyUploadError(err));
     } finally {
       setUploading(false);

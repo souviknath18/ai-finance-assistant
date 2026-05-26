@@ -28,6 +28,10 @@ export default function UploadDropzone({
 
     setSelectedFileName(file.name);
     onUploadAction(file);
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
   return (
@@ -44,7 +48,11 @@ export default function UploadDropzone({
       }}
       className={`group flex min-h-[320px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-white p-8 text-center shadow-sm transition hover:border-emerald-600 hover:shadow-md ${
         dragging ? "border-emerald-600 bg-emerald-50" : "border-[#c6c6cd]"
-      } ${uploading ? "pointer-events-none border-emerald-200 bg-emerald-50/40" : ""}`}
+      } ${
+        uploading
+          ? "pointer-events-none border-emerald-200 bg-emerald-50/40"
+          : ""
+      }`}
     >
       <input
         ref={inputRef}
@@ -64,12 +72,12 @@ export default function UploadDropzone({
       </div>
 
       <h2 className="mb-2 text-xl font-bold text-black">
-        {uploading ? "Processing your document" : "Drag and drop bank statements"}
+        {uploading ? "Uploading your document" : "Drag and drop bank statements"}
       </h2>
 
       <p className="mb-6 text-[13px] text-[#565e74]">
         {uploading
-          ? "Aura is uploading, reading, and preparing your financial data."
+          ? "Aura is saving your file. AI processing will continue in the background."
           : "Supports expense CSVs, invoices, bills, screenshots, or salary slips"}
       </p>
 
@@ -81,7 +89,11 @@ export default function UploadDropzone({
             label="CSV"
             tone="green"
           />
-          <FileBadge icon={<FileImage size={15} />} label="JPG/PNG" tone="blue" />
+          <FileBadge
+            icon={<FileImage size={15} />}
+            label="JPG/PNG"
+            tone="blue"
+          />
         </div>
       )}
 
@@ -92,13 +104,14 @@ export default function UploadDropzone({
               <p className="truncate text-[13px] font-bold text-black">
                 {selectedFileName || "Selected file"}
               </p>
+
               <p className="mt-1 text-[12px] text-[#565e74]">
-                This may take longer for large files or files with many transactions.
+                Uploading now. You will see processing progress below.
               </p>
             </div>
 
             <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-emerald-700">
-              Working
+              Uploading
             </span>
           </div>
 
@@ -114,12 +127,12 @@ export default function UploadDropzone({
         onClick={() => inputRef.current?.click()}
         className="rounded-xl bg-black px-6 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {uploading ? "Processing..." : "Select Files from Computer"}
+        {uploading ? "Uploading..." : "Select Files from Computer"}
       </button>
 
       <p className="mt-5 text-[13px] italic text-[#76777d]">
         {uploading
-          ? "Please keep this page open while Aura processes your document."
+          ? "Once uploaded, Aura will analyze it in the background."
           : "All data is encrypted end-to-end and handled with secure processing."}
       </p>
     </div>
