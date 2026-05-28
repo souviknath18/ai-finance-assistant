@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionsHeader from "./TransactionsHeader";
 import TransactionsFilters from "./TransactionsFilters";
 import SelectedToolbar from "./SelectedToolbar";
@@ -8,7 +8,10 @@ import TransactionsTable from "./TransactionsTable";
 import Pagination from "@/components/ui/Pagination";
 import SpendingVelocityCard from "./SpendingVelocityCard";
 import AIPulseCard from "./AIPulseCard";
-import { TransactionTableItem } from "@/types/transaction";
+import {
+  TransactionTableItem,
+  GetTransactionsParams,
+} from "@/types/transaction";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import {
   bulkDeleteTransactions,
@@ -22,6 +25,8 @@ import { getCategoryOptions } from "@/lib/api/categoryApi";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<TransactionTableItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +41,6 @@ export default function TransactionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [semanticMode, setSemanticMode] = useState(false);
-  const [allTransactions, setAllTransactions] = useState<TransactionTableItem[]>([]);
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
@@ -59,10 +63,28 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     const loadTransactions = async () => {
+      setLoading(true);
+
       try {
-        const data = await getTransactions();
-        setTransactions(data);
-        setAllTransactions(data);
+        const params: GetTransactionsParams = {
+          page: currentPage,
+          pageSize: rowsPerPage,
+          category: filters.category,
+          transactionType: filters.transactionType,
+          statusFilter: filters.statusFilter,
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+        };
+
+        if (!semanticMode && searchQuery.trim()) {
+          params.search = searchQuery;
+        }
+
+        const data = await getTransactions(params);
+
+        setTransactions(data.results);
+        setTotalCount(data.count);
+        setTotalPages(data.totalPages);
 
         const categories = await getCategoryOptions();
 
@@ -81,48 +103,12 @@ export default function TransactionsPage() {
     };
 
     loadTransactions();
-  }, []);
-
-
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((transaction) => {
-      const matchesCategory =
-        filters.category === "all" || transaction.category === filters.category;
-
-      const matchesType =
-        filters.transactionType === "all" ||
-        transaction.type === filters.transactionType;
-
-      const matchesStatus =
-        filters.statusFilter === "all" ||
-        transaction.status === filters.statusFilter;
-
-      const transactionDate = new Date(transaction.date);
-      const start = filters.startDate ? new Date(filters.startDate) : null;
-      const end = filters.endDate ? new Date(filters.endDate) : null;
-
-      const matchesStartDate = !start || transactionDate >= start;
-      const matchesEndDate = !end || transactionDate <= end;
-
-      return (
-        matchesCategory &&
-        matchesType &&
-        matchesStatus &&
-        matchesStartDate &&
-        matchesEndDate
-      );
-    });
-  }, [transactions, filters]);
-
-
-  const totalPages = Math.ceil(filteredTransactions.length / rowsPerPage);
-
-  const paginatedTransactions = useMemo(() => {
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-
-    return filteredTransactions.slice(startIndex, endIndex);
-  }, [filteredTransactions, currentPage, rowsPerPage]);
+  }, [
+    currentPage,
+    rowsPerPage,
+    filters,
+    semanticMode,
+  ]);
 
   const handleRowsPerPageChange = (value: number) => {
     setRowsPerPage(value);
@@ -138,7 +124,7 @@ export default function TransactionsPage() {
   };
 
   const toggleSelectAllVisible = () => {
-    const visibleIds = paginatedTransactions.map((transaction) => transaction.id);
+    const visibleIds = transactions.map((transaction) => transaction.id);
 
     const allVisibleSelected = visibleIds.every((id) => selectedIds.includes(id));
 
@@ -231,7 +217,7 @@ export default function TransactionsPage() {
 
       const matchedIds = results.map((result) => result.transaction_id);
 
-      const matchedTransactions = allTransactions.filter((transaction) =>
+      const matchedTransactions = transactions.filter((transaction) =>
         matchedIds.includes(transaction.id)
       );
 
@@ -246,7 +232,6 @@ export default function TransactionsPage() {
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    setTransactions(allTransactions);
     setSemanticMode(false);
     setCurrentPage(1);
   };
@@ -259,7 +244,7 @@ export default function TransactionsPage() {
 
       const matchedIds = results.map((result) => result.transaction_id);
 
-      const matchedTransactions = allTransactions.filter((transaction) =>
+      const matchedTransactions = transactions.filter((transaction) =>
         matchedIds.includes(transaction.id)
       );
 
@@ -314,7 +299,7 @@ export default function TransactionsPage() {
 
       <div className="overflow-visible rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
         <TransactionsTable
-          transactions={paginatedTransactions}
+          transactions={transactions}
           loading={loading}
           error={error}
           selectedIds={selectedIds}
@@ -324,16 +309,16 @@ export default function TransactionsPage() {
           onCategoryChangeAction={handleCategoryChange}
           onFindSimilarAction={handleFindSimilar}
           emptyMessage={
-            allTransactions.length === 0
+            totalCount === 0
               ? "No transactions found. Upload a bank statement first."
               : semanticMode
               ? "No matching transactions found for your semantic search."
               : "No transactions found for the selected filters."
           }
         />
-
+        
         <Pagination
-          total={filteredTransactions.length}
+          total={totalCount}
           currentPage={currentPage}
           totalPages={totalPages}
           rowsPerPage={rowsPerPage}

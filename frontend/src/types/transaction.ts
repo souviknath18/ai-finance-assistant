@@ -38,3 +38,22 @@ export type TransactionTableItem = {
   ai: boolean;
   review?: boolean;
 };
+
+export type PaginatedTransactionsResponse = {
+  count: number;
+  total_pages: number;
+  current_page: number;
+  page_size: number;
+  results: BackendTransaction[];
+};
+
+export type GetTransactionsParams = {
+  page: number;
+  pageSize: number;
+  search?: string;
+  category?: string;
+  transactionType?: string;
+  statusFilter?: string;
+  startDate?: string;
+  endDate?: string;
+};

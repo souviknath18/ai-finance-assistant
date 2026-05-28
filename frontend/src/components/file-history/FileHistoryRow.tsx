@@ -8,25 +8,37 @@ import {
   XCircle,
   LoaderCircle,
 } from "lucide-react";
+import { UploadedFile } from "@/types/upload";
 
-type FileRow = {
-  name: string;
-  size: string;
-  type: string;
-  date: string;
-  time: string;
-  status: string;
-  extraction: string;
-  fileKind: string;
-};
-
-export default function FileHistoryRow({ file }: { file: FileRow }) {
+export default function FileHistoryRow({
+  file,
+  onDeleteAction,
+}: {
+  file: UploadedFile;
+  onDeleteAction: (file: UploadedFile) => void;
+}) {
   const FileIcon =
-    file.fileKind === "csv" ? Table : file.fileKind === "image" ? Image : FileText;
+    file.file_type === "csv" ? Table : file.file_type === "image" ? Image : FileText;
 
-  const isSuccess = file.status === "Success";
-  const isPending = file.status === "Pending";
-  const isFailed = file.status === "Failed";
+  const isSuccess = file.status === "success";
+  const isPending = file.status === "pending" || file.status === "processing";
+  const isFailed = file.status === "failed";
+
+  const uploadDate = new Date(file.uploaded_at);
+
+  const statusLabel = isSuccess
+    ? "Success"
+    : isFailed
+    ? "Failed"
+    : file.status === "processing"
+    ? "Processing"
+    : "Pending";
+
+  const extraction = isSuccess
+    ? `${file.extracted_transactions_count} Items`
+    : isFailed
+    ? "0 Items"
+    : file.processing_step || "Processing...";
 
   return (
     <tr className="transition hover:bg-[#eff4ff]/60">
@@ -35,24 +47,35 @@ export default function FileHistoryRow({ file }: { file: FileRow }) {
           <FileIcon size={19} className="text-black" />
 
           <div>
-            <p className="text-[13px] font-bold text-black">{file.name}</p>
+            <p className="text-[13px] font-bold text-black">
+              {file.original_filename}
+            </p>
             <p className="text-[11px] font-semibold text-[#565e74]">
-              {file.size}
+              {file.file_size_mb} MB
             </p>
           </div>
         </div>
       </td>
 
       <td className="px-5 py-4">
-        <span className="rounded-full bg-[#e5eeff] px-2.5 py-1 text-[11px] font-bold text-[#565e74]">
-          {file.type}
+        <span className="rounded-full bg-[#e5eeff] px-2.5 py-1 text-[11px] font-bold uppercase text-[#565e74]">
+          {file.file_type}
         </span>
       </td>
 
       <td className="px-5 py-4">
-        <p className="text-[13px] text-black">{file.date}</p>
+        <p className="text-[13px] text-black">
+          {uploadDate.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </p>
         <p className="text-[11px] font-semibold text-[#565e74]">
-          {file.time}
+          {uploadDate.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </p>
       </td>
 
@@ -69,7 +92,7 @@ export default function FileHistoryRow({ file }: { file: FileRow }) {
           {isSuccess && <CheckCircle2 size={15} />}
           {isPending && <LoaderCircle size={15} className="animate-spin" />}
           {isFailed && <XCircle size={15} />}
-          {file.status}
+          {statusLabel}
         </div>
       </td>
 
@@ -79,23 +102,20 @@ export default function FileHistoryRow({ file }: { file: FileRow }) {
             isFailed ? "text-red-600" : isPending ? "text-[#565e74]" : "text-black"
           }`}
         >
-          {file.extraction}
+          {extraction}
         </p>
       </td>
 
       <td className="px-5 py-4">
         <div className="flex justify-end gap-2">
-          <button
-            className={`rounded-lg p-1.5 transition ${
-              isFailed
-                ? "bg-emerald-100 text-emerald-700 hover:scale-105"
-                : "text-[#565e74] hover:bg-[#e5eeff] hover:text-black"
-            }`}
-          >
+          <button className="rounded-lg p-1.5 text-[#565e74] transition hover:bg-[#e5eeff] hover:text-black">
             <RefreshCcw size={16} />
           </button>
 
-          <button className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50">
+          <button
+            onClick={() => onDeleteAction(file)}
+            className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50"
+          >
             <Trash2 size={16} />
           </button>
         </div>

@@ -1,4 +1,8 @@
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { AlertTriangle, RefreshCcw, LoaderCircle } from "lucide-react";
+
 import { UploadedFile } from "@/types/upload";
 import { retryUploadProcessing } from "@/lib/api/uploadApi";
 
@@ -34,6 +38,10 @@ function getFriendlyProcessingError(error?: string | null) {
     return "We could not read this CSV format. Please make sure it includes transaction date, description, and amount columns.";
   }
 
+  if (message.includes("too long")) {
+    return "This upload took too long to process. Please try again.";
+  }
+
   return "We could not process this file. Please check the file quality and try again.";
 }
 
@@ -41,11 +49,20 @@ export default function IssuesFoundCard({
   files,
   onRetryAction,
 }: IssuesFoundCardProps) {
+  const [retrying, setRetrying] = useState(false);
+
   const latestFailedFile = files[0];
 
   const handleRetry = async (id: number) => {
-    await retryUploadProcessing(id);
-    onRetryAction();
+    try {
+      setRetrying(true);
+
+      await retryUploadProcessing(id);
+
+      onRetryAction();
+    } finally {
+      setRetrying(false);
+    }
   };
 
   return (
@@ -56,7 +73,9 @@ export default function IssuesFoundCard({
       </div>
 
       {!latestFailedFile ? (
-        <p className="text-[13px] text-[#565e74]">No upload issues found.</p>
+        <p className="text-[13px] text-[#565e74]">
+          No upload issues found.
+        </p>
       ) : (
         <div className="rounded-xl border border-red-100 bg-red-50 p-3.5">
           <p className="text-[13px] font-bold text-red-600">
@@ -64,15 +83,27 @@ export default function IssuesFoundCard({
           </p>
 
           <p className="mt-1 text-[13px] leading-5 text-red-700">
-            {getFriendlyProcessingError(latestFailedFile.error_message)}
+            {getFriendlyProcessingError(
+              latestFailedFile.error_message
+            )}
           </p>
 
           <button
+            disabled={retrying}
             onClick={() => handleRetry(latestFailedFile.id)}
-            className="mt-3 flex items-center gap-2 text-[13px] font-bold text-red-600"
+            className="mt-3 flex items-center gap-2 text-[13px] font-bold text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <RefreshCcw size={14} />
-            Retry
+            {retrying ? (
+              <>
+                <LoaderCircle size={14} className="animate-spin" />
+                Retrying...
+              </>
+            ) : (
+              <>
+                <RefreshCcw size={14} />
+                Retry
+              </>
+            )}
           </button>
         </div>
       )}

@@ -29,25 +29,43 @@ export default function ActiveUploadsCard({ files }: ActiveUploadsCardProps) {
       </div>
 
       <div className="space-y-3">
-        {files.map((file) => (
-          <ProgressItem
-            key={file.id}
-            icon={
-              file.status === "processing" ? (
-                <Brain size={16} className="text-emerald-700" />
-              ) : (
-                <FileText size={16} />
-              )
-            }
-            title={`${file.status === "processing" ? "AI Processing" : "Queued"} - ${
-              file.original_filename
-            }`}
-            progress={file.status === "processing" ? "Analyzing..." : "Pending"}
-            width={file.status === "processing" ? "45%" : "20%"}
-            color={file.status === "processing" ? "bg-emerald-700" : "bg-black"}
-            analyzing={file.status === "processing"}
-          />
-        ))}
+        {files.map((file) => {
+          const completing = file.status === "success";
+
+          const titlePrefix = completing
+            ? "Completed"
+            : file.status === "processing"
+            ? "AI Processing"
+            : "Queued";
+
+          return (
+            <ProgressItem
+              key={file.id}
+              icon={
+                file.status === "processing" || completing ? (
+                  <Brain size={16} className="text-emerald-700" />
+                ) : (
+                  <FileText size={16} />
+                )
+              }
+              title={`${titlePrefix} - ${file.original_filename}`}
+              progress={
+                completing
+                  ? "Finalizing..."
+                  : file.processing_step ||
+                    (file.status === "processing" ? "Processing..." : "Pending")
+              }
+              width={`${Math.max(file.processing_progress || 5, 5)}%`}
+              color={
+                file.status === "processing" || completing
+                  ? "bg-emerald-700"
+                  : "bg-black"
+              }
+              analyzing={file.status === "processing"}
+              completing={completing}
+            />
+          );
+        })}
       </div>
     </div>
   );

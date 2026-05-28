@@ -1,77 +1,92 @@
 import FileHistoryTabs from "./FileHistoryTabs";
 import FileHistoryRow from "./FileHistoryRow";
-import FilePagination from "./FilePagination";
+import Pagination from "@/components/ui/Pagination";
+import FileHistoryTableSkeleton from "./FileHistoryTableSkeleton";
+import { UploadedFile, UploadStatus } from "@/types/upload";
 
-const files = [
-  {
-    name: "Chase_Statement_Aug2024.pdf",
-    size: "4.2 MB",
-    type: "PDF",
-    date: "Aug 15, 2024",
-    time: "10:45 AM",
-    status: "Success",
-    extraction: "142 Items",
-    fileKind: "pdf",
-  },
-  {
-    name: "Expenses_Export_Q2.csv",
-    size: "1.8 MB",
-    type: "CSV",
-    date: "Aug 14, 2024",
-    time: "02:30 PM",
-    status: "Pending",
-    extraction: "Processing...",
-    fileKind: "csv",
-  },
-  {
-    name: "Receipt_AppleStore_001.jpg",
-    size: "850 KB",
-    type: "Image",
-    date: "Aug 12, 2024",
-    time: "09:12 AM",
-    status: "Failed",
-    extraction: "0 Items",
-    fileKind: "image",
-  },
-  {
-    name: "Amex_Gold_July.pdf",
-    size: "3.1 MB",
-    type: "PDF",
-    date: "Aug 10, 2024",
-    time: "04:55 PM",
-    status: "Success",
-    extraction: "88 Items",
-    fileKind: "pdf",
-  },
-];
+type Props = {
+  files: UploadedFile[];
+  loading: boolean;
+  statusFilter: "all" | UploadStatus;
+  onStatusFilterChangeAction: (value: "all" | UploadStatus) => void;
+  page: number;
+  totalCount: number;
+  totalPages: number;
+  onPageChangeAction: (page: number) => void;
+  rowsPerPage: number;
+  onRowsPerPageChangeAction: (value: number) => void;
+  onDeleteAction: (file: UploadedFile) => void;
+};
 
-export default function FileHistoryTable() {
+export default function FileHistoryTable({
+  files,
+  loading,
+  statusFilter,
+  onStatusFilterChangeAction,
+  page,
+  rowsPerPage,
+  onRowsPerPageChangeAction,
+  onDeleteAction,
+  totalCount,
+  totalPages,
+  onPageChangeAction,
+}: Props) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
-      <FileHistoryTabs />
+    <div className="overflow-visible rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
+      <FileHistoryTabs
+        statusFilter={statusFilter}
+        onStatusFilterChangeAction={onStatusFilterChangeAction}
+      />
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] border-collapse text-left">
-          <thead>
-            <tr className="bg-[#eff4ff]/70">
-              <TableHead>File Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Upload Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Extraction</TableHead>
-              <TableHead align="right">Actions</TableHead>
-            </tr>
-          </thead>
+      {loading ? (
+        <FileHistoryTableSkeleton />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse text-left">
+            <thead>
+              <tr className="bg-[#eff4ff]/70">
+                <TableHead>File Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Upload Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Extraction</TableHead>
+                <TableHead align="right">Actions</TableHead>
+              </tr>
+            </thead>
 
-          <tbody className="divide-y divide-[#e5eeff]">
-            {files.map((file) => (
-              <FileHistoryRow key={file.name} file={file} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+            <tbody className="divide-y divide-[#e5eeff]">
+              {files.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-5 py-8 text-center text-[13px] font-semibold text-[#565e74]"
+                  >
+                    No files found.
+                  </td>
+                </tr>
+              ) : (
+                files.map((file) => (
+                  <FileHistoryRow
+                    key={file.id}
+                    file={file}
+                    onDeleteAction={onDeleteAction}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      <FilePagination />
+      <Pagination
+        total={totalCount}
+        currentPage={page}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        itemLabel="files"
+        onPageChangeAction={onPageChangeAction}
+        onRowsPerPageChangeAction={onRowsPerPageChangeAction}
+      />
     </div>
   );
 }

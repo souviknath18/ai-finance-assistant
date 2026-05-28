@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import UploadHeader from "./UploadHeader";
 import UploadDropzone from "./UploadDropzone";
 import ActiveUploadsCard from "./ActiveUploadsCard";
@@ -49,6 +48,8 @@ export default function UploadsPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [aiTip, setAiTip] = useState<UploadAITip | null>(null);
+  const activeIdsRef = useRef<Set<number>>(new Set());
+  const [recentlyCompletedFiles, setRecentlylyCompletedFiles] = useState<UploadedFile[]>([]);
 
   const [toast, setToast] = useState({
     show: false,
@@ -79,6 +80,35 @@ export default function UploadsPage() {
     loadFiles();
     loadAITip();
   }, []);
+
+  useEffect(() => {
+    const previousActiveIds = activeIdsRef.current;
+
+    const completedNow = files.filter(
+      (file) => file.status === "success" && previousActiveIds.has(file.id)
+    );
+
+    if (completedNow.length > 0) {
+      setRecentlylyCompletedFiles((prev) => {
+        const existingIds = new Set(prev.map((file) => file.id));
+        return [...prev, ...completedNow.filter((file) => !existingIds.has(file.id))];
+      });
+
+      completedNow.forEach((file) => {
+        window.setTimeout(() => {
+          setRecentlylyCompletedFiles((prev) =>
+            prev.filter((item) => item.id !== file.id)
+          );
+        }, 1800);
+      });
+    }
+
+    activeIdsRef.current = new Set(
+      files
+        .filter((file) => file.status === "pending" || file.status === "processing")
+        .map((file) => file.id)
+    );
+  }, [files]);
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -159,7 +189,14 @@ export default function UploadsPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section className="lg:col-span-8">
           <UploadDropzone onUploadAction={handleUpload} uploading={uploading} />
-          <ActiveUploadsCard files={processingFiles} />
+          <ActiveUploadsCard
+            files={[
+              ...processingFiles,
+              ...recentlyCompletedFiles.filter(
+                (completed) => !processingFiles.some((file) => file.id === completed.id)
+              ),
+            ]}
+          />
         </section>
 
         <aside className="space-y-4 lg:col-span-4">
