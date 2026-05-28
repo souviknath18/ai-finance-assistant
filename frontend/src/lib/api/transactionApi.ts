@@ -1,6 +1,7 @@
 import {
   BackendTransaction,
   TransactionTableItem,
+  GetTransactionsParams,
 } from "@/types/transaction";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -59,10 +60,27 @@ function mapTransaction(transaction: BackendTransaction): TransactionTableItem {
   };
 }
 
-export async function getTransactions(): Promise<TransactionTableItem[]> {
+export async function getTransactions(params: GetTransactionsParams): Promise<{
+  count: number;
+  totalPages: number;
+  currentPage: number;
+  results: TransactionTableItem[];
+}> {
   const token = getAccessToken();
 
-  const response = await fetch(`${API_URL}/api/transactions/`, {
+  const query = new URLSearchParams({
+    page: String(params.page),
+    page_size: String(params.pageSize),
+  });
+
+  if (params.search) query.set("search", params.search);
+  if (params.category && params.category !== "all") query.set("category", params.category);
+  if (params.transactionType && params.transactionType !== "all") query.set("type", params.transactionType);
+  if (params.statusFilter && params.statusFilter !== "all") query.set("status", params.statusFilter);
+  if (params.startDate) query.set("start_date", params.startDate);
+  if (params.endDate) query.set("end_date", params.endDate);
+
+  const response = await fetch(`${API_URL}/api/transactions/?${query.toString()}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -75,7 +93,12 @@ export async function getTransactions(): Promise<TransactionTableItem[]> {
     throw data;
   }
 
-  return data.map(mapTransaction);
+  return {
+    count: data.count,
+    totalPages: data.total_pages,
+    currentPage: data.current_page,
+    results: data.results.map(mapTransaction),
+  };
 }
 
 

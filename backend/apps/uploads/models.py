@@ -61,6 +61,14 @@ class UploadedFile(models.Model):
         blank=True,
     )
 
+    processing_progress = models.PositiveIntegerField(default=0)
+
+    processing_step = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
     error_message = models.TextField(blank=True, null=True)
     ai_tip_message = models.TextField(blank=True, null=True)
     ai_tip_source = models.CharField(max_length=20, blank=True, null=True)

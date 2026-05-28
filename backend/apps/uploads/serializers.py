@@ -2,6 +2,31 @@ from rest_framework import serializers
 from .models import UploadedFile
 from .services import validate_uploaded_file
 
+class UploadedFileListSerializer(serializers.ModelSerializer):
+    file_size_mb = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UploadedFile
+        fields = [
+            "id",
+            "upload_id",
+            "original_filename",
+            "file_type",
+            "status",
+            "file_size",
+            "file_size_mb",
+            "extracted_transactions_count",
+            "extracted_amount",
+            "processing_progress",
+            "processing_step",
+            "error_message",
+            "uploaded_at",
+            "processed_at",
+        ]
+
+    def get_file_size_mb(self, obj):
+        return round(obj.file_size / (1024 * 1024), 2)
+
 
 class UploadedFileSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
@@ -25,6 +50,8 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             "uploaded_at",
             "processed_at",
             "extracted_text",
+            "processing_progress",
+            "processing_step",
         ]
         read_only_fields = [
             "id",
@@ -41,6 +68,8 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             "uploaded_at",
             "processed_at",
             "extracted_text",
+            "processing_progress",
+            "processing_step",
         ]
 
     def get_file_url(self, obj):

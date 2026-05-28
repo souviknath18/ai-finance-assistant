@@ -1,4 +1,10 @@
-import { UploadedFile, UploadAITip } from "@/types/upload";
+import {
+  UploadedFile,
+  UploadAITip,
+  UploadStats,
+  PaginatedUploadsResponse,
+  GetUploadsParams,
+} from "@/types/upload";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -36,7 +42,7 @@ export async function uploadFile(file: File): Promise<UploadedFile> {
 export async function getUploadedFiles(): Promise<UploadedFile[]> {
   const token = getAccessToken();
 
-  const response = await fetch(`${API_URL}/api/uploads/`, {
+  const response = await fetch(`${API_URL}/api/uploads/?page=1&page_size=100`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -49,7 +55,7 @@ export async function getUploadedFiles(): Promise<UploadedFile[]> {
     throw data;
   }
 
-  return data;
+  return data.results || data;
 }
 
 export async function retryUploadProcessing(id: number): Promise<UploadedFile> {
@@ -88,4 +94,73 @@ export async function getUploadAITip(): Promise<UploadAITip> {
   }
 
   return data;
+}
+
+export async function getPaginatedUploads({
+  page = 1,
+  pageSize = 10,
+  status = "all",
+}: GetUploadsParams): Promise<PaginatedUploadsResponse> {
+  const token = getAccessToken();
+
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+
+  if (status !== "all") {
+    params.set("status", status);
+  }
+
+  const response = await fetch(`${API_URL}/api/uploads/?${params.toString()}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+export async function getUploadStats(): Promise<UploadStats> {
+  const token = getAccessToken();
+
+  const response = await fetch(`${API_URL}/api/uploads/stats/`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+export async function deleteUploadedFile(id: number) {
+  const token = getAccessToken();
+
+  const response = await fetch(`${API_URL}/api/uploads/${id}/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw data;
+  }
+
+  return true;
 }

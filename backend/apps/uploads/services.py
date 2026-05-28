@@ -42,22 +42,51 @@ def validate_uploaded_file(file):
 
     if file.size > max_size:
         raise ValueError("File size must be less than 10MB.")
+    
+
+def update_processing_status(
+    uploaded_file,
+    progress: int,
+    step: str,
+):
+    uploaded_file.processing_progress = progress
+    uploaded_file.processing_step = step
+    uploaded_file.save(
+        update_fields=[
+            "processing_progress",
+            "processing_step",
+        ]
+    )
 
 
 def process_uploaded_file(uploaded_file: UploadedFile):
     uploaded_file.status = UploadedFile.Status.PROCESSING
-    uploaded_file.save(update_fields=["status"])
+    uploaded_file.processing_progress = 5
+    uploaded_file.processing_step = "Preparing document"
+    uploaded_file.save(
+        update_fields=[
+            "status",
+            "processing_progress",
+            "processing_step",
+        ]
+    )
 
     try:
         if uploaded_file.file_type == UploadedFile.FileType.PDF:
+            update_processing_status(uploaded_file, 15, "Extracting PDF text")
+
             extracted_text = extract_text_from_pdf(uploaded_file.file.path)
 
             uploaded_file.extracted_text = extracted_text
+
+            update_processing_status(uploaded_file, 30, "Detecting document type")
 
             document_type_result = detect_document_type(extracted_text)
             document_type = document_type_result["document_type"]
 
             print("Detected document type:", document_type_result)
+
+            update_processing_status(uploaded_file, 45, "Parsing transactions")
 
             if document_type == "bank_statement":
                 parser_result = parse_bank_statement_transactions(extracted_text)
@@ -85,11 +114,25 @@ def process_uploaded_file(uploaded_file: UploadedFile):
             print("Transactions parsed:", len(parsed_transactions))
 
             if parser_confidence < 0.75:
+                update_processing_status(
+                    uploaded_file,
+                    60,
+                    "Running AI transaction analysis",
+                )
                 parsed_transactions = parse_transactions_with_ai(extracted_text)
 
             created_count = 0
+            total_transactions = max(len(parsed_transactions), 1)
 
-            for item in parsed_transactions:
+            for index, item in enumerate(parsed_transactions, start=1):
+                current_progress = 70 + int((index / total_transactions) * 20)
+
+                update_processing_status(
+                    uploaded_file,
+                    min(current_progress, 90),
+                    f"Processing transaction {index} of {total_transactions}",
+                )
+
                 category_result = categorize_transaction(
                     item["description"],
                     item["transaction_type"],
@@ -129,13 +172,26 @@ def process_uploaded_file(uploaded_file: UploadedFile):
             uploaded_file.extracted_amount = None
 
         elif uploaded_file.file_type == UploadedFile.FileType.CSV:
+            update_processing_status(uploaded_file, 20, "Reading CSV file")
+
             parser_result = parse_csv_transactions(uploaded_file.file.path)
 
             parsed_transactions = parser_result["transactions"]
 
-            created_count = 0
+            update_processing_status(uploaded_file, 55, "Parsing CSV transactions")
 
-            for item in parsed_transactions:
+            created_count = 0
+            total_transactions = max(len(parsed_transactions), 1)
+
+            for index, item in enumerate(parsed_transactions, start=1):
+                current_progress = 70 + int((index / total_transactions) * 20)
+
+                update_processing_status(
+                    uploaded_file,
+                    min(current_progress, 90),
+                    f"Processing transaction {index} of {total_transactions}",
+                )
+
                 category_result = categorize_transaction(
                     item.get("category") or item["description"],
                     item["transaction_type"],
@@ -179,6 +235,8 @@ def process_uploaded_file(uploaded_file: UploadedFile):
             uploaded_file.extracted_amount = None
 
         elif uploaded_file.file_type == UploadedFile.FileType.IMAGE:
+            update_processing_status(uploaded_file, 25, "Checking image document")
+
             uploaded_file.extracted_text = "OCR image extraction will be added later."
             uploaded_file.extracted_transactions_count = 0
             uploaded_file.extracted_amount = None
@@ -186,18 +244,36 @@ def process_uploaded_file(uploaded_file: UploadedFile):
         else:
             raise ValueError("Unsupported file type.")
 
+        update_processing_status(uploaded_file, 92, "Detecting recurring payments")
+
         sync_detected_subscriptions(uploaded_file.user)
 
         uploaded_file.status = UploadedFile.Status.SUCCESS
         uploaded_file.error_message = None
         uploaded_file.processed_at = timezone.now()
+        uploaded_file.processing_progress = 97
+        uploaded_file.processing_step = "Generating AI insights"
 
         uploaded_file.save()
+
         generate_and_store_upload_ai_tip(uploaded_file.user, uploaded_file)
+
+        uploaded_file.processing_progress = 100
+        uploaded_file.processing_step = "Completed"
+        uploaded_file.save(
+            update_fields=[
+                "processing_progress",
+                "processing_step",
+            ]
+        )
+
         return uploaded_file
 
     except Exception as error:
         uploaded_file.status = UploadedFile.Status.FAILED
         uploaded_file.error_message = str(error)
+        uploaded_file.processing_progress = 0
+        uploaded_file.processing_step = "Failed"
+        uploaded_file.processed_at = timezone.now()
         uploaded_file.save()
         return uploaded_file

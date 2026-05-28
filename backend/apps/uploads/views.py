@@ -1,14 +1,24 @@
+from django.core.files.storage import default_storage
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import UploadedFile
-from .serializers import UploadedFileSerializer, UploadCreateSerializer
-from .services import detect_file_type
-from .tasks import process_uploaded_file_task
-from django.core.files.storage import default_storage
 from ai_engine.insights.upload_tip_generator import get_cached_upload_ai_tip
+from math import ceil
+from django.db.models import Sum
+from .models import UploadedFile
+from .serializers import (
+    UploadedFileSerializer,
+    UploadedFileListSerializer,
+    UploadCreateSerializer,
+)
+from .services import detect_file_type
+from .tasks import (
+    process_uploaded_file_task,
+    cleanup_stuck_uploads_for_user_task,
+)
 
 
 class UploadFileView(APIView):
@@ -50,15 +60,35 @@ class UploadedFileListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        cleanup_stuck_uploads_for_user_task.delay(request.user.id)
+
         files = UploadedFile.objects.filter(user=request.user).order_by("-uploaded_at")
 
-        serializer = UploadedFileSerializer(
-            files,
-            many=True,
-            context={"request": request},
-        )
+        status_filter = request.GET.get("status", "").strip()
+        page = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page_size", 10))
 
-        return Response(serializer.data)
+        page = max(page, 1)
+        page_size = min(max(page_size, 1), 50)
+
+        if status_filter and status_filter != "all":
+            files = files.filter(status=status_filter)
+
+        total = files.count()
+        total_pages = ceil(total / page_size) if total else 0
+
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        serializer = UploadedFileListSerializer(files[start:end], many=True)
+
+        return Response({
+            "count": total,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": page_size,
+            "results": serializer.data,
+        })
 
 
 class UploadedFileDetailView(APIView):
@@ -96,7 +126,16 @@ class RetryUploadProcessingView(APIView):
 
         uploaded_file.status = UploadedFile.Status.PENDING
         uploaded_file.error_message = None
-        uploaded_file.save(update_fields=["status", "error_message"])
+        uploaded_file.processed_at = None
+        uploaded_file.uploaded_at = timezone.now()
+        uploaded_file.save(
+            update_fields=[
+                "status",
+                "error_message",
+                "processed_at",
+                "uploaded_at",
+            ]
+        )
 
         process_uploaded_file_task.delay(uploaded_file.id)
 
@@ -106,7 +145,7 @@ class RetryUploadProcessingView(APIView):
         )
 
         return Response(serializer.data)
-    
+
 
 class UploadAITipView(APIView):
     permission_classes = [IsAuthenticated]
@@ -114,3 +153,33 @@ class UploadAITipView(APIView):
     def get(self, request):
         tip = get_cached_upload_ai_tip(request.user)
         return Response(tip)
+    
+
+class UploadStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        files = UploadedFile.objects.filter(user=request.user)
+
+        total_uploads = files.count()
+        successful_uploads = files.filter(status=UploadedFile.Status.SUCCESS).count()
+
+        success_rate = (
+            round((successful_uploads / total_uploads) * 100, 1)
+            if total_uploads > 0
+            else 0
+        )
+
+        transactions_extracted = (
+            files.aggregate(total=Sum("extracted_transactions_count"))["total"] or 0
+        )
+
+        storage_used_bytes = files.aggregate(total=Sum("file_size"))["total"] or 0
+        storage_used_mb = round(storage_used_bytes / (1024 * 1024), 2)
+
+        return Response({
+            "total_uploads": total_uploads,
+            "success_rate": success_rate,
+            "transactions_extracted": transactions_extracted,
+            "storage_used_mb": storage_used_mb,
+        })
