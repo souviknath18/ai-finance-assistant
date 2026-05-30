@@ -1,3 +1,7 @@
+from django.utils import timezone
+
+from apps.insights.models import InsightSnapshot
+
 from ai_engine.insights.executive_summary import generate_executive_summary
 from ai_engine.insights.spending_analysis import (
     get_spending_overview,
@@ -7,17 +11,20 @@ from ai_engine.insights.spending_analysis import (
 from ai_engine.insights.anomaly_detection import detect_anomalies
 from ai_engine.insights.recurring_analysis import analyze_recurring_expenses
 from ai_engine.insights.financial_health import calculate_financial_health
-from ai_engine.insights.wealth_scoring import calculate_wealth_score
 
 
-def get_insights_summary(user):
+def build_insights_summary(user):
     spending = get_spending_overview(user)
     categories = get_category_breakdown(user)
     monthly_spending = get_monthly_spending(user)
     anomalies = detect_anomalies(user)
     recurring = analyze_recurring_expenses(user)
     health = calculate_financial_health(user)
-    wealth_score = calculate_wealth_score(user)
+
+    wealth_score = {
+        "score": min(health["score"] + 5, 100),
+        "label": "Aura Wealth Score",
+    }
 
     summary = generate_executive_summary(
         spending=spending,
@@ -78,8 +85,8 @@ def get_insights_summary(user):
             "spending_spikes": biggest_expense["amount_display"] if biggest_expense else "₹0.00",
             "spending_spikes_description": (
                 f"Unusual activity detected at {biggest_expense['merchant']}."
-                if biggest_expense else
-                "No major spending spike detected."
+                if biggest_expense
+                else "No major spending spike detected."
             ),
             "unusual_activity_count": anomalies["alert_count"],
             "recurring_total": recurring["monthly_total_display"],
@@ -102,3 +109,42 @@ def get_insights_summary(user):
         },
         "observations": observations,
     }
+
+
+def regenerate_insights_snapshot(user):
+    data = build_insights_summary(user)
+
+    import json
+
+    json_safe_data = json.loads(
+        json.dumps(data, default=str)
+    )
+
+    snapshot, _ = InsightSnapshot.objects.update_or_create(
+        user=user,
+        defaults={
+            "data": json_safe_data,
+            "is_stale": False,
+            "generated_at": timezone.now(),
+        },
+    )
+
+    return snapshot.data
+
+
+def get_insights_summary(user):
+    snapshot, _ = InsightSnapshot.objects.get_or_create(user=user)
+
+    if snapshot.data and not snapshot.is_stale:
+        return snapshot.data
+
+    return regenerate_insights_snapshot(user)
+
+
+def mark_insights_stale(user):
+    InsightSnapshot.objects.update_or_create(
+        user=user,
+        defaults={
+            "is_stale": True,
+        },
+    )

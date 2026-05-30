@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
 export default function CTASection() {
   return (
     <section className="px-4 py-20 sm:px-6 lg:px-8">
@@ -12,9 +15,13 @@ export default function CTASection() {
             Finance AI.
           </p>
 
-          <button className="mt-8 rounded-xl bg-[#006a61] px-7 py-3 text-sm font-bold text-white transition hover:bg-[#005049]">
+          <Link
+            href="/auth/signup"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#006a61] px-7 py-3 text-sm font-bold text-white transition hover:bg-[#005049]"
+          >
             Get Started for Free
-          </button>
+            <ArrowRight size={16} />
+          </Link>
         </div>
 
         <div className="absolute -right-28 -top-28 h-64 w-64 rounded-full bg-[#89f5e7]/10 blur-3xl" />

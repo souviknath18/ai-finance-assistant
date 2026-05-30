@@ -6,6 +6,7 @@ import FileStatsGrid from "./FileStatsGrid";
 import FileHistoryTable from "./FileHistoryTable";
 import ExtractionTipCard from "./ExtractionTipCard";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import PageLoader from "@/components/ui/PageLoader";
 
 import { UploadedFile, UploadStats, UploadStatus } from "@/types/upload";
 import {
@@ -72,6 +73,10 @@ export default function FileHistoryPage() {
       setDeleting(false);
     }
   };
+
+  if (loading) {
+    return <PageLoader message="Loading file history..." />;
+  }
 
   return (
     <>

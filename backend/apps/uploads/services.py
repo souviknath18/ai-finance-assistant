@@ -12,6 +12,7 @@ from ai_engine.categorization.categorize_transactions import categorize_transact
 from ai_engine.embeddings.vector_store import store_transaction_vector
 from apps.subscriptions.services import sync_detected_subscriptions
 from ai_engine.insights.upload_tip_generator import generate_and_store_upload_ai_tip
+from apps.insights.services import regenerate_insights_snapshot, mark_insights_stale
 
 
 ALLOWED_EXTENSIONS = [".pdf", ".csv", ".jpg", ".jpeg", ".png"]
@@ -257,6 +258,12 @@ def process_uploaded_file(uploaded_file: UploadedFile):
         uploaded_file.save()
 
         generate_and_store_upload_ai_tip(uploaded_file.user, uploaded_file)
+
+        try:
+            regenerate_insights_snapshot(uploaded_file.user)
+        except Exception as insight_error:
+            print("Insight snapshot regeneration failed:", insight_error)
+            mark_insights_stale(uploaded_file.user)
 
         uploaded_file.processing_progress = 100
         uploaded_file.processing_step = "Completed"

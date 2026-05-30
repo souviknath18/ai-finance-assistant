@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Upload } from "lucide-react";
 
 export default function FileHistoryHeader() {
@@ -14,10 +15,13 @@ export default function FileHistoryHeader() {
         </p>
       </div>
 
-      <button className="flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
+      <Link
+        href="/uploads"
+        className="flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90"
+      >
         <Upload size={15} />
         Upload New File
-      </button>
+      </Link>
     </header>
   );
 }

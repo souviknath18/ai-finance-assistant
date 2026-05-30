@@ -9,6 +9,7 @@ import IssuesFoundCard from "./IssuesFoundCard";
 import AITipCard from "./AITipCard";
 import SecurityCard from "./SecurityCard";
 import AppToast from "@/components/ui/AppToast";
+import PageLoader from "@/components/ui/PageLoader";
 
 import { UploadedFile, UploadAITip } from "@/types/upload";
 import { getUploadedFiles, uploadFile, getUploadAITip } from "@/lib/api/uploadApi";
@@ -46,6 +47,7 @@ function getFriendlyUploadError(err: any) {
 export default function UploadsPage() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [aiTip, setAiTip] = useState<UploadAITip | null>(null);
   const activeIdsRef = useRef<Set<number>>(new Set());
@@ -59,11 +61,15 @@ export default function UploadsPage() {
   });
 
   const loadFiles = async () => {
+    setLoading(true);
+
     try {
       const data = await getUploadedFiles();
       setFiles(data);
     } catch {
       setError("We could not load your uploaded files. Please refresh the page.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,8 +83,20 @@ export default function UploadsPage() {
   };
 
   useEffect(() => {
-    loadFiles();
-    loadAITip();
+    const initialize = async () => {
+      setLoading(true);
+
+      try {
+        await Promise.all([
+          loadFiles(),
+          loadAITip(),
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initialize();
   }, []);
 
   useEffect(() => {
@@ -167,6 +185,10 @@ export default function UploadsPage() {
         new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime()
     )
     .slice(0, 1);
+
+  if (loading) {
+    return <PageLoader message="Loading uploads..." />;
+  }
 
   return (
     <>

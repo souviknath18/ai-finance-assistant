@@ -8,6 +8,7 @@ import RecurringPaymentsCard from "./RecurringPaymentsCard";
 import ReportActions from "./ReportActions";
 import { getGeneratedReport, exportReportPDF } from "@/lib/api/reportApi";
 import { ReportDashboard } from "@/types/report";
+import PageLoader from "@/components/ui/PageLoader";
 
 type Props = {
   reportId: string;
@@ -37,11 +38,7 @@ export default function GeneratedReportPage({ reportId }: Props) {
   };
 
   if (!data) {
-    return (
-      <p className="text-[13px] font-semibold text-[#565e74]">
-        Loading generated report...
-      </p>
-    );
+    return <PageLoader message="Loading generated report..." />;
   }
 
   return (

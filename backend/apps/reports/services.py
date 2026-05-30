@@ -1,4 +1,7 @@
+import json
 from decimal import Decimal
+
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth, Abs
 from django.utils import timezone
@@ -7,6 +10,7 @@ from apps.transactions.models import Transaction
 from apps.subscriptions.services import detect_subscriptions
 from ai_engine.insights.anomaly_detection import detect_anomalies
 from ai_engine.insights.financial_health import calculate_financial_health
+from .models import ReportDashboardSnapshot
 
 
 def money(amount):
@@ -29,7 +33,7 @@ def get_current_period_range():
     return start, today
 
 
-def get_report_dashboard(user):
+def build_report_dashboard(user):
     start_date, end_date = get_current_period_range()
 
     income = (
@@ -70,6 +74,9 @@ def get_report_dashboard(user):
     chart_map = {}
 
     for item in monthly:
+        if not item["month"]:
+            continue
+
         month_key = item["month"].strftime("%b")
 
         if month_key not in chart_map:
@@ -105,6 +112,7 @@ def get_report_dashboard(user):
     category_total = sum(abs(item["total"] or 0) for item in categories)
 
     category_data = []
+
     for item in categories:
         amount = abs(item["total"] or 0)
         percent = 0
@@ -146,10 +154,55 @@ def get_report_dashboard(user):
                 f"Your savings rate is {health['savings_rate']}%. "
                 f"Aura detected {anomalies.get('alert_count', 0)} unusual spending alert(s)."
             ),
-            "top_unusual_title": biggest_expense["merchant"] if biggest_expense else "No unusual expense",
-            "top_unusual_amount": biggest_expense["amount_display"] if biggest_expense else "₹0.00",
+            "top_unusual_title": (
+                biggest_expense["merchant"]
+                if biggest_expense
+                else "No unusual expense"
+            ),
+            "top_unusual_amount": (
+                biggest_expense["amount_display"]
+                if biggest_expense
+                else "₹0.00"
+            ),
         },
         "categories": category_data,
         "recurring_payments": recurring,
         "recurring_count": len(subscriptions["subscriptions"]),
     }
+
+
+def regenerate_report_dashboard_snapshot(user):
+    data = build_report_dashboard(user)
+
+    json_safe_data = json.loads(
+        json.dumps(data, cls=DjangoJSONEncoder)
+    )
+
+    snapshot, _ = ReportDashboardSnapshot.objects.update_or_create(
+        user=user,
+        defaults={
+            "data": json_safe_data,
+            "is_stale": False,
+            "generated_at": timezone.now(),
+        },
+    )
+
+    return snapshot.data
+
+
+def get_report_dashboard(user):
+    snapshot, _ = ReportDashboardSnapshot.objects.get_or_create(user=user)
+
+    if snapshot.data and not snapshot.is_stale:
+        return snapshot.data
+
+    return regenerate_report_dashboard_snapshot(user)
+
+
+def mark_report_dashboard_stale(user):
+    ReportDashboardSnapshot.objects.update_or_create(
+        user=user,
+        defaults={
+            "is_stale": True,
+        },
+    )
