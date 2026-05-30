@@ -7,6 +7,7 @@ import PerformanceCard from "./PerformanceCard";
 import AIReportInsight from "./AIReportInsight";
 import CategorySpendingCard from "./CategorySpendingCard";
 import RecurringPaymentsCard from "./RecurringPaymentsCard";
+import PageLoader from "@/components/ui/PageLoader";
 
 import {
   getReportDashboard,
@@ -48,11 +49,7 @@ export default function ReportsPage() {
   };
 
   if (loading) {
-    return (
-      <p className="text-[13px] font-semibold text-[#565e74]">
-        Loading reports...
-      </p>
-    );
+    return <PageLoader message="Loading reports..." />;
   }
 
   if (!data) {

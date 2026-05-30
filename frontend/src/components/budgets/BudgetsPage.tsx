@@ -11,6 +11,7 @@ import { getBudgetDashboard } from "@/lib/api/budgetApi";
 import { BudgetDashboard } from "@/types/budget";
 import ConfirmModal from "../ui/ConfirmModal";
 import { deleteBudget } from "@/lib/api/budgetApi";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function BudgetsPage() {
   const [data, setData] = useState<BudgetDashboard | null>(null);
@@ -55,11 +56,7 @@ export default function BudgetsPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="text-[13px] font-semibold text-[#565e74]">
-        Loading budgets...
-      </div>
-    );
+    return <PageLoader message="Loading budgets..." />;
   }
 
   if (!data) {

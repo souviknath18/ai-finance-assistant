@@ -16,6 +16,7 @@ import {
   getCategories,
   getCategorySummary,
 } from "@/lib/api/categoryApi";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<CategorySummary[]>([]);
@@ -30,6 +31,8 @@ export default function CategoriesPage() {
   const [deleting, setDeleting] = useState(false);
 
   const loadCategories = async () => {
+    setLoading(true);
+
     try {
       const [summaryData, categoryData] = await Promise.all([
         getCategorySummary(),
@@ -78,6 +81,10 @@ export default function CategoriesPage() {
       setDeleting(false);
     }
   };
+
+  if (loading) {
+    return <PageLoader message="Loading categories..." />;
+  }
 
   return (
     <>

@@ -70,3 +70,20 @@ class GeneratedReport(models.Model):
 
     def __str__(self):
         return f"{self.report_id} - {self.title}"
+    
+
+class ReportDashboardSnapshot(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="report_dashboard_snapshot",
+    )
+
+    data = models.JSONField(default=dict)
+    is_stale = models.BooleanField(default=True)
+
+    generated_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "report_dashboard_snapshots"

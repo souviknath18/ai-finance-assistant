@@ -130,7 +130,7 @@ def detect_anomalies(user):
             ),
             "amount": str(abs(biggest_expense_transaction.amount)),
             "amount_display": money(biggest_expense_transaction.amount),
-            "date": biggest_expense_transaction.date,
+            "date": biggest_expense_transaction.date.isoformat(),
             "category": biggest_expense_transaction.category or "Uncategorized",
             "transaction_id": biggest_expense_transaction.transaction_id,
         }

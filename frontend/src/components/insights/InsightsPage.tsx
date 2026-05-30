@@ -17,7 +17,7 @@ import CategoryBreakdownCard from "./CategoryBreakdownCard";
 import WealthTipCard from "./WealthTipCard";
 import ObservationTable from "./ObservationTable";
 import MiniBars from "./MiniBars";
-
+import PageLoader from "@/components/ui/PageLoader";
 import { getInsightsDashboard } from "@/lib/api/insightsApi";
 import { InsightDashboard } from "@/types/insights";
 
@@ -39,11 +39,7 @@ export default function InsightsPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="text-[13px] font-semibold text-[#565e74]">
-        Loading insights...
-      </div>
-    );
+    return <PageLoader message="Preparing AI insights..." />;
   }
 
   if (!data) {

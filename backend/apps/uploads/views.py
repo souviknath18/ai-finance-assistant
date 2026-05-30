@@ -9,6 +9,7 @@ from ai_engine.insights.upload_tip_generator import get_cached_upload_ai_tip
 from math import ceil
 from django.db.models import Sum
 from .models import UploadedFile
+from apps.insights.services import mark_insights_stale
 from .serializers import (
     UploadedFileSerializer,
     UploadedFileListSerializer,
@@ -111,6 +112,8 @@ class UploadedFileDetailView(APIView):
         uploaded_file = self.get_object(request, pk)
         uploaded_file.file.delete(save=False)
         uploaded_file.delete()
+
+        mark_insights_stale(request.user)
 
         return Response(
             {"detail": "File deleted successfully."},

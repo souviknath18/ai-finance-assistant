@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from math import ceil
 from django.db.models import Q
 from .models import Transaction
+from apps.insights.services import mark_insights_stale
+from apps.reports.services import mark_report_dashboard_stale
 from .serializers import TransactionSerializer, TransactionCreateSerializer
 from ai_engine.embeddings.vector_store import delete_transaction_vector
 
@@ -94,6 +96,9 @@ class TransactionListCreateView(APIView):
         if serializer.is_valid():
             transaction = serializer.save(user=request.user)
 
+            mark_insights_stale(request.user)
+            mark_report_dashboard_stale(request.user)
+
             response_serializer = TransactionSerializer(transaction)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -125,6 +130,10 @@ class TransactionDetailView(APIView):
 
         if serializer.is_valid():
             serializer.save()
+
+            mark_insights_stale(request.user)
+            mark_report_dashboard_stale(request.user)
+
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -138,6 +147,9 @@ class TransactionDetailView(APIView):
             print("Vector delete failed:", error)
 
         transaction.delete()
+
+        mark_insights_stale(request.user)
+        mark_report_dashboard_stale(request.user)
 
         return Response(
             {"detail": "Transaction deleted successfully."},
@@ -169,6 +181,9 @@ class TransactionBulkDeleteView(APIView):
                 print("Vector delete failed:", error)
 
         deleted_count, _ = transactions.delete()
+
+        mark_insights_stale(request.user)
+        mark_report_dashboard_stale(request.user)
 
         return Response(
             {

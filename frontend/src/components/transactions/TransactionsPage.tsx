@@ -22,12 +22,14 @@ import {
 import { semanticSearchTransactions, findSimilarTransactions  } from "@/lib/api/searchApi";
 import SemanticSearchBanner from "./SemanticSearchBanner";
 import { getCategoryOptions } from "@/lib/api/categoryApi";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<TransactionTableItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -63,7 +65,8 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     const loadTransactions = async () => {
-      setLoading(true);
+      const isFirstLoad = pageLoading;
+      setTableLoading(!isFirstLoad);
 
       try {
         const params: GetTransactionsParams = {
@@ -98,7 +101,8 @@ export default function TransactionsPage() {
       } catch {
         setError("Failed to load transactions.");
       } finally {
-        setLoading(false);
+        setPageLoading(false);
+        setTableLoading(false);
       }
     };
 
@@ -261,6 +265,10 @@ export default function TransactionsPage() {
     await handleSemanticSearch(query);
   };
 
+  if (pageLoading) {
+    return <PageLoader message="Loading transactions..." />;
+  }
+
   return (
     <>
       <TransactionsHeader />
@@ -300,7 +308,7 @@ export default function TransactionsPage() {
       <div className="overflow-visible rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
         <TransactionsTable
           transactions={transactions}
-          loading={loading}
+          loading={tableLoading}
           error={error}
           selectedIds={selectedIds}
           onToggleSelectAction={toggleSelect}

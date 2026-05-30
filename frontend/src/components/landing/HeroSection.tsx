@@ -1,4 +1,5 @@
 import { ArrowRight, PlayCircle, FileText, Table, Image } from "lucide-react";
+import Link from "next/link";
 
 export default function HeroSection() {
   return (
@@ -20,10 +21,13 @@ export default function HeroSection() {
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <button className="flex items-center justify-center gap-2 rounded-xl bg-black px-5 py-3 text-sm font-bold text-white transition hover:opacity-90">
+            <Link
+              href="/auth/signup"
+              className="flex items-center justify-center gap-2 rounded-xl bg-black px-5 py-3 text-sm font-bold text-white transition hover:opacity-90"
+            >
               Get Started for Free
               <ArrowRight size={17} />
-            </button>
+            </Link>
 
             <button className="flex items-center justify-center gap-2 rounded-xl border border-[#76777d] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]">
               <PlayCircle size={17} />
