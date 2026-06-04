@@ -25,12 +25,14 @@ export default function FileHistoryPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteFile, setDeleteFile] = useState<UploadedFile | null>(null);
 
   const loadData = async () => {
-    setLoading(true);
+    const isFirstLoad = pageLoading;
+    setTableLoading(!isFirstLoad);
 
     try {
       const [uploadData, statsData] = await Promise.all([
@@ -47,7 +49,8 @@ export default function FileHistoryPage() {
       setTotalPages(uploadData.total_pages);
       setStats(statsData);
     } finally {
-      setLoading(false);
+      setPageLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -74,7 +77,7 @@ export default function FileHistoryPage() {
     }
   };
 
-  if (loading) {
+  if (pageLoading) {
     return <PageLoader message="Loading file history..." />;
   }
 
@@ -85,7 +88,7 @@ export default function FileHistoryPage() {
 
       <FileHistoryTable
         files={files}
-        loading={loading}
+        loading={tableLoading}
         statusFilter={statusFilter}
         onStatusFilterChangeAction={(value) => {
           setStatusFilter(value);

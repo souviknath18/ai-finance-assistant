@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -56,6 +57,18 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
 
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
+
   const handleSidebarLinkClick = () => {
     if (sidebarOpen) {
       setSidebarOpenAction(false);
@@ -80,7 +93,7 @@ export default function DashboardSidebar({
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-[#c6c6cd]/50 bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
+        className={`fixed left-0 top-0 z-50 flex h-dvh flex-col border-r border-[#c6c6cd]/50 bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
           sidebarCollapsed ? "md:w-[76px]" : "md:w-[248px]"
         } ${
           sidebarOpen

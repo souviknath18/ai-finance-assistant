@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     "apps.accounts.apps.AccountsConfig",
+    "apps.dashboard.apps.DashboardConfig",
     "apps.uploads.apps.UploadsConfig",
     "apps.transactions.apps.TransactionsConfig",
     "apps.categories.apps.CategoriesConfig",

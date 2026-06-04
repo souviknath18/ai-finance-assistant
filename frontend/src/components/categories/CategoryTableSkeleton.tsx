@@ -1,4 +1,4 @@
-export default function FileHistoryTableSkeleton({
+export default function CategoryTableSkeleton({
   rowsPerPage = 5,
 }: {
   rowsPerPage?: number;
@@ -7,12 +7,15 @@ export default function FileHistoryTableSkeleton({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[900px] border-collapse text-left">
         <thead>
-          <tr className="bg-[#eff4ff]/70">
-            <TableHead>File Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Upload Date</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Extraction</TableHead>
+          <tr className="bg-[#eff4ff]">
+            <th className="w-12 px-5 py-3.5">
+              <div className="h-4 w-4 rounded bg-[#dce9ff]" />
+            </th>
+
+            <TableHead>Category</TableHead>
+            <TableHead>Transactions</TableHead>
+            <TableHead>Total Spending</TableHead>
+            <TableHead>Income</TableHead>
             <TableHead align="right">Actions</TableHead>
           </tr>
         </thead>
@@ -21,30 +24,18 @@ export default function FileHistoryTableSkeleton({
           {Array.from({ length: rowsPerPage }).map((_, index) => (
             <tr key={index} className="animate-pulse">
               <td className="px-5 py-4">
+                <div className="h-4 w-4 rounded bg-[#e5eeff]" />
+              </td>
+
+              <td className="px-5 py-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-[19px] w-[19px] rounded bg-[#e5eeff]" />
-
-                  <div>
-                    <div className="mb-2 h-3 w-44 rounded bg-[#e5eeff]" />
-                    <div className="h-2.5 w-20 rounded bg-[#eff4ff]" />
-                  </div>
+                  <div className="h-9 w-9 rounded-xl bg-[#e5eeff]" />
+                  <div className="h-4 w-28 rounded bg-[#e5eeff]" />
                 </div>
               </td>
 
               <td className="px-5 py-4">
-                <div className="h-[22px] w-14 rounded-full bg-[#e5eeff]" />
-              </td>
-
-              <td className="px-5 py-4">
-                <div className="mb-2 h-3 w-24 rounded bg-[#e5eeff]" />
-                <div className="h-2.5 w-16 rounded bg-[#eff4ff]" />
-              </td>
-
-              <td className="px-5 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="h-[15px] w-[15px] rounded-full bg-[#e5eeff]" />
-                  <div className="h-3 w-16 rounded bg-[#e5eeff]" />
-                </div>
+                <div className="h-3 w-10 rounded bg-[#e5eeff]" />
               </td>
 
               <td className="px-5 py-4">
@@ -52,9 +43,14 @@ export default function FileHistoryTableSkeleton({
               </td>
 
               <td className="px-5 py-4">
-                <div className="flex justify-end gap-2">
-                  <div className="h-[28px] w-[28px] rounded-lg bg-[#e5eeff]" />
-                  <div className="h-[28px] w-[28px] rounded-lg bg-[#e5eeff]" />
+                <div className="h-3 w-24 rounded bg-[#e5eeff]" />
+              </td>
+
+              <td className="px-5 py-4">
+                <div className="flex justify-end gap-2 opacity-70">
+                  <div className="h-[27px] w-[27px] rounded-lg bg-[#e5eeff]" />
+                  <div className="h-[27px] w-[27px] rounded-lg bg-[#e5eeff]" />
+                  <div className="h-[27px] w-[27px] rounded-lg bg-[#e5eeff]" />
                 </div>
               </td>
             </tr>

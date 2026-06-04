@@ -1,6 +1,6 @@
 import {
   Category,
-  CategorySummary,
+  PaginatedCategorySummaryResponse,
   CreateCategoryPayload,
 } from "@/types/category";
 
@@ -10,15 +10,29 @@ function getAccessToken() {
   return localStorage.getItem("accessToken");
 }
 
-export async function getCategorySummary(): Promise<CategorySummary[]> {
+export async function getCategorySummary({
+  page = 1,
+  pageSize = 5,
+}: {
+  page?: number;
+  pageSize?: number;
+}): Promise<PaginatedCategorySummaryResponse> {
   const token = getAccessToken();
 
-  const response = await fetch(`${API_URL}/api/categories/summary/`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
   });
+
+  const response = await fetch(
+    `${API_URL}/api/categories/summary/?${params.toString()}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   const data = await response.json();
 

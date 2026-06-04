@@ -11,6 +11,7 @@ import { SubscriptionDashboardResponse } from "@/types/subscription";
 import SubscriptionFilterModal, {
   SubscriptionFilters,
 } from "./SubscriptionFilterModal";
+import PageLoader from "@/components/ui/PageLoader";
 
 const emptyDashboard: SubscriptionDashboardResponse = {
   subscriptions: [],
@@ -78,6 +79,10 @@ export default function SubscriptionsPage() {
       amountMatch
     );
   });
+
+  if (loading) {
+    return <PageLoader message="Loading subscriptions..." />;
+  }
 
   return (
     <>

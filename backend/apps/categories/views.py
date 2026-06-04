@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from math import ceil
 
 from .services import (
     create_category,
@@ -52,7 +53,26 @@ class CategorySummaryView(APIView):
 
     def get(self, request):
         data = get_category_summary(request.user)
-        return Response(data)
+
+        page = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page_size", 5))
+
+        page = max(page, 1)
+        page_size = min(max(page_size, 1), 50)
+
+        total = len(data)
+        total_pages = ceil(total / page_size) if total else 0
+
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        return Response({
+            "count": total,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": page_size,
+            "results": data[start:end],
+        })
     
 
 class CategoryDetailView(APIView):
