@@ -21,7 +21,13 @@ import PageLoader from "@/components/ui/PageLoader";
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<CategorySummary[]>([]);
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [deleteModal, setDeleteModal] = useState({
     open: false,
@@ -31,24 +37,36 @@ export default function CategoriesPage() {
   const [deleting, setDeleting] = useState(false);
 
   const loadCategories = async () => {
-    setLoading(true);
+    const isFirstLoad = pageLoading;
+    setTableLoading(!isFirstLoad);
 
     try {
       const [summaryData, categoryData] = await Promise.all([
-        getCategorySummary(),
+        getCategorySummary({
+          page,
+          pageSize: rowsPerPage,
+        }),
         getCategories(),
       ]);
 
-      setCategories(summaryData);
+      setCategories(summaryData.results);
+      setTotalCount(summaryData.count);
+      setTotalPages(summaryData.total_pages);
       setCustomCategories(categoryData);
     } finally {
-      setLoading(false);
+      setPageLoading(false);
+      setTableLoading(false);
     }
   };
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [page, rowsPerPage]);
+
+  const handleRowsPerPageChange = (value: number) => {
+    setRowsPerPage(value);
+    setPage(1);
+  };
 
   const openDeleteModal = (categoryId: string) => {
     setDeleteModal({
@@ -82,7 +100,7 @@ export default function CategoriesPage() {
     }
   };
 
-  if (loading) {
+  if (pageLoading) {
     return <PageLoader message="Loading categories..." />;
   }
 
@@ -97,7 +115,16 @@ export default function CategoriesPage() {
         <CategoryAIInsights categories={categories} />
       </section>
 
-      <CategoriesTable categories={categories} loading={loading} />
+      <CategoriesTable
+        categories={categories}
+        loading={tableLoading}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        totalCount={totalCount}
+        totalPages={totalPages}
+        onPageChangeAction={setPage}
+        onRowsPerPageChangeAction={handleRowsPerPageChange}
+      />
 
       <CustomCategories
         categories={customCategories}

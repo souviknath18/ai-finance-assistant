@@ -25,3 +25,11 @@ export type CreateCategoryPayload = {
   category_type: "expense" | "income" | "both";
   keywords?: string;
 };
+
+export type PaginatedCategorySummaryResponse = {
+  count: number;
+  total_pages: number;
+  current_page: number;
+  page_size: number;
+  results: CategorySummary[];
+};

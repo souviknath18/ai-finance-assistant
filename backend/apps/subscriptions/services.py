@@ -83,8 +83,6 @@ def sync_detected_subscriptions(user):
 
 
 def detect_subscriptions(user):
-    sync_detected_subscriptions(user)
-
     subscriptions = Subscription.objects.filter(
         user=user,
         is_active=True,

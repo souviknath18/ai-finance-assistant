@@ -32,7 +32,7 @@ export default function FileHistoryTable({
   onPageChangeAction,
 }: Props) {
   return (
-    <div className="overflow-visible rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
       <FileHistoryTabs
         statusFilter={statusFilter}
         onStatusFilterChangeAction={onStatusFilterChangeAction}
