@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Plus, Tags } from "lucide-react";
 import CustomSelect from "../ui/CustomSelect";
 import { createCategory } from "@/lib/api/categoryApi";
@@ -29,6 +29,21 @@ export default function CreateCategoryModal({
   });
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -97,9 +112,9 @@ export default function CreateCategoryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+    <div className="fixed inset-0 z-[9999] flex h-dvh items-center justify-center overflow-hidden bg-black/20 backdrop-blur-[4px] px-4">
       <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
-        <div className="flex max-h-[90vh] flex-col">
+        <div className="flex max-h-[90dvh] flex-col">
           <div className="flex items-start justify-between gap-4 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
@@ -124,7 +139,7 @@ export default function CreateCategoryModal({
             </button>
           </div>
 
-          <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4">
+          <div className="custom-scrollbar relative z-50 flex-1 overflow-y-auto overflow-x-visible px-5 py-4 pb-6">
             {errors.api && (
               <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-semibold text-red-600">
                 {errors.api}
@@ -224,7 +239,7 @@ export default function CreateCategoryModal({
             </form>
           </div>
 
-          <div className="flex flex-col-reverse gap-2.5 border-t border-[#eef2ff] bg-white px-5 py-4 sm:flex-row sm:justify-end">
+          <div className="sticky bottom-0 z-0 flex flex-col-reverse gap-2.5 border-t border-[#eef2ff] bg-white px-5 py-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={handleClose}

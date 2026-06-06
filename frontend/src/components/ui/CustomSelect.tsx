@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 
 export type SelectOption = {
@@ -18,6 +19,12 @@ type CustomSelectProps = {
   onChangeAction: (name: string, value: string) => void;
 };
 
+type DropdownPosition = {
+  top: number;
+  left: number;
+  width: number;
+};
+
 export default function CustomSelect({
   name,
   value,
@@ -28,7 +35,15 @@ export default function CustomSelect({
   onChangeAction,
 }: CustomSelectProps) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
   const [internalOpen, setInternalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<DropdownPosition>({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
 
   const open = controlledOpen ?? internalOpen;
 
@@ -42,75 +57,114 @@ export default function CustomSelect({
     }
   };
 
+  const updateDropdownPosition = () => {
+    if (!wrapperRef.current) return;
+
+    const rect = wrapperRef.current.getBoundingClientRect();
+
+    setDropdownPosition({
+      top: rect.bottom + 6,
+      left: rect.left,
+      width: rect.width,
+    });
+  };
+
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useLayoutEffect(() => {
     if (!open) return;
 
-    const handleScroll = (event: Event) => {
-      const target = event.target as Node;
+    updateDropdownPosition();
+  }, [open]);
 
-      if (wrapperRef.current?.contains(target)) return;
-
-      setOpen(false);
-    };
+  useEffect(() => {
+    if (!open) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      if (wrapperRef.current?.contains(target)) return;
+      const clickedInsideButton = wrapperRef.current?.contains(target);
+      const clickedInsideDropdown = dropdownRef.current?.contains(target);
+
+      if (clickedInsideButton || clickedInsideDropdown) return;
 
       setOpen(false);
     };
 
-    window.addEventListener("scroll", handleScroll, true);
+    const handleResize = () => {
+      setOpen(false);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll, true);
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", handleResize);
     };
   }, [open]);
 
   return (
-    <div ref={wrapperRef} className={`relative ${open ? "z-[29]" : "z-10"}`}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex h-11 w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-      >
-        <span>{selectedOption?.label || placeholder}</span>
+    <>
+      <div ref={wrapperRef} className="relative z-10">
+        <button
+          type="button"
+          onClick={() => {
+            updateDropdownPosition();
+            setOpen(!open);
+          }}
+          className="flex h-11 w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+        >
+          <span>{selectedOption?.label || placeholder}</span>
 
-        <ChevronDown
-          size={16}
-          className={`text-[#565e74] transition ${open ? "rotate-180" : ""}`}
-        />
-      </button>
+          <ChevronDown
+            size={16}
+            className={`text-[#565e74] transition ${
+              open ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+      </div>
 
-      {open && (
-        <div className="absolute left-0 top-full z-[29] mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)] custom-select-scrollbar">
-          {options.map((option) => {
-            const selected = option.value === value;
+      {mounted &&
+        open &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            style={{
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+              width: dropdownPosition.width,
+            }}
+            className="fixed z-[99999] max-h-56 overflow-y-auto rounded-xl border border-[#d3e4fe] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.14)] custom-select-scrollbar"
+          >
+            {options.map((option) => {
+              const selected = option.value === value;
 
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChangeAction(name, option.value);
-                  setOpen(false);
-                }}
-                className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-[13px] transition ${
-                  selected
-                    ? "bg-emerald-50 font-semibold text-emerald-700"
-                    : "text-[#45464d] hover:bg-[#eff4ff] hover:text-black"
-                }`}
-              >
-                <span>{option.label}</span>
-                {selected && <Check size={14} />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChangeAction(name, option.value);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-[13px] transition ${
+                    selected
+                      ? "bg-emerald-50 font-semibold text-emerald-700"
+                      : "text-[#45464d] hover:bg-[#eff4ff] hover:text-black"
+                  }`}
+                >
+                  <span>{option.label}</span>
+                  {selected && <Check size={14} />}
+                </button>
+              );
+            })}
+          </div>,
+          document.body
+        )}
+    </>
   );
 }

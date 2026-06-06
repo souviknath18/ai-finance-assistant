@@ -73,7 +73,7 @@ export default function DashboardHero({
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:flex lg:items-center lg:gap-3">
           <button
             onClick={() => router.push("/reports")}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white/90 px-4 text-[13px] font-bold text-black backdrop-blur-sm transition-all duration-200 hover:bg-[#f8fbff] hover:shadow-sm"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white/90 px-4 text-[11px] lg:text-[12px] xl:text-[13px] font-bold whitespace-nowrap text-black backdrop-blur-sm transition-all duration-200 hover:bg-[#f8fbff] hover:shadow-sm"
           >
             <FileText size={15} />
             Generate Report
@@ -81,7 +81,7 @@ export default function DashboardHero({
 
           <button
             onClick={() => router.push("/chat")}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white/90 px-4 text-[13px] font-bold text-black backdrop-blur-sm transition-all duration-200 hover:bg-[#f8fbff] hover:shadow-sm"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white/90 px-4 text-[11px] lg:text-[12px] xl:text-[13px] font-bold whitespace-nowrap text-black backdrop-blur-sm transition-all duration-200 hover:bg-[#f8fbff] hover:shadow-sm"
           >
             <MessageCircle size={15} />
             Ask Aura
@@ -89,7 +89,7 @@ export default function DashboardHero({
 
           <button
             onClick={() => router.push("/uploads")}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-black px-5 text-[13px] font-bold text-white transition-all duration-200 hover:opacity-90 hover:shadow-md"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-black px-5 text-[11px] lg:text-[12px] xl:text-[13px] font-bold whitespace-nowrap text-white transition-all duration-200 hover:opacity-90 hover:shadow-md"
           >
             <Upload size={15} />
             Upload Statement

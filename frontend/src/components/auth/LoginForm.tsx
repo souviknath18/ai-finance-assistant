@@ -96,16 +96,16 @@ export default function LoginForm() {
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-xl border bg-white px-3.5 py-3 text-[13px] outline-none transition focus:ring-2 ${
+    `w-full rounded-xl border bg-white px-3.5 py-2.5 text-[13px] outline-none transition focus:ring-2 sm:py-3 ${
       hasError
         ? "border-red-400 focus:border-red-500 focus:ring-red-100"
         : "border-[#c6c6cd] focus:border-emerald-500 focus:ring-emerald-100"
     }`;
 
   return (
-    <div className="w-full max-w-[400px] rounded-2xl border border-[#d3e4fe]/50 bg-white p-6 shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
-      <div className="mb-7 text-center">
-        <h1 className="mb-2 text-3xl font-bold tracking-tight text-black">
+    <div className="w-full max-w-[400px] rounded-2xl border border-[#d3e4fe]/50 bg-white p-5 shadow-[0_10px_40px_rgba(15,23,42,0.06)] sm:p-6">
+      <div className="mb-6 text-center sm:mb-7">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-black sm:text-3xl">
           Welcome Back
         </h1>
 
@@ -189,7 +189,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-black py-3 text-[13px] font-semibold text-white transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-black py-2.5 text-[13px] font-semibold text-white transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 sm:py-3"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
@@ -207,7 +207,7 @@ export default function LoginForm() {
         </p>
       </div>
 
-      <div className="mt-7 flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#565e74]/70">
+      <div className="mt-6 flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-[#565e74]/70 sm:mt-7">
         <div className="flex items-center gap-2">
           <Lock size={13} className="text-emerald-700" />
           Secure SSL Encryption

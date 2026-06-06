@@ -78,7 +78,23 @@ export default function DashboardTopbar({
             )}
           </button>
 
-          <div className="hidden leading-tight sm:block">
+          <div className="flex min-w-0 items-center gap-2 md:hidden">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-black to-[#1f2937] text-white shadow-sm">
+              <Sparkles size={14} />
+            </div>
+
+            <div className="min-w-0 leading-tight">
+              <h1 className="truncate text-[14px] font-bold tracking-tight text-black">
+                Aura Finance
+              </h1>
+
+              <p className="truncate text-[10px] font-semibold tracking-wide text-[#7c839b]">
+                AI Finance Workspace
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden leading-tight md:block">
             <p className="text-[10px] font-bold uppercase tracking-wide text-[#7c839b]">
               Welcome back
             </p>

@@ -92,8 +92,7 @@ export default function SignupForm() {
     } else if (form.full_name.trim().length < 3) {
       newErrors.full_name = "Full name must be at least 3 characters.";
     } else if (!nameRegex.test(form.full_name.trim())) {
-      newErrors.full_name =
-        "Full name can contain only letters and spaces.";
+      newErrors.full_name = "Full name can contain only letters and spaces.";
     }
 
     if (!form.email.trim()) {
@@ -114,8 +113,7 @@ export default function SignupForm() {
     if (!form.confirm_password) {
       newErrors.confirm_password = "Confirm password is required.";
     } else if (form.password !== form.confirm_password) {
-      newErrors.confirm_password =
-        "Password and confirm password do not match.";
+      newErrors.confirm_password = "Password and confirm password do not match.";
     }
 
     setErrors(newErrors);
@@ -176,16 +174,16 @@ export default function SignupForm() {
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-xl border bg-[#eff4ff] px-3.5 py-3 text-[13px] outline-none transition focus:ring-2 ${
+    `w-full rounded-xl border bg-[#eff4ff] px-3.5 py-2.5 text-[13px] outline-none transition focus:ring-2 sm:py-3 ${
       hasError
         ? "border-red-400 focus:border-red-500 focus:ring-red-100"
         : "border-[#c6c6cd] focus:border-emerald-500 focus:ring-emerald-100"
     }`;
 
   return (
-    <div className="w-full max-w-[440px] rounded-2xl border border-[#d3e4fe]/50 bg-white p-6 shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
-      <div className="mb-7 text-center">
-        <h1 className="mb-2 text-3xl font-bold tracking-tight text-black">
+    <div className="w-full max-w-[440px] rounded-2xl border border-[#d3e4fe]/50 bg-white p-5 shadow-[0_10px_40px_rgba(15,23,42,0.06)] sm:p-6">
+      <div className="mb-6 text-center sm:mb-7">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-black sm:text-3xl">
           Join Aura Finance
         </h1>
 
@@ -195,7 +193,6 @@ export default function SignupForm() {
       </div>
 
       <form onSubmit={handleSignup} noValidate className="space-y-4">
-        {/* Full Name */}
         <div className="space-y-1.5">
           <label className="text-[13px] font-medium text-[#565e74]">
             Full Name
@@ -227,7 +224,6 @@ export default function SignupForm() {
           )}
         </div>
 
-        {/* Email */}
         <div className="space-y-1.5">
           <label className="text-[13px] font-medium text-[#565e74]">
             Email Address
@@ -250,7 +246,6 @@ export default function SignupForm() {
           )}
         </div>
 
-        {/* Password */}
         <div className="space-y-1.5">
           <label className="text-[13px] font-medium text-[#565e74]">
             Password
@@ -270,6 +265,7 @@ export default function SignupForm() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#565e74] transition hover:text-black"
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -299,7 +295,6 @@ export default function SignupForm() {
           )}
         </div>
 
-        {/* Confirm Password */}
         <div className="space-y-1.5">
           <label className="text-[13px] font-medium text-[#565e74]">
             Confirm Password
@@ -317,10 +312,13 @@ export default function SignupForm() {
 
             <button
               type="button"
-              onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#565e74] transition hover:text-black"
+              aria-label={
+                showConfirmPassword
+                  ? "Hide confirm password"
+                  : "Show confirm password"
+              }
             >
               {showConfirmPassword ? (
                 <EyeOff size={16} />
@@ -356,7 +354,7 @@ export default function SignupForm() {
 
         <div className="rounded-2xl border border-emerald-300/50 bg-gradient-to-br from-white to-emerald-50 p-3.5">
           <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
               <Brain size={16} />
             </div>
 
@@ -376,7 +374,7 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-black py-3 text-[13px] font-semibold text-white transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-black py-2.5 text-[13px] font-semibold text-white transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 sm:py-3"
         >
           {loading ? "Creating Account..." : "Create Account"}
         </button>
