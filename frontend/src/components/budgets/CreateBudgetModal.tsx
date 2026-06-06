@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X, Plus, WalletCards, Sparkles } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { BudgetItem } from "@/types/budget";
@@ -53,6 +53,21 @@ export default function CreateBudgetModal({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!open) return;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
     if (mode === "edit" && budget) {
       setForm({
         category: budget.category,
@@ -94,7 +109,6 @@ export default function CreateBudgetModal({
         } limit must be greater than 0.`,
         api: "",
       });
-
       return;
     }
 
@@ -127,7 +141,7 @@ export default function CreateBudgetModal({
         api:
           error?.non_field_errors?.[0] ||
           error?.detail ||
-          "Failed to create budget.",
+          "Failed to save budget.",
       });
     } finally {
       setLoading(false);
@@ -157,222 +171,228 @@ export default function CreateBudgetModal({
   );
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex h-dvh items-center justify-center overflow-hidden bg-black/20 backdrop-blur-[4px] px-4">
       <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
-        <div className="flex items-start justify-between gap-4 border-b border-[#e5eeff] px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-              <WalletCards size={18} />
-            </div>
+        <div className="flex max-h-[90dvh] flex-col">
+          <div className="shrink-0 border-b border-[#e5eeff] bg-white px-5 py-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                  <WalletCards size={18} />
+                </div>
 
-            <div>
-              <h2 className="text-xl font-bold text-black">
-                {mode === "edit" ? "Edit Budget" : "Create Budget"}
-              </h2>
-              <p className="mt-1 text-[13px] text-[#565e74]">
-                Set a monthly spending limit and let Aura track it.
-              </p>
+                <div>
+                  <h2 className="text-xl font-bold text-black">
+                    {mode === "edit" ? "Edit Budget" : "Create Budget"}
+                  </h2>
+                  <p className="mt-1 text-[13px] text-[#565e74]">
+                    Set spending limits and let Aura monitor your budget usage.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleClose}
+                className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
+              >
+                <X size={17} />
+              </button>
             </div>
           </div>
 
-          <button
-            onClick={handleClose}
-            className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
-          >
-            <X size={17} />
-          </button>
-        </div>
-
-        <div className="max-h-[75vh] overflow-y-auto px-5 py-4">
-          {errors.api && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-semibold text-red-600">
-              {errors.api}
-            </div>
-          )}
-
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
-                  Select Category <span className="text-red-500">*</span>
-                </label>
-
-                <CustomSelect
-                  name="category"
-                  value={form.category}
-                  options={categoryOptions}
-                  onChangeAction={(name, value) =>
-                    setForm({
-                      ...form,
-                      [name]: value,
-                    })
-                  }
-                />
+          <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4 pb-6">
+            {errors.api && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-semibold text-red-600">
+                {errors.api}
               </div>
+            )}
 
-              <div className="space-y-1.5">
-                <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
-                  Budget Period
-                </label>
+            <form className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
+                    Select Category <span className="text-red-500">*</span>
+                  </label>
 
-                <div className="flex h-11 rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] p-1">
-                  <button
-                    type="button"
-                    onClick={() =>
+                  <CustomSelect
+                    name="category"
+                    value={form.category}
+                    options={categoryOptions}
+                    onChangeAction={(name, value) =>
                       setForm({
                         ...form,
-                        period: "monthly",
+                        [name]: value,
                       })
-                    }
-                    className={`flex-1 rounded-lg text-[13px] font-bold transition ${
-                      form.period === "monthly"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-[#7c839b] hover:text-black"
-                    }`}
-                  >
-                    Monthly
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setForm({
-                        ...form,
-                        period: "weekly",
-                      })
-                    }
-                    className={`flex-1 rounded-lg text-[13px] font-bold transition ${
-                      form.period === "weekly"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-[#7c839b] hover:text-black"
-                    }`}
-                  >
-                    Weekly
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
-                {form.period === "weekly" ? "Weekly Limit" : "Monthly Limit"}{" "}
-                <span className="text-red-500">*</span>
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-bold text-[#565e74]">
-                  ₹
-                </span>
-
-                <input
-                  type="number"
-                  value={form.limit_amount}
-                  onChange={(event) => {
-                    setForm({
-                      ...form,
-                      limit_amount: event.target.value,
-                    });
-
-                    setErrors({ limit_amount: "", api: "" });
-                  }}
-                  placeholder="15000"
-                  className={`h-11 w-full rounded-xl border bg-[#f8f9ff] pl-8 pr-3 text-[13px] font-semibold text-[#0b1c30] outline-none transition placeholder:text-[#76777d] focus:ring-2 ${
-                    errors.limit_amount
-                      ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-                      : "border-[#c6c6cd] focus:border-emerald-600 focus:ring-emerald-100"
-                  }`}
-                />
-              </div>
-
-              {errors.limit_amount && (
-                <p className="ml-1 text-[11px] font-semibold text-red-600">
-                  {errors.limit_amount}
-                </p>
-              )}
-            </div>
-
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3.5">
-              <div className="mb-3 flex items-center gap-2 text-emerald-700">
-                <Sparkles size={16} />
-                <h3 className="text-[11px] font-bold uppercase tracking-wider">
-                  AI Enhancements
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[13px] font-bold text-black">
-                      AI-Dynamic Limits
-                    </p>
-                    <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
-                      Let Aura suggest better limits from your spending pattern.
-                    </p>
-                  </div>
-
-                  <Toggle
-                    enabled={form.ai_dynamic_limits}
-                    onClick={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        ai_dynamic_limits: !prev.ai_dynamic_limits,
-                      }))
                     }
                   />
                 </div>
 
-                <div className="h-px bg-emerald-100" />
+                <div className="space-y-1.5">
+                  <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
+                    Budget Period
+                  </label>
 
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[13px] font-bold text-black">
-                      Smart Notifications
-                    </p>
-                    <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
-                      Get alerts when usage reaches 50%, 80%, and 100%.
-                    </p>
+                  <div className="flex h-11 rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] p-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          period: "monthly",
+                        })
+                      }
+                      className={`flex-1 rounded-lg text-[13px] font-bold transition ${
+                        form.period === "monthly"
+                          ? "bg-white text-black shadow-sm"
+                          : "text-[#7c839b] hover:text-black"
+                      }`}
+                    >
+                      Monthly
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          period: "weekly",
+                        })
+                      }
+                      className={`flex-1 rounded-lg text-[13px] font-bold transition ${
+                        form.period === "weekly"
+                          ? "bg-white text-black shadow-sm"
+                          : "text-[#7c839b] hover:text-black"
+                      }`}
+                    >
+                      Weekly
+                    </button>
                   </div>
-
-                  <Toggle
-                    enabled={form.smart_notifications}
-                    onClick={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        smart_notifications: !prev.smart_notifications,
-                      }))
-                    }
-                  />
                 </div>
               </div>
+
+              <div className="space-y-1.5">
+                <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
+                  {form.period === "weekly" ? "Weekly Limit" : "Monthly Limit"}{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-bold text-[#565e74]">
+                    ₹
+                  </span>
+
+                  <input
+                    type="number"
+                    value={form.limit_amount}
+                    onChange={(event) => {
+                      setForm({
+                        ...form,
+                        limit_amount: event.target.value,
+                      });
+
+                      setErrors({ limit_amount: "", api: "" });
+                    }}
+                    placeholder="15000"
+                    className={`h-11 w-full rounded-xl border bg-[#f8f9ff] pl-8 pr-3 text-[13px] font-semibold text-[#0b1c30] outline-none transition placeholder:text-[#76777d] focus:ring-2 ${
+                      errors.limit_amount
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-100"
+                        : "border-[#c6c6cd] focus:border-emerald-600 focus:ring-emerald-100"
+                    }`}
+                  />
+                </div>
+
+                {errors.limit_amount && (
+                  <p className="ml-1 text-[11px] font-semibold text-red-600">
+                    {errors.limit_amount}
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3.5">
+                <div className="mb-3 flex items-center gap-2 text-emerald-700">
+                  <Sparkles size={16} />
+                  <h3 className="text-[11px] font-bold uppercase tracking-wider">
+                    AI Enhancements
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[13px] font-bold text-black">
+                        AI-Dynamic Limits
+                      </p>
+                      <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
+                        Let Aura suggest better limits from your spending pattern.
+                      </p>
+                    </div>
+
+                    <Toggle
+                      enabled={form.ai_dynamic_limits}
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          ai_dynamic_limits: !prev.ai_dynamic_limits,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  <div className="h-px bg-emerald-100" />
+
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[13px] font-bold text-black">
+                        Smart Notifications
+                      </p>
+                      <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
+                        Get alerts when usage reaches 50%, 80%, and 100%.
+                      </p>
+                    </div>
+
+                    <Toggle
+                      enabled={form.smart_notifications}
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          smart_notifications: !prev.smart_notifications,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div className="shrink-0 border-t border-[#e5eeff] bg-[#f8f9ff] px-5 py-4">
+            <div className="flex flex-col-reverse justify-end gap-2.5 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={loading}
+                className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff] disabled:opacity-60"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
+              >
+                <Plus size={15} />
+                {loading
+                  ? mode === "edit"
+                    ? "Updating..."
+                    : "Creating..."
+                  : mode === "edit"
+                  ? "Update Budget"
+                  : "Create Budget"}
+              </button>
             </div>
-          </form>
-        </div>
-
-        <div className="flex flex-col justify-end gap-2.5 border-t border-[#e5eeff] bg-[#f8f9ff] px-5 py-4 sm:flex-row">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={loading}
-            className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff] disabled:opacity-60"
-          >
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
-          >
-            <Plus size={15} />
-            {loading
-              ? mode === "edit"
-                ? "Updating..."
-                : "Creating..."
-              : mode === "edit"
-              ? "Update Budget"
-              : "Create Budget"}
-          </button>
+          </div>
         </div>
       </div>
     </div>

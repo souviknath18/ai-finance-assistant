@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { updateSubscriptionPreference } from "@/lib/api/subscriptionApi";
-import { X, CalendarDays, CreditCard, Repeat, Sparkles } from "lucide-react";
+import {
+  X,
+  CalendarDays,
+  CreditCard,
+  Repeat,
+  Sparkles,
+} from "lucide-react";
 import { DetectedSubscription } from "@/types/subscription";
 
 type ReviewSubscriptionModalProps = {
@@ -19,13 +25,37 @@ export default function ReviewSubscriptionModal({
   onPreferenceUpdatedAction,
 }: ReviewSubscriptionModalProps) {
   const [saving, setSaving] = useState(false);
+  const [apiError, setApiError] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [open]);
+
+  if (!open || !subscription) return null;
+
+  const handleClose = () => {
+    if (saving) return;
+
+    setApiError("");
+    onCloseAction();
+  };
 
   const handlePreferenceUpdate = async (
     status: "confirmed" | "cancel_candidate"
   ) => {
-    if (!subscription) return;
-
     setSaving(true);
+    setApiError("");
 
     try {
       await updateSubscriptionPreference({
@@ -39,62 +69,77 @@ export default function ReviewSubscriptionModal({
 
       onPreferenceUpdatedAction();
       onCloseAction();
+    } catch (error: any) {
+      setApiError(
+        error?.detail ||
+          error?.non_field_errors?.[0] ||
+          "Failed to update subscription preference."
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
-  if (!open || !subscription) return null;
-
-  const monthlyAmount = Number(subscription.average_amount);
+  const monthlyAmount = Number(subscription.average_amount || 0);
   const yearlyAmount = monthlyAmount * 12;
 
+  const lastPayment = subscription.last_payment_date
+    ? new Date(subscription.last_payment_date).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "No payment yet";
+
+  const lastAmount = Number(subscription.last_amount || 0);
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+    <div className="fixed inset-0 z-[9999] flex h-dvh items-center justify-center overflow-hidden bg-black/20 px-4 backdrop-blur-[4px]">
       <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
-        <div className="flex max-h-[90vh] flex-col">
-          <div className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#dce9ff] text-base font-black text-black">
-                {subscription.merchant.charAt(0)}
+        <div className="flex max-h-[90dvh] flex-col">
+          <div className="shrink-0 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-base font-black text-emerald-700">
+                  {subscription.merchant.charAt(0).toUpperCase()}
+                </div>
+
+                <div className="min-w-0">
+                  <h2 className="truncate text-xl font-bold leading-tight text-black">
+                    {subscription.merchant}
+                  </h2>
+
+                  <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
+                    Detected recurring subscription
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <h2 className="text-xl font-bold leading-tight text-black">
-                  {subscription.merchant}
-                </h2>
-
-                <p className="mt-1 text-[13px] text-[#565e74]">
-                  Detected recurring subscription
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={saving}
+                className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <X size={17} />
+              </button>
             </div>
-
-            <button
-              onClick={onCloseAction}
-              className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
-            >
-              <X size={17} />
-            </button>
           </div>
 
           <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4">
+            {apiError && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] font-semibold text-red-600">
+                {apiError}
+              </div>
+            )}
+
             <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
               <InfoBox
                 icon={<CreditCard size={16} />}
                 label="Monthly Cost"
                 value={`₹${monthlyAmount.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}`}
               />
 
@@ -103,30 +148,21 @@ export default function ReviewSubscriptionModal({
                 label="Yearly Forecast"
                 value={`₹${yearlyAmount.toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}`}
               />
 
               <InfoBox
                 icon={<CalendarDays size={16} />}
                 label="Last Payment"
-                value={
-                  subscription.last_payment_date
-                    ? new Date(subscription.last_payment_date).toLocaleDateString(
-                        "en-IN",
-                        {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        }
-                      )
-                    : "No payment yet"
-                }
+                value={lastPayment}
               />
             </div>
 
-            <div className="mb-4 rounded-2xl bg-[#eff4ff] p-4">
+            <div className="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
               <div className="mb-2.5 flex items-center gap-2 text-emerald-700">
                 <Sparkles size={16} />
+
                 <span className="text-[11px] font-bold uppercase tracking-wider">
                   Aura Analysis
                 </span>
@@ -144,6 +180,7 @@ export default function ReviewSubscriptionModal({
                   ₹
                   {monthlyAmount.toLocaleString("en-IN", {
                     minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   })}
                 </strong>
                 . Review whether this service is still useful, especially if you
@@ -151,18 +188,25 @@ export default function ReviewSubscriptionModal({
               </p>
             </div>
 
-            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-              <DetailRow label="Category" value={subscription.category || "Unknown"} />
-              <DetailRow label="Status" value={subscription.status.replace("_", " ")} />
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <DetailRow
+                label="Category"
+                value={subscription.category || "Unknown"}
+              />
+
+              <DetailRow
+                label="Status"
+                value={subscription.status.replace("_", " ")}
+              />
+
               <DetailRow
                 label="Last Amount"
-                value={`₹${Number(subscription.last_amount).toLocaleString(
-                  "en-IN",
-                  {
-                    minimumFractionDigits: 2,
-                  }
-                )}`}
+                value={`₹${lastAmount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`}
               />
+
               <DetailRow
                 label="Detection Confidence"
                 value={
@@ -174,29 +218,35 @@ export default function ReviewSubscriptionModal({
             </div>
           </div>
 
-          <div className="sticky bottom-0 z-20 flex flex-col-reverse gap-2.5 border-t border-[#eef2ff] bg-white px-5 py-4 sm:flex-row sm:justify-end">
-            <button
-              onClick={onCloseAction}
-              className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
-            >
-              Close
-            </button>
+          <div className="shrink-0 border-t border-[#eef2ff] bg-white px-5 py-4">
+            <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={saving}
+                className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Close
+              </button>
 
-            <button
-              disabled={saving}
-              onClick={() => handlePreferenceUpdate("cancel_candidate")}
-              className="rounded-xl border border-red-200 px-4 py-2.5 text-[13px] font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Mark as Not Needed"}
-            </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => handlePreferenceUpdate("cancel_candidate")}
+                className="rounded-xl border border-red-200 px-4 py-2.5 text-[13px] font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Mark as Not Needed"}
+              </button>
 
-            <button
-              disabled={saving}
-              onClick={() => handlePreferenceUpdate("confirmed")}
-              className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Keep Tracking"}
-            </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => handlePreferenceUpdate("confirmed")}
+                className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Keep Tracking"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -214,26 +264,30 @@ function InfoBox({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#e5eeff] bg-white p-3.5">
-      <div className="mb-2.5 flex items-center gap-2 text-[#565e74]">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-3.5 transition hover:bg-[#f8f9ff]">
+      <div className="mb-2.5 flex items-center gap-2 text-emerald-700">
         {icon}
-        <span className="text-[11px] font-bold uppercase tracking-wide">
+
+        <span className="text-[11px] font-bold uppercase tracking-wide text-[#7c839b]">
           {label}
         </span>
       </div>
 
-      <p className="text-[15px] font-bold text-black">{value}</p>
+      <p className="break-words text-[15px] font-bold text-black">{value}</p>
     </div>
   );
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#e5eeff] p-3.5">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-3.5 transition hover:bg-[#f8f9ff]">
       <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[#7c839b]">
         {label}
       </p>
-      <p className="text-[13px] font-bold capitalize text-black">{value}</p>
+
+      <p className="break-words text-[13px] font-bold capitalize text-black">
+        {value}
+      </p>
     </div>
   );
 }

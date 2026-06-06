@@ -61,14 +61,23 @@ export default function SubscriptionFilterModal({
     useState<SubscriptionFilters>(filters);
 
   useEffect(() => {
-    setLocalFilters(filters);
+    if (open) {
+      setLocalFilters(filters);
+    }
   }, [filters, open]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (!open) return;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
     };
   }, [open]);
 
@@ -84,39 +93,52 @@ export default function SubscriptionFilterModal({
     }));
   };
 
+  const handleClose = () => {
+    setLocalFilters(filters);
+    onCloseAction();
+  };
+
   const handleClear = () => {
     setLocalFilters(defaultFilters);
     onClearAction();
   };
 
+  const handleApply = () => {
+    onApplyAction(localFilters);
+    onCloseAction();
+  };
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+    <div className="fixed inset-0 z-[9999] flex h-dvh items-center justify-center overflow-hidden bg-black/20 px-4 backdrop-blur-[4px]">
       <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.25)]">
-        <div className="flex max-h-[90vh] flex-col">
-          <div className="flex items-start justify-between gap-4 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#dce9ff] text-black">
-                <Filter size={18} />
+        <div className="flex max-h-[90dvh] flex-col">
+          <div className="shrink-0 border-b border-[#eef2ff] bg-white px-5 pb-4 pt-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                  <Filter size={18} />
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-bold leading-tight text-black">
+                    Filter Subscriptions
+                  </h2>
+
+                  <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
+                    Narrow services by category, source, status, billing cycle,
+                    and amount.
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <h2 className="text-xl font-bold leading-tight text-black">
-                  Filter Subscriptions
-                </h2>
-
-                <p className="mt-1 text-[13px] text-[#565e74]">
-                  Narrow services by category, source, status, billing cycle,
-                  and amount.
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
+              >
+                <X size={17} />
+              </button>
             </div>
-
-            <button
-              onClick={onCloseAction}
-              className="rounded-xl p-1.5 text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black"
-            >
-              <X size={17} />
-            </button>
           </div>
 
           <div className="custom-scrollbar flex-1 overflow-y-auto px-5 py-4">
@@ -252,8 +274,7 @@ export default function SubscriptionFilterModal({
                   </div>
 
                   <span className="text-[13px] font-bold text-black">
-                    Up to ₹
-                    {localFilters.max_amount.toLocaleString("en-IN")}
+                    Up to ₹{localFilters.max_amount.toLocaleString("en-IN")}
                     /mo
                   </span>
                 </div>
@@ -265,10 +286,7 @@ export default function SubscriptionFilterModal({
                   step={100}
                   value={localFilters.max_amount}
                   onChange={(event) =>
-                    updateFilter(
-                      "max_amount",
-                      Number(event.target.value)
-                    )
+                    updateFilter("max_amount", Number(event.target.value))
                   }
                   className="w-full accent-emerald-600"
                 />
@@ -281,36 +299,35 @@ export default function SubscriptionFilterModal({
             </div>
           </div>
 
-          <div className="flex flex-col-reverse gap-2.5 border-t border-[#eef2ff] bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <button
-              type="button"
-              onClick={handleClear}
-              className="flex items-center justify-center gap-2 rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
-            >
-              <RotateCcw size={15} />
-              Clear All
-            </button>
-
-            <div className="flex flex-col-reverse gap-2.5 sm:flex-row">
+          <div className="shrink-0 border-t border-[#eef2ff] bg-white px-5 py-4">
+            <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
-                onClick={onCloseAction}
-                className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                onClick={handleClear}
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
               >
-                Cancel
+                <RotateCcw size={15} />
+                Clear All
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  onApplyAction(localFilters);
-                  onCloseAction();
-                }}
-                className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90"
-              >
-                <CheckCircle2 size={15} />
-                Apply Filters
-              </button>
+              <div className="flex flex-col-reverse gap-2.5 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleApply}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98]"
+                >
+                  <CheckCircle2 size={15} />
+                  Apply Filters
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -319,11 +336,7 @@ export default function SubscriptionFilterModal({
   );
 }
 
-function SectionTitle({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-[#7c839b]">
       {children}
