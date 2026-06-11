@@ -1,26 +1,65 @@
-import { Plane } from "lucide-react";
+import { GoalItem } from "@/types/goal";
 import PrimaryGoalCard from "./PrimaryGoalCard";
 import CircularGoalCard from "./CircularGoalCard";
 import SmallGoalCard from "./SmallGoalCard";
 import SmartAllocationCard from "./SmartAllocationCard";
 
-export default function GoalsGrid() {
+type GoalsGridProps = {
+  goals: GoalItem[];
+  onAddFundsAction: (goal: GoalItem) => void;
+  onEditAction: (goal: GoalItem) => void;
+  onDeleteAction: (goal: GoalItem) => void;
+};
+
+export default function GoalsGrid({
+  goals,
+  onAddFundsAction,
+  onEditAction,
+  onDeleteAction,
+}: GoalsGridProps) {
+  const priorityGoal =
+    goals.find((goal) => goal.priority === "high") ||
+    goals.find((goal) => goal.priority === "medium") ||
+    goals[0];
+
+  const remainingGoals = goals.filter(
+    (goal) => goal.goal_id !== priorityGoal?.goal_id
+  );
+
+  const circularGoal = remainingGoals[0];
+  const smallGoals = remainingGoals.slice(1);
+
   return (
     <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-12">
-      <PrimaryGoalCard />
+      {priorityGoal && (
+        <PrimaryGoalCard
+          goal={priorityGoal}
+          onAddFundsAction={onAddFundsAction}
+          onEditAction={onEditAction}
+          onDeleteAction={onDeleteAction}
+        />
+      )}
 
-      <CircularGoalCard />
+      {circularGoal && (
+        <CircularGoalCard
+          goal={circularGoal}
+          onAddFundsAction={onAddFundsAction}
+          onEditAction={onEditAction}
+          onDeleteAction={onDeleteAction}
+        />
+      )}
 
-      <SmallGoalCard
-        icon={<Plane size={18} />}
-        title="Japan Trip"
-        current="₹3,20,000"
-        target="₹5,00,000"
-        progress={64}
-        note="8 months until departure"
-      />
+      {smallGoals.map((goal) => (
+        <SmallGoalCard
+          key={goal.goal_id}
+          goal={goal}
+          onAddFundsAction={onAddFundsAction}
+          onEditAction={onEditAction}
+          onDeleteAction={onDeleteAction}
+        />
+      ))}
 
-      <SmartAllocationCard />
+      <SmartAllocationCard goals={goals} />
     </section>
   );
 }

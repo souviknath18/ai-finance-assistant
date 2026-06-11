@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "apps.subscriptions.apps.SubscriptionsConfig",
     "apps.budgets.apps.BudgetsConfig",
     "apps.reports.apps.ReportsConfig",
+    "apps.notifications.apps.NotificationsConfig",
+    "apps.goals.apps.GoalsConfig",
     "storages",
 ]
 

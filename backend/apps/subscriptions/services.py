@@ -6,6 +6,7 @@ from django.utils.timezone import now
 
 from apps.transactions.models import Transaction
 from .models import Subscription, SubscriptionPreference
+from apps.notifications.services import create_notification_once
 
 
 SUBSCRIPTION_KEYWORDS = [
@@ -61,7 +62,7 @@ def sync_detected_subscriptions(user):
         last_payment_date = items[-1].date
         next_billing_date = last_payment_date + timedelta(days=30)
 
-        Subscription.objects.update_or_create(
+        subscription, created = Subscription.objects.update_or_create(
             user=user,
             merchant=merchant.title(),
             defaults={
@@ -80,6 +81,17 @@ def sync_detected_subscriptions(user):
                 "is_active": True,
             },
         )
+
+        if created:
+            create_notification_once(
+                user=user,
+                title="New Subscription Detected",
+                description=f"Aura detected a recurring payment for {subscription.merchant}.",
+                notification_type="subscription",
+                tone="green",
+                action_label="Manage Subscriptions",
+                action_url="/subscriptions",
+            )
 
 
 def detect_subscriptions(user):
@@ -182,6 +194,16 @@ def detect_upcoming_bills(detected_subscriptions):
                     "next_date": next_date,
                     "days_remaining": days_remaining,
                 }
+            )
+
+            create_notification_once(
+                user=item_user,
+                title=f"Upcoming Bill: {item['merchant']}",
+                description=f"{item['merchant']} may bill ₹{item['average_amount']} in {days_remaining} day(s).",
+                notification_type="subscription",
+                tone="green",
+                action_label="View Subscription",
+                action_url="/subscriptions",
             )
 
     return upcoming

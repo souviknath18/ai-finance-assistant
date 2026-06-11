@@ -15,6 +15,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
+import { getNotificationUnreadCount } from "@/lib/api/notificationsApi";
 
 type DashboardTopbarProps = {
   setSidebarOpenAction: (value: boolean) => void;
@@ -30,6 +31,7 @@ export default function DashboardTopbar({
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,6 +42,23 @@ export default function DashboardTopbar({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const loadCount = async () => {
+      try {
+        const count = await getNotificationUnreadCount();
+        setNotificationCount(count);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadCount();
+
+    const interval = window.setInterval(loadCount, 30000);
+
+    return () => window.clearInterval(interval);
   }, []);
 
   const handleLogout = () => {
@@ -135,7 +154,12 @@ export default function DashboardTopbar({
             className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#dbe5f5] text-[#45464d] transition hover:bg-[#f8f9ff] hover:text-black"
           >
             <Bell size={17} />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full border border-white bg-red-500" />
+
+            {notificationCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {notificationCount > 99 ? "99+" : notificationCount}
+              </span>
+            )}
           </button>
 
           <div ref={menuRef} className="relative">

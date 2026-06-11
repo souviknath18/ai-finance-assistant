@@ -14,7 +14,7 @@ export default function HeroSection() {
             Your Finances, Mastered by AI.
           </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-7 text-[#565e74] sm:text-lg">
+          <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-[#565e74] sm:text-lg lg:mx-0">
             Upload bank statements, CSVs, invoices, or salary slips. Let Aura
             categorize your spending, find insights, and help you reach your
             goals.
