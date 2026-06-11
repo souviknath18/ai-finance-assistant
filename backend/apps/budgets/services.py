@@ -3,6 +3,7 @@ from ai_engine.insights.budget_analysis import (
     analyze_budget_usage,
     generate_budget_recommendation,
 )
+from apps.notifications.services import create_notification_once
 
 
 def get_budget_dashboard(user):
@@ -12,6 +13,21 @@ def get_budget_dashboard(user):
         analyze_budget_usage(user, budget)
         for budget in budgets
     ]
+
+    for item in budget_items:
+        usage = float(item.get("usage_percentage", 0))
+
+        if usage >= 90:
+            create_notification_once(
+                user=user,
+                title=f"Budget Warning: {item['category']}",
+                description=f"You have used {usage}% of your {item['category']} budget.",
+                notification_type="budget",
+                tone="red",
+                action_label="Adjust Budget",
+                action_url="/budgets",
+                progress=int(min(usage, 100)),
+            )
 
     total_limit = sum(float(item["limit_amount"]) for item in budget_items)
     total_spent = sum(float(item["spent_amount"]) for item in budget_items)

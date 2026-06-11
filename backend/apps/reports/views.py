@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 
 from .models import GeneratedReport
 from .services import get_report_dashboard
-
+from apps.notifications.services import create_notification_once
 from ai_engine.reports.report_ai_writer import (
     generate_ai_report_summary,
 )
@@ -101,6 +101,16 @@ class GenerateReportView(APIView):
             period_range=report_data["period"]["range"],
             report_data=serialized_report_data,
             ai_summary=ai_summary,
+        )
+
+        create_notification_once(
+            user=request.user,
+            title="Financial Report Ready",
+            description=f"Your {interval} financial report for {report.period_range} is ready.",
+            notification_type="report",
+            tone="muted",
+            action_label="Download PDF",
+            action_url=f"/reports",
         )
 
         return Response(

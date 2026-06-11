@@ -5,48 +5,48 @@ import { Sparkles } from "lucide-react";
 
 export default function LandingNavbar() {
   return (
-    <nav className="fixed top-0 z-50 flex h-14 w-full items-center justify-between border-b border-[#d3e4fe]/60 bg-white/80 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
-      <Link href="/" className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-black text-white">
-          <Sparkles size={16} />
+    <nav className="fixed top-0 z-50 flex h-14 w-full items-center justify-between border-b border-[#d3e4fe]/60 bg-white/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
+      <Link href="/" className="flex min-w-0 items-center gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-black to-[#1f2937] text-white shadow-sm">
+          <Sparkles size={15} />
         </div>
 
-        <h1 className="text-lg font-bold tracking-tight text-black">
-          Aura Finance
-        </h1>
+        <div className="min-w-0 leading-tight">
+          <h1 className="truncate text-[15px] font-bold tracking-tight text-black sm:text-lg">
+            Aura Finance
+          </h1>
+
+          <p className="hidden text-[10px] font-semibold tracking-wide text-[#7c839b] min-[380px]:block sm:hidden">
+            AI Finance Workspace
+          </p>
+        </div>
       </Link>
 
       <div className="hidden items-center gap-7 md:flex">
-        <a
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
-        >
+        <a className="text-[13px] font-medium text-[#45464d] transition hover:text-black">
           Features
         </a>
 
-        <a
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
-        >
+        <a className="text-[13px] font-medium text-[#45464d] transition hover:text-black">
           How it Works
         </a>
 
-        <a
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
-        >
+        <a className="text-[13px] font-medium text-[#45464d] transition hover:text-black">
           Pricing
         </a>
       </div>
 
-      <div className="flex items-center gap-4 sm:gap-5">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         <Link
           href="/auth/login"
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
+          className="text-[12px] font-semibold text-[#45464d] transition hover:text-black sm:text-[13px]"
         >
           Login
         </Link>
 
         <Link
           href="/auth/signup"
-          className="rounded-xl bg-black px-4 py-2 text-[13px] font-semibold text-white transition hover:scale-[0.98]"
+          className="rounded-xl bg-black px-3 py-2 text-[12px] font-semibold text-white transition hover:scale-[0.98] sm:px-4 sm:text-[13px]"
         >
           Sign Up
         </Link>

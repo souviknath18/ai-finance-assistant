@@ -1,6 +1,10 @@
 import { Plus } from "lucide-react";
 
-export default function GoalsHeader() {
+type GoalsHeaderProps = {
+  onCreateGoalAction: () => void;
+};
+
+export default function GoalsHeader({ onCreateGoalAction }: GoalsHeaderProps) {
   return (
     <section className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
       <div>
@@ -14,7 +18,10 @@ export default function GoalsHeader() {
         </p>
       </div>
 
-      <button className="flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
+      <button
+        onClick={onCreateGoalAction}
+        className="flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90"
+      >
         <Plus size={15} />
         Create New Goal
       </button>

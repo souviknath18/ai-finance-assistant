@@ -1,24 +1,37 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { dismissNotification } from "@/lib/api/notificationsApi";
+
 type NotificationCardProps = {
+  id: number;
   icon: React.ReactNode;
   tone: "red" | "green" | "dark" | "purple" | "muted";
   title: string;
   time: string;
   description: string;
   actions: string[];
+  actionUrl?: string | null;
   dangerAction?: string;
   progress?: number;
+  onRefreshAction: () => void;
 };
 
 export default function NotificationCard({
+  id,
   icon,
   tone,
   title,
   time,
   description,
   actions,
+  actionUrl,
   dangerAction,
   progress,
+  onRefreshAction,
 }: NotificationCardProps) {
+  const router = useRouter();
+
   const toneMap = {
     red: {
       border: "border-l-red-600",
@@ -48,6 +61,18 @@ export default function NotificationCard({
   };
 
   const current = toneMap[tone];
+
+  const handleAction = async (action: string) => {
+    if (action === "Dismiss") {
+      await dismissNotification(id);
+      onRefreshAction();
+      return;
+    }
+
+    if (actionUrl) {
+      router.push(actionUrl);
+    }
+  };
 
   return (
     <div
@@ -85,6 +110,7 @@ export default function NotificationCard({
           {actions.map((action) => (
             <button
               key={action}
+              onClick={() => handleAction(action)}
               className={`border-b pb-px text-[11px] font-bold uppercase tracking-wide transition hover:opacity-70 ${
                 action === dangerAction
                   ? "border-red-600 text-red-600"

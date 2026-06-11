@@ -1,6 +1,14 @@
 import { Search } from "lucide-react";
 
-export default function NotificationsHeader() {
+type NotificationsHeaderProps = {
+  search: string;
+  onSearchAction: (value: string) => void;
+};
+
+export default function NotificationsHeader({
+  search,
+  onSearchAction,
+}: NotificationsHeaderProps) {
   return (
     <header className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
       <div>
@@ -17,6 +25,8 @@ export default function NotificationsHeader() {
         <Search size={16} className="text-[#565e74]" />
 
         <input
+          value={search}
+          onChange={(event) => onSearchAction(event.target.value)}
           placeholder="Search alerts..."
           className="w-48 bg-transparent text-[13px] outline-none"
         />

@@ -4,66 +4,101 @@ import {
   TrendingUp,
   ShoppingCart,
   FileText,
+  Brain,
 } from "lucide-react";
 
 import NotificationSection from "./NotificationSection";
 import NotificationCard from "./NotificationCard";
+import { AppNotification } from "@/types/notification";
 
-export default function NotificationTimeline() {
+type NotificationTimelineProps = {
+  notifications: AppNotification[];
+  onRefreshAction: () => void;
+};
+
+function getIcon(type: AppNotification["notification_type"]) {
+  if (type === "budget") return <AlertTriangle size={18} />;
+  if (type === "subscription") return <Repeat size={18} />;
+  if (type === "goal") return <TrendingUp size={18} />;
+  if (type === "report") return <FileText size={18} />;
+  if (type === "ai_alert") return <Brain size={18} />;
+  return <ShoppingCart size={18} />;
+}
+
+function getSectionTitle(createdAt: string) {
+  const date = new Date(createdAt);
+  const today = new Date();
+
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Today";
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+
+  return "Earlier";
+}
+
+export default function NotificationTimeline({
+  notifications,
+  onRefreshAction,
+}: NotificationTimelineProps) {
+  const grouped = {
+    Today: notifications.filter(
+      (item) => getSectionTitle(item.created_at) === "Today"
+    ),
+    Yesterday: notifications.filter(
+      (item) => getSectionTitle(item.created_at) === "Yesterday"
+    ),
+    Earlier: notifications.filter(
+      (item) => getSectionTitle(item.created_at) === "Earlier"
+    ),
+  };
+
+  if (notifications.length === 0) {
+    return (
+      <div className="rounded-2xl border border-[#e5eeff] bg-white p-8 text-center shadow-sm">
+        <h3 className="text-lg font-bold text-black">No notifications yet</h3>
+        <p className="mt-2 text-[13px] text-[#565e74]">
+          Aura will show budget warnings, reports, subscriptions, and AI alerts
+          here.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      <NotificationSection title="Today">
-        <NotificationCard
-          icon={<AlertTriangle size={18} />}
-          tone="red"
-          title="Budget Warning: Dining Out"
-          time="2h ago"
-          description="You have reached 95% of your ₹40,000 dining budget for September. Consider choosing a home-cooked meal tonight."
-          actions={["Adjust Budget", "Dismiss"]}
-        />
+      {Object.entries(grouped).map(([title, items]) => {
+        if (items.length === 0) return null;
 
-        <NotificationCard
-          icon={<Repeat size={18} />}
-          tone="green"
-          title="Subscription Increase"
-          time="5h ago"
-          description="Netflix has updated their monthly rate from ₹1,549 to ₹1,999 starting next billing cycle."
-          actions={["Manage Subscriptions"]}
-        />
-      </NotificationSection>
-
-      <NotificationSection title="Yesterday" muted>
-        <NotificationCard
-          icon={<TrendingUp size={18} />}
-          tone="dark"
-          title="Goal Milestone Reached!"
-          time="Yesterday, 4:30 PM"
-          description="Congratulations! You've saved ₹5,00,000 toward your European Summer goal. You are 50% of the way there."
-          actions={["View Goal Details"]}
-          progress={50}
-        />
-
-        <NotificationCard
-          icon={<ShoppingCart size={18} />}
-          tone="purple"
-          title="Unusual Spending Detected"
-          time="Yesterday, 10:15 AM"
-          description="A transaction of ₹45,000 at TechWorld Retail is higher than your average shopping spend."
-          actions={["Verify Transaction", "Report Issue"]}
-          dangerAction="Report Issue"
-        />
-      </NotificationSection>
-
-      <NotificationSection title="Earlier" faded>
-        <NotificationCard
-          icon={<FileText size={18} />}
-          tone="muted"
-          title="August Financial Report"
-          time="Sept 1"
-          description="Your comprehensive wealth report for August is now available for review."
-          actions={["Download PDF"]}
-        />
-      </NotificationSection>
+        return (
+          <NotificationSection
+            key={title}
+            title={title}
+            muted={title === "Yesterday"}
+            faded={title === "Earlier"}
+          >
+            {items.map((item) => (
+              <NotificationCard
+                key={item.id}
+                id={item.id}
+                icon={getIcon(item.notification_type)}
+                tone={item.tone}
+                title={item.title}
+                time={item.time}
+                description={item.description}
+                actions={[
+                  item.action_label || "View Details",
+                  "Dismiss",
+                ]}
+                actionUrl={item.action_url}
+                progress={item.progress || undefined}
+                onRefreshAction={onRefreshAction}
+              />
+            ))}
+          </NotificationSection>
+        );
+      })}
     </div>
   );
 }

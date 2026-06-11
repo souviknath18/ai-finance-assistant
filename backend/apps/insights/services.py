@@ -11,6 +11,7 @@ from ai_engine.insights.spending_analysis import (
 from ai_engine.insights.anomaly_detection import detect_anomalies
 from ai_engine.insights.recurring_analysis import analyze_recurring_expenses
 from ai_engine.insights.financial_health import calculate_financial_health
+from apps.notifications.services import create_notification_once
 
 
 def build_insights_summary(user):
@@ -128,6 +129,20 @@ def regenerate_insights_snapshot(user):
             "generated_at": timezone.now(),
         },
     )
+
+    alerts = data.get("alerts", {})
+    budget_warning = alerts.get("budget_warning", {})
+
+    if budget_warning.get("title"):
+        create_notification_once(
+            user=user,
+            title=budget_warning["title"],
+            description=budget_warning.get("description", ""),
+            notification_type="ai_alert",
+            tone="purple",
+            action_label="View Insights",
+            action_url="/insights",
+        )
 
     return snapshot.data
 
