@@ -4,11 +4,7 @@ import {
   CreateCategoryPayload,
 } from "@/types/category";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function getCategorySummary({
   page = 1,
@@ -17,20 +13,15 @@ export async function getCategorySummary({
   page?: number;
   pageSize?: number;
 }): Promise<PaginatedCategorySummaryResponse> {
-  const token = getAccessToken();
-
   const params = new URLSearchParams({
     page: String(page),
     page_size: String(pageSize),
   });
 
-  const response = await fetch(
-    `${API_URL}/api/categories/summary/?${params.toString()}`,
+  const response = await authFetch(
+    `/api/categories/summary/?${params.toString()}`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
@@ -43,18 +34,11 @@ export async function getCategorySummary({
   return data;
 }
 
-
 export async function createCategory(
   payload: CreateCategoryPayload
 ): Promise<Category> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/categories/`, {
+  const response = await authFetch("/api/categories/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(payload),
   });
 
@@ -67,15 +51,9 @@ export async function createCategory(
   return data;
 }
 
-
 export async function getCategories(): Promise<Category[]> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/categories/`, {
+  const response = await authFetch("/api/categories/", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -86,16 +64,10 @@ export async function getCategories(): Promise<Category[]> {
 
   return data;
 }
-
 
 export async function getCategoryOptions(): Promise<Category[]> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/categories/options/`, {
+  const response = await authFetch("/api/categories/options/", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -107,22 +79,15 @@ export async function getCategoryOptions(): Promise<Category[]> {
   return data;
 }
 
-
 export async function deleteCategory(categoryId: string) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/categories/${categoryId}/`, {
+  const response = await authFetch(`/api/categories/${categoryId}/`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
+    const data = await response.json();
     throw data;
   }
 
-  return data;
+  return true;
 }

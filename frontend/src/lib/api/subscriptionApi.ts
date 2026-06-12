@@ -4,20 +4,11 @@ import {
   UpdateSubscriptionPreferencePayload,
 } from "@/types/subscription";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function getDetectedSubscriptions(): Promise<SubscriptionDashboardResponse> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/subscriptions/detected/`, {
+  const response = await authFetch("/api/subscriptions/detected/", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -32,14 +23,8 @@ export async function getDetectedSubscriptions(): Promise<SubscriptionDashboardR
 export async function createManualSubscription(
   payload: CreateManualSubscriptionPayload
 ) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/subscriptions/manual/`, {
+  const response = await authFetch("/api/subscriptions/manual/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(payload),
   });
 
@@ -55,14 +40,8 @@ export async function createManualSubscription(
 export async function updateSubscriptionPreference(
   payload: UpdateSubscriptionPreferencePayload
 ) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/subscriptions/preference/`, {
+  const response = await authFetch("/api/subscriptions/preference/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(payload),
   });
 

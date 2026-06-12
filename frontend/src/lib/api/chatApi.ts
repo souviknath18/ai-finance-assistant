@@ -4,24 +4,14 @@ import {
   SendChatMessageResponse,
 } from "@/types/chat";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function sendChatMessage(
   message: string,
   sessionId?: number | null
 ) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/chat/message/`, {
+  const response = await authFetch("/api/chat/message/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify({
       message,
       session_id: sessionId,
@@ -38,13 +28,8 @@ export async function sendChatMessage(
 }
 
 export async function getChatSessions() {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/chat/sessions/`, {
+  const response = await authFetch("/api/chat/sessions/", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -57,13 +42,8 @@ export async function getChatSessions() {
 }
 
 export async function getChatSession(sessionId: number) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/chat/sessions/${sessionId}/`, {
+  const response = await authFetch(`/api/chat/sessions/${sessionId}/`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -76,23 +56,17 @@ export async function getChatSession(sessionId: number) {
 }
 
 export async function deleteChatSession(sessionId: number) {
-  const token = getAccessToken();
-
-  const response = await fetch(
-    `${API_URL}/api/chat/sessions/${sessionId}/delete/`,
+  const response = await authFetch(
+    `/api/chat/sessions/${sessionId}/delete/`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
-  const data = await response.json();
-
   if (!response.ok) {
+    const data = await response.json();
     throw data;
   }
 
-  return data;
+  return true;
 }

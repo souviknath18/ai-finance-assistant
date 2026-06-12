@@ -20,7 +20,7 @@ export default function GoalsHeader({ onCreateGoalAction }: GoalsHeaderProps) {
 
       <button
         onClick={onCreateGoalAction}
-        className="flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 md:w-auto"
       >
         <Plus size={15} />
         Create New Goal

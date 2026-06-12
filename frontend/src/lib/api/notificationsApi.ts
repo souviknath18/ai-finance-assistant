@@ -3,25 +3,16 @@ import {
   NotificationResponse,
 } from "@/types/notification";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function getNotifications(
   type = "all",
   search = ""
 ) {
-  const token = getAccessToken();
-
-  const response = await fetch(
-    `${API_URL}/api/notifications/?type=${type}&search=${search}`,
+  const response = await authFetch(
+    `/api/notifications/?type=${type}&search=${search}`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
@@ -35,15 +26,10 @@ export async function getNotifications(
 }
 
 export async function markNotificationRead(id: number) {
-  const token = getAccessToken();
-
-  const response = await fetch(
-    `${API_URL}/api/notifications/${id}/read/`,
+  const response = await authFetch(
+    `/api/notifications/${id}/read/`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
@@ -57,15 +43,10 @@ export async function markNotificationRead(id: number) {
 }
 
 export async function dismissNotification(id: number) {
-  const token = getAccessToken();
-
-  const response = await fetch(
-    `${API_URL}/api/notifications/${id}/dismiss/`,
+  const response = await authFetch(
+    `/api/notifications/${id}/dismiss/`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
@@ -79,14 +60,12 @@ export async function dismissNotification(id: number) {
 }
 
 export async function getNotificationUnreadCount() {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/notifications/unread-count/`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    "/api/notifications/unread-count/",
+    {
+      method: "GET",
+    }
+  );
 
   const data = await response.json().catch(() => null);
 

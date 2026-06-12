@@ -6,23 +6,14 @@ import {
   GetUploadsParams,
 } from "@/types/upload";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function uploadFile(file: File): Promise<UploadedFile> {
-  const token = getAccessToken();
-
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${API_URL}/api/uploads/upload/`, {
+  const response = await authFetch("/api/uploads/upload/", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
     body: formData,
   });
 
@@ -40,14 +31,12 @@ export async function uploadFile(file: File): Promise<UploadedFile> {
 }
 
 export async function getUploadedFiles(): Promise<UploadedFile[]> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/uploads/?page=1&page_size=100`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    "/api/uploads/?page=1&page_size=100",
+    {
+      method: "GET",
+    }
+  );
 
   const data = await response.json();
 
@@ -58,15 +47,15 @@ export async function getUploadedFiles(): Promise<UploadedFile[]> {
   return data.results || data;
 }
 
-export async function retryUploadProcessing(id: number): Promise<UploadedFile> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/uploads/${id}/retry/`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function retryUploadProcessing(
+  id: number
+): Promise<UploadedFile> {
+  const response = await authFetch(
+    `/api/uploads/${id}/retry/`,
+    {
+      method: "POST",
+    }
+  );
 
   const data = await response.json();
 
@@ -78,14 +67,12 @@ export async function retryUploadProcessing(id: number): Promise<UploadedFile> {
 }
 
 export async function getUploadAITip(): Promise<UploadAITip> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/uploads/ai-tip/`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    "/api/uploads/ai-tip/",
+    {
+      method: "GET",
+    }
+  );
 
   const data = await response.json();
 
@@ -101,8 +88,6 @@ export async function getPaginatedUploads({
   pageSize = 10,
   status = "all",
 }: GetUploadsParams): Promise<PaginatedUploadsResponse> {
-  const token = getAccessToken();
-
   const params = new URLSearchParams({
     page: String(page),
     page_size: String(pageSize),
@@ -112,12 +97,12 @@ export async function getPaginatedUploads({
     params.set("status", status);
   }
 
-  const response = await fetch(`${API_URL}/api/uploads/?${params.toString()}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    `/api/uploads/?${params.toString()}`,
+    {
+      method: "GET",
+    }
+  );
 
   const data = await response.json();
 
@@ -129,14 +114,12 @@ export async function getPaginatedUploads({
 }
 
 export async function getUploadStats(): Promise<UploadStats> {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/uploads/stats/`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    "/api/uploads/stats/",
+    {
+      method: "GET",
+    }
+  );
 
   const data = await response.json();
 
@@ -148,14 +131,12 @@ export async function getUploadStats(): Promise<UploadStats> {
 }
 
 export async function deleteUploadedFile(id: number) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/uploads/${id}/`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    `/api/uploads/${id}/`,
+    {
+      method: "DELETE",
+    }
+  );
 
   if (!response.ok) {
     const data = await response.json();

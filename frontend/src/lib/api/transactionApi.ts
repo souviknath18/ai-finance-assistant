@@ -4,11 +4,7 @@ import {
   GetTransactionsParams,
 } from "@/types/transaction";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -66,26 +62,30 @@ export async function getTransactions(params: GetTransactionsParams): Promise<{
   currentPage: number;
   results: TransactionTableItem[];
 }> {
-  const token = getAccessToken();
-
   const query = new URLSearchParams({
     page: String(params.page),
     page_size: String(params.pageSize),
   });
 
   if (params.search) query.set("search", params.search);
-  if (params.category && params.category !== "all") query.set("category", params.category);
-  if (params.transactionType && params.transactionType !== "all") query.set("type", params.transactionType);
-  if (params.statusFilter && params.statusFilter !== "all") query.set("status", params.statusFilter);
+  if (params.category && params.category !== "all") {
+    query.set("category", params.category);
+  }
+  if (params.transactionType && params.transactionType !== "all") {
+    query.set("type", params.transactionType);
+  }
+  if (params.statusFilter && params.statusFilter !== "all") {
+    query.set("status", params.statusFilter);
+  }
   if (params.startDate) query.set("start_date", params.startDate);
   if (params.endDate) query.set("end_date", params.endDate);
 
-  const response = await fetch(`${API_URL}/api/transactions/?${query.toString()}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    `/api/transactions/?${query.toString()}`,
+    {
+      method: "GET",
+    }
+  );
 
   const data = await response.json();
 
@@ -101,16 +101,13 @@ export async function getTransactions(params: GetTransactionsParams): Promise<{
   };
 }
 
-
 export async function deleteTransaction(transactionId: string) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/transactions/${transactionId}/`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await authFetch(
+    `/api/transactions/${transactionId}/`,
+    {
+      method: "DELETE",
+    }
+  );
 
   if (!response.ok) {
     const data = await response.json();
@@ -121,14 +118,8 @@ export async function deleteTransaction(transactionId: string) {
 }
 
 export async function bulkDeleteTransactions(transactionIds: string[]) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/transactions/bulk-delete/`, {
+  const response = await authFetch("/api/transactions/bulk-delete/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify({
       transaction_ids: transactionIds,
     }),
@@ -143,25 +134,21 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
   return data;
 }
 
-
 export async function updateTransactionCategory(
   transactionId: string,
   category: string
 ) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/transactions/${transactionId}/`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      category,
-      is_reviewed: true,
-      category_source: "user",
-    }),
-  });
+  const response = await authFetch(
+    `/api/transactions/${transactionId}/`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        category,
+        is_reviewed: true,
+        category_source: "user",
+      }),
+    }
+  );
 
   const data = await response.json();
 
