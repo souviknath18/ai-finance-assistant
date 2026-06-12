@@ -1,19 +1,9 @@
 import { ReportDashboard } from "@/types/report";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function getReportDashboard() {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/reports/`, {
+  const response = await authFetch("/api/reports/", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -26,14 +16,8 @@ export async function getReportDashboard() {
 }
 
 export async function generateReport(interval: string) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/reports/generate/`, {
+  const response = await authFetch("/api/reports/generate/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify({ interval }),
   });
 
@@ -50,15 +34,10 @@ export async function generateReport(interval: string) {
 }
 
 export async function getGeneratedReport(reportId: string) {
-  const token = getAccessToken();
-
-  const response = await fetch(
-    `${API_URL}/api/reports/generated/${reportId}/`,
+  const response = await authFetch(
+    `/api/reports/generated/${reportId}/`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
@@ -80,15 +59,10 @@ export async function getGeneratedReport(reportId: string) {
 }
 
 export async function exportReportPDF(reportId: string) {
-  const token = getAccessToken();
-
-  const response = await fetch(
-    `${API_URL}/api/reports/generated/${reportId}/pdf/`,
+  const response = await authFetch(
+    `/api/reports/generated/${reportId}/pdf/`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
@@ -105,9 +79,7 @@ export async function exportReportPDF(reportId: string) {
   link.download = `Aura_Report_${reportId}.pdf`;
 
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
 
   window.URL.revokeObjectURL(url);

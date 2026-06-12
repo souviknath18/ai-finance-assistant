@@ -1,19 +1,9 @@
 import { BudgetDashboard, CreateBudgetPayload } from "@/types/budget";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+import { authFetch } from "@/lib/api/authFetch";
 
 export async function getBudgetDashboard() {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/budgets/`, {
+  const response = await authFetch("/api/budgets/", {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = await response.json();
@@ -26,14 +16,8 @@ export async function getBudgetDashboard() {
 }
 
 export async function createBudget(payload: CreateBudgetPayload) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/budgets/`, {
+  const response = await authFetch("/api/budgets/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(payload),
   });
 
@@ -50,14 +34,8 @@ export async function updateBudget(
   budgetId: string,
   payload: Partial<CreateBudgetPayload>
 ) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/budgets/${budgetId}/`, {
+  const response = await authFetch(`/api/budgets/${budgetId}/`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(payload),
   });
 
@@ -71,20 +49,14 @@ export async function updateBudget(
 }
 
 export async function deleteBudget(budgetId: string) {
-  const token = getAccessToken();
-
-  const response = await fetch(`${API_URL}/api/budgets/${budgetId}/`, {
+  const response = await authFetch(`/api/budgets/${budgetId}/`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
-  const data = await response.json();
-
   if (!response.ok) {
+    const data = await response.json();
     throw data;
   }
 
-  return data;
+  return true;
 }

@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import { createGoal, updateGoal } from "@/lib/api/goalsApi";
 import { Category } from "@/types/category";
-import CustomSelect from "../ui/CustomSelect";
 import type { GoalItem, GoalType } from "@/types/goal";
+import CustomSelect from "../ui/CustomSelect";
+import CustomDatePicker from "../ui/CustomDatePicker";
 
 type CreateGoalModalProps = {
   open: boolean;
@@ -308,26 +309,18 @@ export default function CreateGoalModal({
                   }}
                 />
 
-                <div className="space-y-1.5">
-                  <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
-                    Target Date{" "}
-                    <span className="font-normal text-[#76777d]">
-                      (optional)
-                    </span>
-                  </label>
-
-                  <input
-                    value={form.target_date}
-                    onChange={(event) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        target_date: event.target.value,
-                      }))
-                    }
-                    type="date"
-                    className="h-11 w-full rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-[13px] text-[#0b1c30] outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-                  />
-                </div>
+                <CustomDatePicker
+                  label="Target Date"
+                  name="target_date"
+                  value={form.target_date}
+                  optional={true}
+                  onChangeAction={(name, value) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      [name]: value,
+                    }))
+                  }
+                />
               </div>
 
               <label className="ml-1 text-[13px] font-semibold text-[#565e74]">
@@ -422,19 +415,19 @@ export default function CreateGoalModal({
               </div>
 
               <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3.5">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="shrink-0 rounded-xl bg-emerald-100 p-2 text-emerald-700">
                       <Sparkles size={17} />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-[13px] font-bold text-emerald-900">
                         Enable AI Recommendations
                       </p>
+
                       <p className="mt-1 text-[13px] leading-5 text-emerald-800">
-                        Aura will suggest optimal weekly savings and goal
-                        strategies.
+                        Aura will suggest optimal weekly savings and goal strategies.
                       </p>
                     </div>
                   </div>
@@ -448,14 +441,14 @@ export default function CreateGoalModal({
                           !prev.ai_recommendations_enabled,
                       }))
                     }
-                    className={`relative h-6 w-10 rounded-full transition ${
+                    className={`relative mt-1 h-6 w-10 shrink-0 rounded-full transition ${
                       form.ai_recommendations_enabled
                         ? "bg-emerald-700"
                         : "bg-[#c6c6cd]"
                     }`}
                   >
                     <span
-                      className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${
+                      className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
                         form.ai_recommendations_enabled ? "right-1" : "left-1"
                       }`}
                     />
