@@ -22,10 +22,10 @@ const notifications = [
 
 export default function NotificationPreferencesCard() {
   return (
-    <div className="space-y-5">
-      <h2 className="text-2xl font-bold text-black">Notifications</h2>
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold text-black">Notifications</h2>
 
-      <div className="space-y-5 rounded-3xl border border-[#dce9ff] bg-white p-6 shadow-sm">
+      <div className="space-y-4 rounded-2xl border border-[#dce9ff] bg-white p-5 shadow-sm">
         {notifications.map((item) => (
           <NotificationToggle key={item.title} {...item} />
         ))}
@@ -46,16 +46,16 @@ function NotificationToggle({
   const [active, setActive] = useState(enabled);
 
   return (
-    <div className="flex items-center justify-between gap-5">
+    <div className="flex items-center justify-between gap-4">
       <div>
-        <p className="text-sm font-bold text-black">{title}</p>
-        <p className="mt-1 text-xs text-[#565e74]">{desc}</p>
+        <p className="text-[13px] font-bold text-black">{title}</p>
+        <p className="mt-1 text-[12px] leading-5 text-[#565e74]">{desc}</p>
       </div>
 
       <button
         type="button"
         onClick={() => setActive(!active)}
-        className={`relative h-6 w-10 rounded-full transition ${
+        className={`relative h-6 w-10 shrink-0 rounded-full transition ${
           active ? "bg-emerald-700" : "bg-[#c6c6cd]"
         }`}
       >

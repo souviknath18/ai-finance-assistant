@@ -1,4 +1,5 @@
 import UsageMetric from "./UsageMetric";
+import Link from "next/link";
 
 export default function CurrentPlanCard() {
   return (
@@ -18,9 +19,12 @@ export default function CurrentPlanCard() {
           </p>
         </div>
 
-        <button className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
+        <Link
+          href="/billing/upgrade"
+          className="rounded-xl bg-black px-4 py-2.5 text-center text-[13px] font-bold text-white transition hover:opacity-90"
+        >
           Upgrade Plan
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
