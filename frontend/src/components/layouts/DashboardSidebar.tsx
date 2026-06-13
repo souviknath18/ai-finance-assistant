@@ -163,9 +163,13 @@ export default function DashboardSidebar({
 
         <div className="mt-3 shrink-0 border-t border-[#c6c6cd]/50 pt-3">
           {!sidebarCollapsed && (
-            <button className="mb-3 w-full rounded-lg bg-black px-4 py-2 text-[12px] font-bold text-white transition hover:opacity-90 active:scale-[0.99]">
+            <Link
+              href="/billing/upgrade"
+              onClick={handleSidebarLinkClick}
+              className="mb-3 flex w-full items-center justify-center rounded-lg bg-black px-4 py-2 text-[12px] font-bold text-white transition hover:opacity-90 active:scale-[0.99]"
+            >
               Upgrade Plan
-            </button>
+            </Link>
           )}
 
           <div className="space-y-[2px]">
