@@ -560,4 +560,4 @@ GitHub:
 https://github.com/souviknath18
 
 LinkedIn:
-https://www.linkedin.com/in/souvik-nath-0111a721a/
+https://www.linkedin.com/in/stackwithsouvik/
