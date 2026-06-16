@@ -37,13 +37,13 @@ export default function DashboardHero({
       <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         {/* Left Content */}
         <div className="max-w-3xl">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1.5">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
             <Sparkles
               size={13}
-              className="text-indigo-600"
+              className="text-emerald-600"
             />
 
-            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-indigo-700">
+            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700">
               AI Financial Intelligence
             </span>
           </div>

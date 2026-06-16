@@ -28,14 +28,14 @@ export default function MetricCard({
       ? "bg-emerald-50 text-emerald-700"
       : type === "negative"
       ? "bg-red-50 text-red-600"
-      : "bg-indigo-50 text-indigo-700";
+      : "bg-emerald-50 text-emerald-700";
 
   const iconBoxClass =
     type === "positive"
       ? "bg-emerald-50 text-emerald-700"
       : type === "negative"
       ? "bg-red-50 text-red-600"
-      : "bg-indigo-50 text-indigo-600";
+      : "bg-emerald-50 text-emerald-700";
 
   const TrendIcon =
     type === "positive"

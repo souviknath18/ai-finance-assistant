@@ -28,7 +28,7 @@ export default function RecentTransactionsTable({
 
       <div className="flex items-center justify-between border-b border-[#edf2fb] p-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
             <ReceiptText size={20} />
           </div>
 
@@ -45,7 +45,7 @@ export default function RecentTransactionsTable({
 
         <Link
           href="/transactions"
-          className="flex items-center gap-1 rounded-xl bg-indigo-50 px-3 py-2 text-[12px] font-bold text-indigo-700 transition hover:bg-indigo-100"
+          className="flex items-center gap-1 rounded-xl bg-emerald-50 px-3 py-2 text-[12px] font-bold text-emerald-700 transition hover:bg-emerald-100"
         >
           View All
           <ArrowRight size={13} />
@@ -107,7 +107,7 @@ export default function RecentTransactionsTable({
                         className={`flex h-9 w-9 items-center justify-center rounded-xl ${
                           transaction.type === "income"
                             ? "bg-emerald-50 text-emerald-700"
-                            : "bg-indigo-50 text-indigo-700"
+                            : "bg-red-50 text-red-600"
                         }`}
                       >
                         {transaction.type === "income" ? (
@@ -134,7 +134,7 @@ export default function RecentTransactionsTable({
                       className={`inline-flex rounded-full px-3 py-1 text-[11px] font-bold ${
                         transaction.type === "income"
                           ? "bg-emerald-50 text-emerald-700"
-                          : "bg-indigo-50 text-indigo-700"
+                          : "bg-red-50 text-red-600"
                       }`}
                     >
                       {transaction.category}
@@ -148,7 +148,6 @@ export default function RecentTransactionsTable({
                         : "text-black"
                     }`}
                   >
-                    {transaction.type === "income" ? "+" : "-"}
                     {transaction.amount}
                   </td>
                 </tr>
