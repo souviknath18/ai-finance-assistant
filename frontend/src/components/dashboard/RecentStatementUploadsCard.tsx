@@ -42,7 +42,7 @@ export default function RecentStatementUploadsCard({
     <div className="overflow-hidden rounded-3xl border border-[#dbe5f5] bg-white shadow-sm">
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
             <UploadCloud size={20} />
           </div>
 
@@ -57,7 +57,7 @@ export default function RecentStatementUploadsCard({
 
       <div className="space-y-3 p-4 sm:p-5">
         {uploads.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#dbe5f5] bg-[#fafbfe] p-5 text-center">
+          <div className="rounded-2xl border border-dashed border-[#dbe5f5] bg-[#fafdfb] p-5 text-center">
             <p className="text-[13px] font-bold text-black">No uploads yet</p>
             <p className="mt-1 text-[12px] text-[#565e74]">
               Upload a statement to start processing.
@@ -70,12 +70,12 @@ export default function RecentStatementUploadsCard({
             return (
               <div
                 key={file.id}
-                className="rounded-2xl border border-[#e8eef8] bg-[#fafbfe] p-4 transition hover:border-indigo-100 hover:bg-white"
+                className="rounded-2xl border border-[#e8eef8] bg-[#fafdfb] p-4 transition hover:border-emerald-100 hover:bg-white"
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
-                      <FileText size={17} className="text-indigo-600" />
+                      <FileText size={17} className="text-emerald-600" />
                     </div>
 
                     <div className="min-w-0">
@@ -88,7 +88,7 @@ export default function RecentStatementUploadsCard({
                     </div>
                   </div>
 
-                  <span className="shrink-0 text-[11px] font-bold text-indigo-600">
+                  <span className="shrink-0 text-[11px] font-bold text-emerald-600">
                     {progress}%
                   </span>
                 </div>
@@ -128,7 +128,7 @@ export default function RecentStatementUploadsCard({
                   ) : (
                     <LoaderCircle
                       size={16}
-                      className="animate-spin text-indigo-600"
+                      className="animate-spin text-emerald-600"
                     />
                   )}
                 </div>
@@ -141,7 +141,7 @@ export default function RecentStatementUploadsCard({
       <div className="border-t border-[#edf2fb] p-4">
         <button
           onClick={() => router.push("/uploads")}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#c7d5ea] bg-[#fafbfe] text-[13px] font-bold text-[#565e74] transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#c7d5ea] bg-[#fafdfb] text-[13px] font-bold text-[#565e74] transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
         >
           <Plus size={15} />
           Upload More Files

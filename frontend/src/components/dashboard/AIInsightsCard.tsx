@@ -62,12 +62,12 @@ export default function AIInsightsCard({
   const iconMap = [AlertTriangle, WalletCards, Lightbulb, MessageCircle];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-white p-4 shadow-sm sm:rounded-3xl sm:p-5">
-      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-200/40 blur-3xl" />
+    <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white p-4 shadow-sm sm:rounded-3xl sm:p-5">
+      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-200/10 blur-3xl" />
 
       <div className="relative mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white">
             <Sparkles size={17} />
           </div>
 
@@ -82,7 +82,7 @@ export default function AIInsightsCard({
           </div>
         </div>
 
-        <span className="w-fit rounded-full border border-indigo-100 bg-white px-3 py-1 text-[11px] font-bold text-indigo-700">
+        <span className="w-fit rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700">
           AI Active
         </span>
       </div>
@@ -94,14 +94,14 @@ export default function AIInsightsCard({
           return (
             <div
               key={`${insight.title}-${index}`}
-              className="rounded-2xl border border-[#dbe5f5] bg-white/90 p-3.5 shadow-sm sm:p-4"
+              className="rounded-2xl border border-emerald-100 bg-white p-3.5 shadow-sm sm:p-4"
             >
               <div className="mb-2.5 flex items-start justify-between gap-3">
                 <p className="text-[11px] font-bold uppercase leading-5 tracking-wide text-black sm:text-[12px]">
                   {insight.title}
                 </p>
 
-                <Icon size={16} className="shrink-0 text-indigo-600" />
+                <Icon size={16} className="shrink-0 text-emerald-600" />
               </div>
 
               <p className="text-[12px] leading-5 text-[#565e74] sm:text-[13px]">

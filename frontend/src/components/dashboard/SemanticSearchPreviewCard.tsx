@@ -27,7 +27,7 @@ export default function SemanticSearchPreviewCard({
     <div className="overflow-hidden rounded-3xl border border-[#dbe5f5] bg-white shadow-sm">
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black text-white">
             <Brain size={20} />
           </div>
 
@@ -45,7 +45,7 @@ export default function SemanticSearchPreviewCard({
 
       <div className="p-5 pb-4">
         <div className="flex items-center gap-2 rounded-xl border border-[#e7edf8] bg-[#fafbfe] px-3 py-2.5">
-          <Search size={16} className="shrink-0 text-indigo-600" />
+          <Search size={16} className="shrink-0 text-emerald-600" />
 
           <p className="truncate text-[13px] font-medium italic text-[#565e74]">
             &quot;{query}&quot;
@@ -54,7 +54,7 @@ export default function SemanticSearchPreviewCard({
 
         <div className="mt-4 space-y-2">
           {results.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#dbe5f5] bg-[#fafbfe] p-5 text-center">
+            <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/40 p-5 text-center">
               <p className="text-[13px] font-bold text-black">
                 No indexed transactions yet
               </p>
@@ -67,7 +67,7 @@ export default function SemanticSearchPreviewCard({
             results.map((item) => (
               <div
                 key={`${item.merchant}-${item.amount}`}
-                className="flex items-center justify-between rounded-xl border border-transparent p-3 transition hover:border-indigo-100 hover:bg-[#fafbfe]"
+                className="flex items-center justify-between rounded-xl border border-transparent p-3 transition hover:border-emerald-100 hover:bg-emerald-50/40"
               >
                 <div className="min-w-0">
                   <p className="truncate text-[13px] font-bold text-black">
@@ -97,7 +97,7 @@ export default function SemanticSearchPreviewCard({
       <div className="border-t border-[#edf2fb] bg-[#fafbfe] p-4">
         <button
           onClick={handleOpenSemanticSearch}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-50 text-[13px] font-bold text-indigo-700 transition hover:bg-indigo-100"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 text-[13px] font-bold text-emerald-700 transition hover:bg-emerald-100"
         >
           <Sparkles size={15} />
           Explore with AI Search

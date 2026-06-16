@@ -30,7 +30,7 @@ export default function BudgetHealthCard({
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <Target size={20} />
             </div>
 
@@ -53,7 +53,7 @@ export default function BudgetHealthCard({
 
       <div className="space-y-5 p-4 sm:p-5">
         {budgets.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#dbe5f5] bg-[#fafbfe] p-5 text-center">
+          <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/40 p-5 text-center">
             <p className="text-[13px] font-bold text-black">
               No budgets found
             </p>
@@ -80,7 +80,7 @@ export default function BudgetHealthCard({
                   className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${
                     budget.overLimit
                       ? "bg-red-50 text-red-600"
-                      : "bg-indigo-50 text-indigo-700"
+                      : "bg-emerald-50 text-emerald-700"
                   }`}
                 >
                   {budget.percent}%
@@ -92,7 +92,7 @@ export default function BudgetHealthCard({
                   className={`relative h-full overflow-hidden rounded-full transition-all duration-700 ${
                     budget.overLimit
                       ? "bg-gradient-to-r from-red-600 via-red-500 to-red-400"
-                      : "bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-400"
+                      : "bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-400"
                   }`}
                   style={{
                     width: `${Math.min(budget.percent, 100)}%`,
@@ -117,7 +117,7 @@ export default function BudgetHealthCard({
         )}
       </div>
 
-      <div className="border-t border-[#edf2fb] bg-[#fafbfe] px-5 py-3">
+      <div className="border-t border-[#edf2fb] bg-emerald-50/30 px-5 py-3">
         {typeof recommendation === "string" ? (
           <p className="text-[12px] leading-5 text-[#565e74]">
             {recommendation}

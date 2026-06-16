@@ -7,17 +7,16 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function authFetch(
-  url: string,
-  options: RequestInit = {}
-) {
+export async function authFetch(url: string, options: RequestInit = {}) {
   let accessToken = getAccessToken();
+
+  const isFormData = options.body instanceof FormData;
 
   let response = await fetch(`${API_URL}${url}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...(options.headers || {}),
     },
   });
@@ -56,7 +55,7 @@ export async function authFetch(
   response = await fetch(`${API_URL}${url}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: `Bearer ${refreshData.access}`,
       ...(options.headers || {}),
     },

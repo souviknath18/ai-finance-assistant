@@ -166,7 +166,7 @@ export default function DashboardTopbar({
             <button
               type="button"
               onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dbe5f5] bg-indigo-50 text-indigo-700 transition hover:ring-2 hover:ring-indigo-100"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dbe5f5] bg-emerald-50 text-emerald-700 transition hover:ring-2 hover:ring-emerald-100"
             >
               <User size={16} />
             </button>
@@ -174,7 +174,7 @@ export default function DashboardTopbar({
             {profileMenuOpen && (
               <div className="absolute right-0 top-[calc(100%+10px)] z-[80] w-64 overflow-hidden rounded-2xl border border-[#dbe5f5] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.14)]">
                 <div className="border-b border-[#e5eeff] p-4">
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-700">
+                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-black text-white">
                     <User size={18} />
                   </div>
 

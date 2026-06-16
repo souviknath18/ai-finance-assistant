@@ -12,7 +12,11 @@ import AppToast from "@/components/ui/AppToast";
 import PageLoader from "@/components/ui/PageLoader";
 
 import { UploadedFile, UploadAITip } from "@/types/upload";
-import { getUploadedFiles, uploadFile, getUploadAITip } from "@/lib/api/uploadApi";
+import {
+  getUploadedFiles,
+  uploadFile,
+  getUploadAITip,
+} from "@/lib/api/uploadApi";
 
 function getFriendlyUploadError(err: any) {
   const message =
@@ -40,7 +44,6 @@ function getFriendlyUploadError(err: any) {
     return "Network issue detected. Please check your internet connection and try again.";
   }
 
-  // return "We could not upload this file. Please check the file and try again.";
   return `Upload failed: ${String(message)}`;
 }
 
@@ -50,8 +53,13 @@ export default function UploadsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [aiTip, setAiTip] = useState<UploadAITip | null>(null);
+
   const activeIdsRef = useRef<Set<number>>(new Set());
-  const [recentlyCompletedFiles, setRecentlylyCompletedFiles] = useState<UploadedFile[]>([]);
+  const toastTimerRef = useRef<number | null>(null);
+
+  const [recentlyCompletedFiles, setRecentlyCompletedFiles] = useState<
+    UploadedFile[]
+  >([]);
 
   const [toast, setToast] = useState({
     show: false,
@@ -60,8 +68,10 @@ export default function UploadsPage() {
     message: "",
   });
 
-  const loadFiles = async () => {
-    setLoading(true);
+  const loadFiles = async (showLoader = false) => {
+    if (showLoader) {
+      setLoading(true);
+    }
 
     try {
       const data = await getUploadedFiles();
@@ -69,7 +79,9 @@ export default function UploadsPage() {
     } catch {
       setError("We could not load your uploaded files. Please refresh the page.");
     } finally {
-      setLoading(false);
+      if (showLoader) {
+        setLoading(false);
+      }
     }
   };
 
@@ -87,10 +99,7 @@ export default function UploadsPage() {
       setLoading(true);
 
       try {
-        await Promise.all([
-          loadFiles(),
-          loadAITip(),
-        ]);
+        await Promise.all([loadFiles(false), loadAITip()]);
       } finally {
         setLoading(false);
       }
@@ -107,14 +116,18 @@ export default function UploadsPage() {
     );
 
     if (completedNow.length > 0) {
-      setRecentlylyCompletedFiles((prev) => {
+      setRecentlyCompletedFiles((prev) => {
         const existingIds = new Set(prev.map((file) => file.id));
-        return [...prev, ...completedNow.filter((file) => !existingIds.has(file.id))];
+
+        return [
+          ...prev,
+          ...completedNow.filter((file) => !existingIds.has(file.id)),
+        ];
       });
 
       completedNow.forEach((file) => {
         window.setTimeout(() => {
-          setRecentlylyCompletedFiles((prev) =>
+          setRecentlyCompletedFiles((prev) =>
             prev.filter((item) => item.id !== file.id)
           );
         }, 1800);
@@ -123,7 +136,9 @@ export default function UploadsPage() {
 
     activeIdsRef.current = new Set(
       files
-        .filter((file) => file.status === "pending" || file.status === "processing")
+        .filter(
+          (file) => file.status === "pending" || file.status === "processing"
+        )
         .map((file) => file.id)
     );
   }, [files]);
@@ -134,7 +149,9 @@ export default function UploadsPage() {
 
     try {
       const uploaded = await uploadFile(file);
+
       setFiles((prev) => [uploaded, ...prev]);
+
       await loadAITip();
 
       setToast({
@@ -144,9 +161,11 @@ export default function UploadsPage() {
         message: `${uploaded.original_filename} is queued for AI processing.`,
       });
 
-      window.clearTimeout((window as any).__toastTimer);
+      if (toastTimerRef.current) {
+        window.clearTimeout(toastTimerRef.current);
+      }
 
-      (window as any).__toastTimer = window.setTimeout(() => {
+      toastTimerRef.current = window.setTimeout(() => {
         setToast((prev) => ({ ...prev, show: false }));
       }, 5000);
     } catch (err: any) {
@@ -165,7 +184,7 @@ export default function UploadsPage() {
     if (!hasProcessing) return;
 
     const interval = window.setInterval(() => {
-      loadFiles();
+      loadFiles(false);
       loadAITip();
     }, 3000);
 
@@ -211,11 +230,13 @@ export default function UploadsPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <section className="lg:col-span-8">
           <UploadDropzone onUploadAction={handleUpload} uploading={uploading} />
+
           <ActiveUploadsCard
             files={[
               ...processingFiles,
               ...recentlyCompletedFiles.filter(
-                (completed) => !processingFiles.some((file) => file.id === completed.id)
+                (completed) =>
+                  !processingFiles.some((file) => file.id === completed.id)
               ),
             ]}
           />
@@ -223,12 +244,16 @@ export default function UploadsPage() {
 
         <aside className="space-y-4 lg:col-span-4">
           <ParsedResultsCard files={successfulFiles} />
+
           {failedFiles.length > 0 && (
-            <IssuesFoundCard files={failedFiles} onRetryAction={loadFiles} />
+            <IssuesFoundCard
+              files={failedFiles}
+              onRetryAction={() => loadFiles(false)}
+            />
           )}
-          <AITipCard
-            message={aiTip?.message}
-          />
+
+          <AITipCard message={aiTip?.message} />
+
           <SecurityCard />
         </aside>
       </div>

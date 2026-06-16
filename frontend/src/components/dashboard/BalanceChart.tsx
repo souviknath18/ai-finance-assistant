@@ -64,7 +64,7 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
       <div className="flex flex-col gap-4 border-b border-[#edf2fb] p-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <BarChart3 size={18} />
             </div>
 
@@ -153,7 +153,7 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
                     <div
                       className={`w-full rounded-t-xl transition-all duration-500 ${
                         item.hasData
-                          ? "bg-gradient-to-t from-indigo-600 to-indigo-400 group-hover:from-indigo-700 group-hover:to-indigo-500"
+                          ? "bg-gradient-to-t from-emerald-600 to-emerald-400 group-hover:from-emerald-700 group-hover:to-emerald-500"
                           : "bg-[#e8eef8]"
                       }`}
                       style={{ height }}
@@ -176,7 +176,7 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
         </div>
 
         {!hasData && (
-          <div className="mt-5 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/60 p-5 text-center">
+          <div className="mt-5 rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/60 p-5 text-center">
             <p className="text-[13px] font-bold text-black">
               No financial activity yet
             </p>

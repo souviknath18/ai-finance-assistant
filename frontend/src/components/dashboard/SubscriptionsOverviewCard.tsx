@@ -21,7 +21,7 @@ export default function SubscriptionsOverviewCard({
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <Repeat2 size={20} />
             </div>
 
@@ -36,7 +36,7 @@ export default function SubscriptionsOverviewCard({
             </div>
           </div>
 
-          <span className="shrink-0 rounded-full bg-indigo-50 px-3 py-1 text-[12px] font-bold text-indigo-700">
+          <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-bold text-emerald-700">
             {monthlyTotal}/mo
           </span>
         </div>
@@ -46,7 +46,7 @@ export default function SubscriptionsOverviewCard({
 
       <div className="space-y-2 p-4 sm:p-5">
         {subscriptions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#dbe5f5] bg-[#fafbfe] p-5 text-center">
+          <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/40 p-5 text-center">
             <p className="text-[13px] font-bold text-black">
               No subscriptions found
             </p>
@@ -60,7 +60,7 @@ export default function SubscriptionsOverviewCard({
           subscriptions.map((item) => (
             <div
               key={item.id}
-              className="group flex items-center justify-between gap-3 rounded-2xl border border-transparent p-2.5 transition hover:border-indigo-100 hover:bg-[#f8f9ff]"
+              className="group flex items-center justify-between gap-3 rounded-2xl border border-transparent p-2.5 transition hover:border-emerald-100 hover:bg-emerald-50/40"
             >
               <div className="flex min-w-0 items-center gap-3">
                 {/* Logo */}
@@ -98,7 +98,7 @@ export default function SubscriptionsOverviewCard({
                   {item.price}
                 </p>
 
-                <button className="text-[11px] font-bold text-indigo-600 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+                <button className="text-[11px] font-bold text-emerald-600 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                   Review
                 </button>
               </div>
