@@ -7,6 +7,7 @@ import {
   FileImage,
   FileSpreadsheet,
   LoaderCircle,
+  Camera,
 } from "lucide-react";
 import FileBadge from "./FileBadge";
 
@@ -20,6 +21,7 @@ export default function UploadDropzone({
   uploading,
 }: UploadDropzoneProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const dragCounter = useRef(0);
   const [dragging, setDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
@@ -32,6 +34,10 @@ export default function UploadDropzone({
 
     if (inputRef.current) {
       inputRef.current.value = "";
+    }
+
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = "";
     }
   };
 
@@ -74,7 +80,10 @@ export default function UploadDropzone({
 
         if (uploading) return;
 
-        dragCounter.current -= 1;
+        dragCounter.current = Math.max(
+          dragCounter.current - 1,
+          0,
+        );
 
         if (dragCounter.current === 0) {
           setDragging(false);
@@ -101,6 +110,17 @@ export default function UploadDropzone({
         ref={inputRef}
         type="file"
         accept=".pdf,.csv,.jpg,.jpeg,.png"
+        className="hidden"
+        disabled={uploading}
+        onClick={(event) => event.stopPropagation()}
+        onChange={(event) => handleFile(event.target.files?.[0])}
+      />
+
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
         className="hidden"
         disabled={uploading}
         onClick={(event) => event.stopPropagation()}
@@ -169,17 +189,32 @@ export default function UploadDropzone({
         </div>
       )}
 
-      <button
-        type="button"
-        disabled={uploading}
-        onClick={(event) => {
-          event.stopPropagation();
-          inputRef.current?.click();
-        }}
-        className="rounded-xl bg-black px-6 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {uploading ? "Uploading..." : "Choose a Financial File"}
-      </button>
+      <div className="flex flex-wrap justify-center gap-3">
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={(event) => {
+            event.stopPropagation();
+            inputRef.current?.click();
+          }}
+          className="rounded-xl bg-black px-6 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Choose a Financial File
+        </button>
+
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={(event) => {
+            event.stopPropagation();
+            cameraInputRef.current?.click();
+          }}
+          className="flex items-center gap-2 rounded-xl border border-black bg-white px-6 py-2.5 text-[13px] font-bold text-black transition hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Camera size={16} />
+          Take Photo
+        </button>
+      </div>
 
       {/* <p className="mt-5 text-[13px] italic text-[#76777d]">
         {uploading
