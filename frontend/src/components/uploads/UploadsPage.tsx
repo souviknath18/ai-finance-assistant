@@ -60,6 +60,9 @@ export default function UploadsPage() {
   const [recentlyCompletedFiles, setRecentlyCompletedFiles] = useState<
     UploadedFile[]
   >([]);
+  const [recentlyFailedFiles, setRecentlyFailedFiles] = useState<
+    UploadedFile[]
+  >([]);
 
   const [toast, setToast] = useState({
     show: false,
@@ -112,7 +115,15 @@ export default function UploadsPage() {
     const previousActiveIds = activeIdsRef.current;
 
     const completedNow = files.filter(
-      (file) => file.status === "success" && previousActiveIds.has(file.id)
+      (file) =>
+        file.status === "success" &&
+        previousActiveIds.has(file.id)
+    );
+
+    const failedNow = files.filter(
+      (file) =>
+        file.status === "failed" &&
+        previousActiveIds.has(file.id)
     );
 
     if (completedNow.length > 0) {
@@ -121,7 +132,9 @@ export default function UploadsPage() {
 
         return [
           ...prev,
-          ...completedNow.filter((file) => !existingIds.has(file.id)),
+          ...completedNow.filter(
+            (file) => !existingIds.has(file.id)
+          ),
         ];
       });
 
@@ -134,10 +147,25 @@ export default function UploadsPage() {
       });
     }
 
+    if (failedNow.length > 0) {
+      setRecentlyFailedFiles((prev) => {
+        const existingIds = new Set(prev.map((file) => file.id));
+
+        return [
+          ...failedNow.filter(
+            (file) => !existingIds.has(file.id)
+          ),
+          ...prev,
+        ].slice(0, 1);
+      });
+    }
+
     activeIdsRef.current = new Set(
       files
         .filter(
-          (file) => file.status === "pending" || file.status === "processing"
+          (file) =>
+            file.status === "pending" ||
+            file.status === "processing"
         )
         .map((file) => file.id)
     );
@@ -146,6 +174,7 @@ export default function UploadsPage() {
   const handleUpload = async (file: File) => {
     setUploading(true);
     setError("");
+    setRecentlyFailedFiles([]);
 
     try {
       const uploaded = await uploadFile(file);
@@ -197,14 +226,6 @@ export default function UploadsPage() {
 
   const successfulFiles = files.filter((file) => file.status === "success");
 
-  const failedFiles = files
-    .filter((file) => file.status === "failed")
-    .sort(
-      (a, b) =>
-        new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime()
-    )
-    .slice(0, 1);
-
   if (loading) {
     return <PageLoader message="Loading uploads..." />;
   }
@@ -245,10 +266,13 @@ export default function UploadsPage() {
         <aside className="space-y-4 lg:col-span-4">
           <ParsedResultsCard files={successfulFiles} />
 
-          {failedFiles.length > 0 && (
+          {recentlyFailedFiles.length > 0 && (
             <IssuesFoundCard
-              files={failedFiles}
-              onRetryAction={() => loadFiles(false)}
+              files={recentlyFailedFiles}
+              onRetryAction={async () => {
+                setRecentlyFailedFiles([]);
+                await loadFiles(false);
+              }}
             />
           )}
 
