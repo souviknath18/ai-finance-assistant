@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function LandingFooter() {
   return (
     <footer className="border-t border-[#dce9ff] bg-white">
@@ -15,12 +17,30 @@ export default function LandingFooter() {
         <div className="grid grid-cols-2 gap-8">
           <FooterGroup
             title="Company"
-            links={["About", "Contact"]}
+            links={[
+              {
+                label: "About",
+                href: "/about",
+              },
+              {
+                label: "Contact",
+                href: "/contact",
+              },
+            ]}
           />
 
           <FooterGroup
             title="Legal"
-            links={["Privacy Policy", "Terms of Service"]}
+            links={[
+              {
+                label: "Privacy Policy",
+                href: "/privacy-policy",
+              },
+              {
+                label: "Terms of Service",
+                href: "/terms-of-service",
+              },
+            ]}
           />
         </div>
       </div>
@@ -33,7 +53,10 @@ function FooterGroup({
   links,
 }: {
   title: string;
-  links: string[];
+  links: {
+    label: string;
+    href: string;
+  }[];
 }) {
   return (
     <div>
@@ -43,10 +66,13 @@ function FooterGroup({
 
       <ul className="mt-3 space-y-2">
         {links.map((link) => (
-          <li key={link}>
-            <a className="text-sm text-[#565e74] transition hover:text-black hover:underline">
-              {link}
-            </a>
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className="text-sm text-[#565e74] transition hover:text-black hover:underline"
+            >
+              {link.label}
+            </Link>
           </li>
         ))}
       </ul>

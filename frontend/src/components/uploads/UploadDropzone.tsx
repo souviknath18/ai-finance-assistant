@@ -20,6 +20,7 @@ export default function UploadDropzone({
   uploading,
 }: UploadDropzoneProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const dragCounter = useRef(0);
   const [dragging, setDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
 
@@ -36,14 +37,56 @@ export default function UploadDropzone({
 
   return (
     <div
+      role="button"
+      tabIndex={uploading ? -1 : 0}
+      aria-disabled={uploading}
+
+      onClick={() => {
+        if (!uploading) {
+          inputRef.current?.click();
+        }
+      }}
+
+      onKeyDown={(event) => {
+        if (
+          !uploading &&
+          (event.key === "Enter" || event.key === " ")
+        ) {
+          event.preventDefault();
+          inputRef.current?.click();
+        }
+      }}
+      onDragEnter={(event) => {
+        event.preventDefault();
+
+        if (uploading) return;
+
+        dragCounter.current += 1;
+        setDragging(true);
+      }}
+
       onDragOver={(event) => {
         event.preventDefault();
-        if (!uploading) setDragging(true);
       }}
-      onDragLeave={() => setDragging(false)}
+
+      onDragLeave={(event) => {
+        event.preventDefault();
+
+        if (uploading) return;
+
+        dragCounter.current -= 1;
+
+        if (dragCounter.current === 0) {
+          setDragging(false);
+        }
+      }}
+
       onDrop={(event) => {
         event.preventDefault();
+
+        dragCounter.current = 0;
         setDragging(false);
+
         handleFile(event.dataTransfer.files[0]);
       }}
       className={`group flex min-h-[320px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-white p-8 text-center shadow-sm transition hover:border-emerald-600 hover:shadow-md ${
@@ -60,6 +103,7 @@ export default function UploadDropzone({
         accept=".pdf,.csv,.jpg,.jpeg,.png"
         className="hidden"
         disabled={uploading}
+        onClick={(event) => event.stopPropagation()}
         onChange={(event) => handleFile(event.target.files?.[0])}
       />
 
@@ -72,13 +116,17 @@ export default function UploadDropzone({
       </div>
 
       <h2 className="mb-2 text-xl font-bold text-black">
-        {uploading ? "Uploading your document" : "Drag and drop bank statements"}
+        {dragging
+          ? "Drop your file here"
+          : uploading
+            ? "Uploading your financial document"
+            : "Upload financial documents"}
       </h2>
 
-      <p className="mb-6 text-[13px] text-[#565e74]">
+      <p className="mb-6 max-w-xl text-[13px] leading-6 text-[#565e74]">
         {uploading
-          ? "Aura is saving your file. AI processing will continue in the background."
-          : "Supports expense CSVs, invoices, bills, screenshots, or salary slips"}
+          ? "Aura is securely saving your file. AI analysis will continue in the background."
+          : "Upload bank statements, salary slips, receipts, invoices, subscription bills, screenshots, or transaction CSVs."}
       </p>
 
       {!uploading && (
@@ -124,16 +172,24 @@ export default function UploadDropzone({
       <button
         type="button"
         disabled={uploading}
-        onClick={() => inputRef.current?.click()}
+        onClick={(event) => {
+          event.stopPropagation();
+          inputRef.current?.click();
+        }}
         className="rounded-xl bg-black px-6 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {uploading ? "Uploading..." : "Select Files from Computer"}
+        {uploading ? "Uploading..." : "Choose a Financial File"}
       </button>
 
-      <p className="mt-5 text-[13px] italic text-[#76777d]">
+      {/* <p className="mt-5 text-[13px] italic text-[#76777d]">
         {uploading
           ? "Once uploaded, Aura will analyze it in the background."
           : "All data is encrypted end-to-end and handled with secure processing."}
+      </p> */}
+      <p className="mt-5 max-w-xl text-[13px] italic text-[#76777d]">
+        {uploading
+          ? "Once uploaded, Aura will detect the document type, extract transactions, and generate insights."
+          : "Supports PDF, CSV, JPG, JPEG, and PNG files up to 10 MB. Your files are handled securely."}
       </p>
     </div>
   );

@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 
 MONTH_MAP = {
@@ -15,7 +15,23 @@ DATE_LINE_PATTERN = re.compile(
 )
 
 AMOUNT_BALANCE_PATTERN = re.compile(
-    r"([\d,]+\.\d{2})\s+([\d,]+\.\d{2})$"
+    r"""
+    (?P<amount>
+        [-+]?
+        (?:₹|Rs\.?|INR)?\s*
+        [\d,]+(?:\.\d{1,2})?
+    )
+    \s*
+    (?P<marker>DR|CR|Debit|Credit)?
+    \s+
+    (?P<balance>
+        [-+]?
+        (?:₹|Rs\.?|INR)?\s*
+        [\d,]+(?:\.\d{1,2})?
+    )
+    \s*$
+    """,
+    re.IGNORECASE | re.VERBOSE,
 )
 
 
@@ -83,28 +99,73 @@ def parse_bank_statement_transactions(extracted_text: str):
     }
 
 
-def build_transaction_if_complete(transaction_date, description_lines):
+def parse_decimal_amount(value: str):
+    cleaned = (
+        str(value)
+        .replace("₹", "")
+        .replace("Rs.", "")
+        .replace("Rs", "")
+        .replace("INR", "")
+        .replace(",", "")
+        .replace(" ", "")
+        .strip()
+    )
+
+    if not cleaned:
+        return None
+
+    try:
+        return Decimal(cleaned)
+    except InvalidOperation:
+        return None
+
+
+def build_transaction_if_complete(
+    transaction_date,
+    description_lines,
+    previous_balance=None,
+):
     combined = " ".join(description_lines)
 
-    amount_balance_match = AMOUNT_BALANCE_PATTERN.search(combined)
+    amount_balance_match = AMOUNT_BALANCE_PATTERN.search(
+        combined
+    )
 
     if not amount_balance_match:
         return None
 
-    amount, balance = amount_balance_match.groups()
+    amount_text = amount_balance_match.group("amount")
+    balance_text = amount_balance_match.group("balance")
+    marker = amount_balance_match.group("marker")
 
-    description = combined[: amount_balance_match.start()].strip()
+    description = combined[
+        :amount_balance_match.start()
+    ].strip()
+
     description = clean_description(description)
 
     if not description or should_ignore_description(description):
         return None
 
-    amount_decimal = Decimal(amount.replace(",", ""))
-    balance_decimal = Decimal(balance.replace(",", ""))
+    try:
+        amount_decimal = parse_decimal_amount(amount_text)
+        balance_decimal = parse_decimal_amount(balance_text)
+    except Exception:
+        return None
 
-    transaction_type = detect_transaction_type(description)
+    transaction_type = detect_transaction_type(
+        description=description,
+        marker=marker,
+        amount=amount_decimal,
+        previous_balance=previous_balance,
+        current_balance=balance_decimal,
+    )
 
-    final_amount = amount_decimal if transaction_type == "income" else -amount_decimal
+    final_amount = (
+        abs(amount_decimal)
+        if transaction_type == "income"
+        else -abs(amount_decimal)
+    )
 
     return {
         "date": transaction_date,
@@ -116,32 +177,103 @@ def build_transaction_if_complete(transaction_date, description_lines):
     }
 
 
-def detect_transaction_type(description: str) -> str:
+def detect_transaction_type(
+    description: str,
+    marker: str | None = None,
+    amount: Decimal | None = None,
+    previous_balance: Decimal | None = None,
+    current_balance: Decimal | None = None,
+) -> str:
+    """
+    Detect transaction type using the strongest available signal.
+
+    Priority:
+    1. DR/CR marker
+    2. Signed amount
+    3. Balance movement
+    4. Description keywords
+    """
+
+    # 1. Explicit DR/CR marker
+    if marker:
+        normalized_marker = marker.lower().strip()
+
+        if normalized_marker in {"cr", "credit"}:
+            return "income"
+
+        if normalized_marker in {"dr", "debit"}:
+            return "expense"
+
+    # 2. Signed amount
+    if amount is not None:
+        if amount < 0:
+            return "expense"
+
+        # A positive amount alone is not enough to guarantee income,
+        # because many statements show debit amounts as positive values.
+
+    # 3. Balance movement
+    if (
+        previous_balance is not None
+        and current_balance is not None
+    ):
+        if current_balance > previous_balance:
+            return "income"
+
+        if current_balance < previous_balance:
+            return "expense"
+
+    # 4. Description keywords
+    description_text = description.lower()
+
     income_keywords = [
-        "deposit",
+        "salary",
+        "salary credit",
+        "credited",
         "credit",
-        "waiver",
+        "deposit",
+        "cash deposit",
         "refund",
         "reversal",
         "cashback",
         "interest",
+        "received",
+        "transfer received",
+        "upi received",
+        "neft from",
+        "imps from",
+        "rtgs from",
+        "employer",
     ]
 
     expense_keywords = [
-        "fee",
-        "charge",
+        "debited",
         "debit",
         "withdrawal",
+        "cash withdrawal",
+        "atm withdrawal",
         "payment",
         "purchase",
+        "paid",
+        "fee",
+        "charge",
+        "upi payment",
+        "neft to",
+        "imps to",
+        "rtgs to",
+        "transfer to",
     ]
 
-    desc = description.lower()
-
-    if any(keyword in desc for keyword in income_keywords):
+    if any(
+        keyword in description_text
+        for keyword in income_keywords
+    ):
         return "income"
 
-    if any(keyword in desc for keyword in expense_keywords):
+    if any(
+        keyword in description_text
+        for keyword in expense_keywords
+    ):
         return "expense"
 
     return "expense"

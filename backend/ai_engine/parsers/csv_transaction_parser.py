@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime, date
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 
@@ -99,28 +99,54 @@ def parse_csv_row(row):
 
     transaction_date = parse_date(date_value)
 
+    if transaction_date is None:
+        return None
+
     amount = None
     transaction_type = None
 
     if debit_value:
-        amount = -abs(parse_amount(debit_value))
+        parsed_debit = parse_amount(debit_value)
+
+        if parsed_debit is None:
+            return None
+
+        amount = -abs(parsed_debit)
         transaction_type = "expense"
 
     elif credit_value:
-        amount = abs(parse_amount(credit_value))
+        parsed_credit = parse_amount(credit_value)
+
+        if parsed_credit is None:
+            return None
+
+        amount = abs(parsed_credit)
         transaction_type = "income"
 
     elif amount_value:
-        amount = parse_amount(amount_value)
+        parsed_amount = parse_amount(amount_value)
+
+        if parsed_amount is None:
+            return None
+
+        amount = parsed_amount
 
         if type_value:
             transaction_type = normalize_transaction_type(type_value)
-            amount = abs(amount) if transaction_type == "income" else -abs(amount)
+            amount = (
+                abs(amount)
+                if transaction_type == "income"
+                else -abs(amount)
+            )
         else:
-            transaction_type = "income" if amount > 0 else "expense"
+            transaction_type = (
+                "income"
+                if amount > 0
+                else "expense"
+            )
 
-    if amount is None:
-        return None
+        if amount is None:
+            return None
 
     return {
         "date": transaction_date,
@@ -165,12 +191,12 @@ def parse_amount(value):
     )
 
     if cleaned in ["", "-"]:
-        return Decimal("0.00")
+        return None
 
     try:
         return Decimal(cleaned)
     except InvalidOperation:
-        return Decimal("0.00")
+        return None
 
 
 def parse_date(value):
@@ -189,9 +215,9 @@ def parse_date(value):
         try:
             return datetime.strptime(value.strip(), fmt).date()
         except ValueError:
-            pass
+            continue
 
-    return date.today()
+    return None
 
 
 def normalize_transaction_type(value):

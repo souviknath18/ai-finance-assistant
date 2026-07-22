@@ -1,11 +1,92 @@
 import json
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from decouple import config
 from openai import OpenAI
 
 
 client = OpenAI(api_key=config("OPENAI_API_KEY"))
+
+
+def clean_json_output(raw_output: str) -> str:
+    cleaned = raw_output.strip()
+
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[len("```json"):]
+
+    elif cleaned.startswith("```"):
+        cleaned = cleaned[len("```"):]
+
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+
+    return cleaned.strip()
+
+
+def normalize_ai_transaction(item):
+    if not isinstance(item, dict):
+        return None
+
+    description = str(
+        item.get("description", "")
+    ).strip()
+
+    transaction_type = str(
+        item.get("transaction_type", "")
+    ).lower().strip()
+
+    if not description:
+        return None
+
+    if transaction_type not in {"income", "expense"}:
+        return None
+
+    try:
+        transaction_date = datetime.strptime(
+            str(item["date"]).strip(),
+            "%Y-%m-%d",
+        ).date()
+
+        amount = Decimal(str(item["amount"]))
+
+    except (
+        KeyError,
+        ValueError,
+        TypeError,
+        InvalidOperation,
+    ):
+        return None
+
+    amount = (
+        abs(amount)
+        if transaction_type == "income"
+        else -abs(amount)
+    )
+
+    balance = None
+
+    if item.get("balance_after_transaction") is not None:
+        try:
+            balance = Decimal(
+                str(item["balance_after_transaction"])
+            )
+        except (
+            ValueError,
+            TypeError,
+            InvalidOperation,
+        ):
+            balance = None
+
+    return {
+        "date": transaction_date,
+        "description": description[:500],
+        "amount": amount,
+        "transaction_type": transaction_type,
+        "balance_after_transaction": balance,
+        "raw_text": str(
+            item.get("raw_text", "")
+        ),
+    }
 
 
 def parse_transactions_with_ai(extracted_text: str):
@@ -61,24 +142,26 @@ def parse_transactions_with_ai(extracted_text: str):
 
     raw_output = response.output_text.strip()
 
-    parsed = json.loads(raw_output)
+    cleaned_output = clean_json_output(raw_output)
+
+    try:
+        parsed = json.loads(cleaned_output)
+    except json.JSONDecodeError as error:
+        raise ValueError(
+            "AI parser returned invalid JSON."
+        ) from error
+
+    if not isinstance(parsed, list):
+        raise ValueError(
+            "AI parser returned an invalid response format."
+        )
 
     cleaned = []
 
     for item in parsed:
-        cleaned.append(
-            {
-                "date": datetime.strptime(item["date"], "%Y-%m-%d").date(),
-                "description": item["description"],
-                "amount": Decimal(str(item["amount"])),
-                "transaction_type": item["transaction_type"],
-                "balance_after_transaction": (
-                    Decimal(str(item["balance_after_transaction"]))
-                    if item.get("balance_after_transaction") is not None
-                    else None
-                ),
-                "raw_text": item.get("raw_text", ""),
-            }
-        )
+        transaction = normalize_ai_transaction(item)
+
+        if transaction:
+            cleaned.append(transaction)
 
     return cleaned

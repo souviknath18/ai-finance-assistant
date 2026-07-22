@@ -3,6 +3,21 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
+const navLinks = [
+  {
+    label: "Features",
+    href: "/features",
+  },
+  {
+    label: "How it Works",
+    href: "/how-it-works",
+  },
+  {
+    label: "Pricing",
+    href: "/pricing",
+  },
+];
+
 export default function AuthNavbar() {
   return (
     <nav className="fixed top-0 z-50 flex h-14 w-full items-center justify-between border-b border-[#d3e4fe]/60 bg-white/85 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
@@ -23,26 +38,15 @@ export default function AuthNavbar() {
       </Link>
 
       <div className="hidden items-center gap-7 md:flex">
-        <Link
-          href="#"
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
-        >
-          Features
-        </Link>
-
-        <Link
-          href="#"
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
-        >
-          How it Works
-        </Link>
-
-        <Link
-          href="#"
-          className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
-        >
-          Pricing
-        </Link>
+        {navLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="text-[13px] font-medium text-[#45464d] transition hover:text-black"
+          >
+            {link.label}
+          </Link>
+        ))}
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-4">
