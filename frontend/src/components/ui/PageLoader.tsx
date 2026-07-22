@@ -15,7 +15,7 @@ export default function PageLoader({
 
           {/* Spinner */}
           <div className="relative h-10 w-10 animate-spin rounded-full bg-[conic-gradient(from_0deg,#047857,#10b981,#a7f3d0,#dce9ff,#dce9ff)]">
-            <div className="absolute inset-[2.5px] rounded-full bg-[#f7faf8]" />
+            <div className="absolute inset-[2.5px] rounded-full bg-[#f8f9ff]" />
           </div>
         </div>
 

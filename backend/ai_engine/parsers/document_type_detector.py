@@ -88,12 +88,34 @@ def detect_document_type(extracted_text: str) -> dict:
         if keyword in text:
             scores["subscription_receipt"] += 1
 
-    detected_type = max(scores, key=scores.get)
-    confidence = scores[detected_type] / max(len(get_keywords(detected_type)), 1)
+    highest_score = max(scores.values())
 
-    if scores[detected_type] == 0:
+    # No document type matched
+    if highest_score == 0:
+        return {
+            "document_type": "unknown",
+            "confidence": 0.0,
+            "scores": scores,
+        }
+
+    # Find all document types with the highest score
+    winners = [
+        document_type
+        for document_type, score in scores.items()
+        if score == highest_score
+    ]
+
+    # If multiple document types have the same score,
+    # don't guess. Let the AI parser decide later.
+    if len(winners) > 1:
         detected_type = "unknown"
         confidence = 0.0
+    else:
+        detected_type = winners[0]
+        confidence = highest_score / max(
+            len(get_keywords(detected_type)),
+            1,
+        )
 
     return {
         "document_type": detected_type,

@@ -1,16 +1,19 @@
 import { Shield, Brain, BarChart3 } from "lucide-react";
+
+import AuthFooter from "./AuthFooter";
 import AuthNavbar from "./AuthNavbar";
 import SignupForm from "./SignupForm";
 
 export default function SignupPage() {
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#f8f9ff] text-[#0b1c30]">
+    <main className="relative flex min-h-dvh flex-col overflow-hidden bg-[#f8f9ff] text-[#0b1c30]">
       <AuthNavbar />
 
       <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl sm:h-80 sm:w-80" />
+
       <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-blue-200/30 blur-3xl sm:h-80 sm:w-80" />
 
-      <div className="relative z-10 mx-auto flex min-h-dvh max-w-7xl flex-col items-center justify-center px-4 pb-10 pt-24 sm:px-6 sm:pb-16 lg:px-8">
+      <section className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-4 pb-10 pt-24 sm:px-6 sm:pb-16 lg:px-8">
         <SignupForm />
 
         <div className="mt-6 grid w-full max-w-5xl grid-cols-1 gap-3 sm:mt-8 md:grid-cols-3 md:gap-4">
@@ -32,7 +35,9 @@ export default function SignupPage() {
             text="Predict future expenses and savings using intelligent AI models."
           />
         </div>
-      </div>
+      </section>
+
+      <AuthFooter />
     </main>
   );
 }
