@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import TableHead from "./TableHead";
 import TransactionRow from "./TransactionRow";
+import UploadGroupRow from "./UploadGroupRow";
 import TransactionTableSkeleton from "./TransactionTableSkeleton";
 import { TransactionTableItem } from "@/types/transaction";
 
@@ -44,8 +46,18 @@ export default function TransactionsTable({
     );
   }
 
-  const allVisibleSelected = transactions.every((transaction) =>
+  const allVisibleSelected = transactions.length > 0 && transactions.every((transaction) =>
     selectedIds.includes(transaction.id)
+  );
+
+  const visibleUploadCounts = transactions.reduce<Record<string, number>>(
+    (counts, transaction) => {
+      counts[transaction.uploadId] =
+        (counts[transaction.uploadId] || 0) + 1;
+
+      return counts;
+    },
+    {}
   );
 
   return (
@@ -53,7 +65,7 @@ export default function TransactionsTable({
       <div className="overflow-x-auto overflow-y-visible">
         <table className="w-full min-w-[950px] border-collapse text-left">
           <thead>
-            <tr className="border-b border-[#c6c6cd] bg-[#f8f9ff]">
+            <tr className="border-b border-[#e8edf7] bg-[#f8f9ff]">
               <th className="w-12 p-4">
                 <input
                   type="checkbox"
@@ -73,18 +85,37 @@ export default function TransactionsTable({
           </thead>
 
           <tbody className="divide-y divide-[#e5eeff]">
-            {transactions.map((transaction, index) => (
-              <TransactionRow
-                key={transaction.id}
-                transaction={transaction}
-                selected={selectedIds.includes(transaction.id)}
-                onToggleSelectAction={onToggleSelectAction}
-                onDeleteAction={onDeleteAction}
-                onCategoryChangeAction={onCategoryChangeAction}
-                onFindSimilarAction={onFindSimilarAction}
-                openDropdownUp={index >= transactions.length - 2}
-              />
-            ))}
+            {transactions.map((transaction, index) => {
+              const previousTransaction = transactions[index - 1];
+
+              const isFirstTransactionOfUpload =
+                index === 0 ||
+                previousTransaction.uploadId !== transaction.uploadId;
+
+              return (
+                <Fragment key={transaction.id}>
+                  {isFirstTransactionOfUpload && (
+                    <UploadGroupRow
+                      uploadName={transaction.uploadName}
+                      visibleCount={
+                        visibleUploadCounts[transaction.uploadId] || 0
+                      }
+                      manual={transaction.uploadId === "manual"}
+                    />
+                  )}
+
+                  <TransactionRow
+                    transaction={transaction}
+                    selected={selectedIds.includes(transaction.id)}
+                    onToggleSelectAction={onToggleSelectAction}
+                    onDeleteAction={onDeleteAction}
+                    onCategoryChangeAction={onCategoryChangeAction}
+                    onFindSimilarAction={onFindSimilarAction}
+                    openDropdownUp={index >= transactions.length - 2}
+                  />
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>

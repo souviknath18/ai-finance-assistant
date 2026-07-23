@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {
   Sparkles,
   User,
@@ -9,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { TransactionTableItem } from "@/types/transaction";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import TableSelect from "@/components/ui/TableSelect";
 
 type TransactionRowProps = {
@@ -31,6 +32,12 @@ export default function TransactionRow({
   openDropdownUp,
   onFindSimilarAction,
 }: TransactionRowProps) {
+  const router = useRouter();
+  const pointerStart = useRef({
+    x: 0,
+    y: 0,
+  });
+
   const categoryOptions = [
     { label: "Food", value: "Food" },
     { label: "Groceries", value: "Groceries" },
@@ -54,13 +61,43 @@ export default function TransactionRow({
 
   return (
     <tr
-      className={`transition hover:bg-[#eff4ff] ${
+      onPointerDown={(e) => {
+        pointerStart.current = {
+          x: e.clientX,
+          y: e.clientY,
+        };
+      }}
+      onPointerUp={(e) => {
+        const target = e.target as HTMLElement;
+
+        // Ignore interactive elements
+        if (
+          target.closest("button") ||
+          target.closest("input") ||
+          target.closest("select") ||
+          target.closest("a") ||
+          target.closest("[data-ignore-row-click]")
+        ) {
+          return;
+        }
+
+        // Ignore scrolling / dragging
+        const dx = Math.abs(e.clientX - pointerStart.current.x);
+        const dy = Math.abs(e.clientY - pointerStart.current.y);
+
+        if (dx > 8 || dy > 8) {
+          return;
+        }
+
+        router.push(`/transactions/${transaction.id}`);
+      }}
+      className={`cursor-pointer transition hover:bg-[#eff4ff] ${
         transaction.ai && transaction.selected
           ? "bg-gradient-to-r from-white to-emerald-50"
           : ""
       } ${transaction.review ? "bg-[#eff4ff]/50" : ""}`}
     >
-      <td className="p-4">
+      <td className="p-4" data-ignore-row-click>
         <input
           type="checkbox"
           checked={selected}
@@ -73,12 +110,9 @@ export default function TransactionRow({
 
       <td className="p-4">
         <div className="flex flex-col">
-          <Link
-            href={`/transactions/${transaction.id}`}
-            className="text-[13px] font-bold text-black hover:underline"
-          >
+          <span className="text-[13px] font-bold text-black">
             {transaction.title}
-          </Link>
+          </span>
 
           <span className="text-[11px] text-[#565e74]">
             {transaction.subtitle}
@@ -86,7 +120,7 @@ export default function TransactionRow({
         </div>
       </td>
 
-      <td className="p-4">
+      <td className="p-4" data-ignore-row-click>
         {transaction.review ? (
           <TableSelect
             value={transaction.category}
@@ -119,7 +153,7 @@ export default function TransactionRow({
         {transaction.amount}
       </td>
 
-      <td className="p-4">
+      <td className="p-4" data-ignore-row-click>
         <div
           className={`flex items-center gap-2 ${
             transaction.status === "AI Verified"
@@ -151,7 +185,7 @@ export default function TransactionRow({
         </div>
       </td>
 
-      <td className="p-4">
+      <td className="p-4" data-ignore-row-click>
         <div className="flex justify-center gap-2.5 text-[#76777d]">
           <button className="hover:text-black">
             <Edit size={16} />

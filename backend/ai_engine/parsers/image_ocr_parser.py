@@ -1,6 +1,11 @@
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import pytesseract
+import os
 
+if os.name == "nt":
+    pytesseract.pytesseract.tesseract_cmd = (
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    )
 
 def preprocess_image(image: Image.Image) -> Image.Image:
     """

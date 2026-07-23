@@ -1,5 +1,8 @@
 import {
   BackendTransaction,
+  BackendTransactionDetails,
+  TransactionDetails,
+  TransactionStatus,
   TransactionTableItem,
   GetTransactionsParams,
 } from "@/types/transaction";
@@ -23,36 +26,215 @@ function formatAmount(amount: string, type: string) {
   })}`;
 }
 
-function mapTransaction(transaction: BackendTransaction): TransactionTableItem {
-  const reviewNeeded =
+function isTransactionReviewNeeded(
+  transaction: BackendTransaction,
+): boolean {
+  return (
     !transaction.category ||
     transaction.category === "Uncategorized" ||
-    transaction.category_source === "none";
+    transaction.category_source === "none"
+  );
+}
 
-  let status: TransactionTableItem["status"] = "Manual";
-
-  if (reviewNeeded) {
-    status = "AI Review Needed";
-  } else if (transaction.category_source === "ai") {
-    status = "AI Verified";
-  } else if (transaction.category_source === "rule") {
-    status = "Rule Verified";
-  } else if (transaction.category_source === "user") {
-    status = "User Verified";
+function getTransactionStatus(
+  transaction: BackendTransaction,
+): TransactionStatus {
+  if (isTransactionReviewNeeded(transaction)) {
+    return "AI Review Needed";
   }
+
+  if (transaction.category_source === "ai") {
+    return "AI Verified";
+  }
+
+  if (transaction.category_source === "rule") {
+    return "Rule Verified";
+  }
+
+  if (transaction.category_source === "user") {
+    return "User Verified";
+  }
+
+  return "Manual";
+}
+
+function mapTransaction(
+  transaction: BackendTransaction,
+): TransactionTableItem {
+  const reviewNeeded =
+    isTransactionReviewNeeded(transaction);
 
   return {
     id: transaction.transaction_id,
     date: formatDate(transaction.date),
-    title: transaction.merchant_name || transaction.description,
-    subtitle: transaction.uploaded_file_name || "Manual Transaction",
-    category: transaction.category || "Select Category",
-    amount: formatAmount(transaction.amount, transaction.transaction_type),
-    type: transaction.transaction_type === "income" ? "income" : "expense",
-    status,
+    title:
+      transaction.merchant_name ||
+      transaction.description,
+    subtitle:
+      transaction.uploaded_file_name ||
+      "Manual Transaction",
+    category:
+      transaction.category ||
+      "Select Category",
+    amount: formatAmount(
+      transaction.amount,
+      transaction.transaction_type,
+    ),
+    type:
+      transaction.transaction_type === "income"
+        ? "income"
+        : transaction.transaction_type === "expense"
+          ? "expense"
+          : "expense",
+    status: getTransactionStatus(transaction),
     selected: false,
     ai: transaction.category_source === "ai",
     review: reviewNeeded,
+    uploadId:
+      transaction.uploaded_file !== null
+        ? String(transaction.uploaded_file)
+        : "manual",
+    uploadName:
+      transaction.uploaded_file_name ||
+      "Manual Transactions",
+  };
+}
+
+function mapTransactionDetails(
+  transaction: BackendTransactionDetails,
+): TransactionDetails {
+  return {
+    id: transaction.transaction_id,
+    backendId: transaction.id,
+
+    title:
+      transaction.merchant_name ||
+      transaction.description,
+
+    description: transaction.description,
+    rawText: transaction.raw_text,
+
+    date: formatDate(transaction.date),
+    rawDate: transaction.date,
+
+    amount: formatAmount(
+      transaction.amount,
+      transaction.transaction_type,
+    ),
+
+    rawAmount: transaction.amount,
+
+    type:
+      transaction.transaction_type === "income"
+        ? "income"
+        : transaction.transaction_type === "expense"
+          ? "expense"
+          : "expense",
+
+    category:
+      transaction.category ||
+      "Uncategorized",
+
+    categorySource:
+      transaction.category_source,
+
+    status:
+      transaction.status ||
+      getTransactionStatus(transaction),
+
+    reviewNeeded:
+      transaction.review_needed,
+
+    isReviewed:
+      transaction.is_reviewed,
+
+    isRecurring:
+      transaction.is_recurring,
+
+    balanceAfterTransaction:
+      transaction.balance_after_transaction,
+
+    ai: transaction.ai
+      ? {
+          categorized:
+            transaction.ai.categorized,
+
+          confidence:
+            transaction.ai.confidence !== null
+              ? Number(transaction.ai.confidence)
+              : null,
+
+          reason:
+            transaction.ai.reason,
+        }
+      : null,
+
+    source: transaction.source
+      ? {
+          id: transaction.source.id,
+          uploadId:
+            transaction.source.upload_id,
+          filename:
+            transaction.source.filename,
+          fileType:
+            transaction.source.file_type,
+          uploadedAt:
+            transaction.source.uploaded_at,
+          processedAt:
+            transaction.source.processed_at,
+        }
+      : null,
+
+    previousPayments:
+      transaction.previous_payments.map(
+        (payment) => ({
+          id: payment.transaction_id,
+
+          date: formatDate(payment.date),
+
+          title:
+            payment.merchant_name ||
+            payment.description,
+
+          amount: formatAmount(
+            payment.amount,
+            payment.transaction_type,
+          ),
+
+          type:
+            payment.transaction_type === "income"
+              ? "income"
+              : "expense",
+
+          status: payment.status,
+        }),
+      ),
+
+    merchant: transaction.merchant,
+
+    trend: transaction.trend
+      ? {
+          category:
+            transaction.trend.category,
+
+          currentMonthTotal: Number(
+            transaction.trend.current_month_total,
+          ),
+
+          previousMonthTotal: Number(
+            transaction.trend.previous_month_total,
+          ),
+
+          percentageChange:
+            transaction.trend.percentage_change,
+
+          direction:
+            transaction.trend.direction,
+        }
+      : null,
+
+    optimizationTips:
+      transaction.optimization_tips,
   };
 }
 
@@ -157,4 +339,38 @@ export async function updateTransactionCategory(
   }
 
   return mapTransaction(data);
+}
+
+export async function getTransactionDetails(
+  transactionId: string,
+): Promise<TransactionDetails> {
+  const response = await authFetch(
+    `/api/transactions/${transactionId}/`,
+    {
+      method: "GET",
+    },
+  );
+
+  const contentType =
+    response.headers.get("content-type") ?? "";
+
+  const data = contentType.includes("application/json")
+    ? await response.json()
+    : await response.text();
+
+  if (!response.ok) {
+    if (typeof data === "string") {
+      throw new Error(
+        response.status >= 500
+          ? "The server encountered an error. Please try again."
+          : data || "Unable to load transaction.",
+      );
+    }
+
+    throw data;
+  }
+
+  return mapTransactionDetails(
+    data as BackendTransactionDetails,
+  );
 }

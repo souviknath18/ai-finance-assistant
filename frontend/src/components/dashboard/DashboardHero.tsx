@@ -27,14 +27,9 @@ export default function DashboardHero({
       : "Good evening";
 
   return (
-    <section className="relative mb-5 overflow-hidden rounded-2xl border border-[#dbe5f5] bg-white p-4 shadow-sm sm:p-5">
-      {/* Background Glow */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-100/40 blur-3xl" />
-        <div className="absolute left-24 bottom-0 h-32 w-32 rounded-full bg-green-100/40 blur-3xl" />
-      </div>
+    <section className="mb-5 overflow-hidden rounded-3xl border border-[#dbe5f5] bg-white shadow-sm">
 
-      <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-end lg:justify-between">
         {/* Left Content */}
         <div className="max-w-3xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
@@ -73,7 +68,7 @@ export default function DashboardHero({
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:flex lg:items-center lg:gap-3">
           <button
             onClick={() => router.push("/reports")}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white/90 px-4 text-[11px] lg:text-[12px] xl:text-[13px] font-bold whitespace-nowrap text-black backdrop-blur-sm transition-all duration-200 hover:bg-[#f8fbff] hover:shadow-sm"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white px-4 text-[11px] font-bold whitespace-nowrap text-black transition hover:bg-[#f8f9ff] hover:shadow-sm lg:text-[12px] xl:text-[13px]"
           >
             <FileText size={15} />
             Generate Report
@@ -81,7 +76,7 @@ export default function DashboardHero({
 
           <button
             onClick={() => router.push("/chat")}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white/90 px-4 text-[11px] lg:text-[12px] xl:text-[13px] font-bold whitespace-nowrap text-black backdrop-blur-sm transition-all duration-200 hover:bg-[#f8fbff] hover:shadow-sm"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#dbe5f5] bg-white px-4 text-[11px] font-bold whitespace-nowrap text-black transition hover:bg-[#f8f9ff] hover:shadow-sm lg:text-[12px] xl:text-[13px]"
           >
             <MessageCircle size={15} />
             Ask Aura

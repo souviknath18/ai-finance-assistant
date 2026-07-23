@@ -243,6 +243,10 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                     )
 
             parsed_transactions = parser_result["transactions"]
+            print("\n========== PARSER RESULT ==========")
+            print(parser_result)
+            print("===================================\n")
+
             parser_confidence = parser_result["confidence"]
 
             if parser_confidence < 0.75:
@@ -255,6 +259,10 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 parsed_transactions = parse_transactions_with_ai(
                     extracted_text
                 )
+
+                print("\n========== AI PARSER RESULT ==========")
+                print(parsed_transactions)
+                print("======================================\n")
 
             if not parsed_transactions:
                 raise ValueError(
@@ -422,6 +430,10 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 temporary_path
             )
 
+            print("\n========== OCR EXTRACTED TEXT ==========")
+            print(extracted_text)
+            print("========================================\n")
+
             uploaded_file.extracted_text = extracted_text
 
             update_processing_status(
@@ -517,6 +529,10 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 "confidence"
             ]
 
+            print("\n========== IMAGE PARSER RESULT ==========")
+            print(parser_result)
+            print("=========================================\n")
+
             if (
                 not parsed_transactions
                 or parser_confidence < 0.75
@@ -532,6 +548,10 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                         extracted_text
                     )
                 )
+
+                print("\n========== IMAGE AI PARSER RESULT ==========")
+                print(parsed_transactions)
+                print("============================================\n")
 
             if not parsed_transactions:
                 raise ValueError(

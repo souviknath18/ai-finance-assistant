@@ -1,19 +1,35 @@
-export default function MerchantInfoCard() {
-  return (
-    <div className="overflow-hidden rounded-3xl border border-[#e5eeff] bg-white shadow-sm">
-      <div className="h-32 bg-gradient-to-br from-[#dce9ff] to-[#0b1c30]" />
+import type { TransactionDetails } from "@/types/transaction";
 
-      <div className="p-6">
-        <h4 className="mb-2 text-lg font-bold text-black">
-          CloudScale AI Services
+type MerchantInfoCardProps = {
+  merchant: TransactionDetails["merchant"];
+};
+
+export default function MerchantInfoCard({
+  merchant,
+}: MerchantInfoCardProps) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
+      <div className="h-24 bg-gradient-to-br from-[#dce9ff] to-[#0b1c30]" />
+
+      <div className="p-5">
+        <h4 className="text-[16px] font-bold text-black">
+          {merchant.name}
         </h4>
 
-        <p className="mb-5 text-sm leading-6 text-[#565e74]">
-          San Francisco, CA · Enterprise AI Infrastructure
+        <p className="mt-2 text-[13px] leading-6 text-[#565e74]">
+          {merchant.location ?? "Location unavailable"}
         </p>
 
-        <button className="w-full rounded-xl border border-[#c6c6cd] py-3 text-sm font-bold text-black transition hover:bg-[#eff4ff]">
-          View Merchant Profile
+        <p className="text-[13px] leading-6 text-[#565e74]">
+          {merchant.industry ?? "Industry unavailable"}
+        </p>
+
+        <button
+          type="button"
+          disabled
+          className="mt-5 w-full cursor-not-allowed rounded-xl border border-[#c6c6cd] py-2.5 text-[13px] font-bold text-[#8a8f9d]"
+        >
+          Merchant Profile Coming Soon
         </button>
       </div>
     </div>

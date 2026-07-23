@@ -31,7 +31,7 @@ export default function Pagination({
   const end = Math.min(currentPage * rowsPerPage, total);
 
   return (
-    <div className="relative z-20 flex flex-col items-center justify-between gap-3 border-t border-[#c6c6cd] p-4 lg:flex-row">
+    <div className="relative z-20 flex flex-col items-center justify-between gap-3 border-t border-[#e5eeff] p-4 lg:flex-row">
       <div className="flex flex-col items-center gap-3 sm:flex-row">
         <span className="text-[13px] text-[#565e74]">
           Showing <strong>{start}-{end}</strong> of {total} {itemLabel}
