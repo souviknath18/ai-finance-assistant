@@ -62,7 +62,7 @@ export default function MetricCard({
   const MetricIcon = getMetricIcon();
 
   return (
-    <div className="rounded-2xl border border-[#dbe5f5] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-5">
+    <div className="rounded-3xl border border-[#dbe5f5] bg-white p-4 shadow-sm transition-all duration-200 hover:border-emerald-300 hover:ring-2 hover:ring-emerald-50 sm:p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[10px] font-bold uppercase tracking-wide text-[#7c839b] sm:text-[11px]">

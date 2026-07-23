@@ -1,32 +1,60 @@
 import { BellRing, Lightbulb } from "lucide-react";
+import type { TransactionDetails } from "@/types/transaction";
 
-export default function OptimizationTipsCard() {
+type OptimizationTipsCardProps = {
+  tips: TransactionDetails["optimizationTips"];
+};
+
+export default function OptimizationTipsCard({
+  tips,
+}: OptimizationTipsCardProps) {
   return (
-    <div className="rounded-3xl border border-[#e5eeff] bg-white p-6 shadow-sm">
-      <h4 className="mb-5 text-xs font-bold uppercase tracking-widest text-[#565e74]">
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-[#565e74]">
         Optimization Tips
-      </h4>
+      </h3>
 
-      <div className="space-y-5">
-        <Tip
-          icon={<Lightbulb size={20} />}
-          text="Consolidate this subscription with ScaleSync to save $45/mo."
-        />
-
-        <Tip
-          icon={<BellRing size={20} />}
-          text="Set an alert for when this merchant charges more than $350."
-        />
-      </div>
+      {tips.length === 0 ? (
+        <div className="rounded-xl bg-[#f8f9ff] p-4 text-[13px] leading-6 text-[#565e74]">
+          No optimization suggestions are available for this transaction yet.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {tips.map((tip, index) => (
+            <Tip
+              key={tip.id ?? `${tip.type ?? "tip"}-${index}`}
+              icon={
+                index % 2 === 0 ? (
+                  <Lightbulb size={18} />
+                ) : (
+                  <BellRing size={18} />
+                )
+              }
+              text={tip.text}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function Tip({ icon, text }: { icon: React.ReactNode; text: string }) {
+function Tip({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
   return (
-    <div className="flex gap-3 text-sm leading-6 text-black">
-      <span className="text-emerald-700">{icon}</span>
-      <p>{text}</p>
+    <div className="flex items-start gap-3 rounded-xl bg-[#f8f9ff] p-3">
+      <span className="mt-0.5 shrink-0 text-emerald-700">
+        {icon}
+      </span>
+
+      <p className="text-[13px] leading-6 text-black">
+        {text}
+      </p>
     </div>
   );
 }

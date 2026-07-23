@@ -2,13 +2,18 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.db.models import F
 from math import ceil
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from .models import Transaction
 from apps.insights.services import mark_insights_stale
 from apps.reports.services import mark_report_dashboard_stale
-from .serializers import TransactionSerializer, TransactionCreateSerializer
+from .serializers import (
+    TransactionSerializer,
+    TransactionCreateSerializer,
+    TransactionDetailsSerializer,
+)
 from ai_engine.embeddings.vector_store import delete_transaction_vector
 
 
@@ -16,8 +21,14 @@ class TransactionListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        transactions = Transaction.objects.filter(user=request.user).select_related(
-            "uploaded_file"
+        transactions = (
+            Transaction.objects.filter(user=request.user)
+            .select_related("uploaded_file")
+            .order_by(
+                F("uploaded_file__processed_at").desc(nulls_last=True),
+                "uploaded_file_id",
+                "id",
+            )
         )
 
         search = request.GET.get("search", "").strip()
@@ -109,18 +120,32 @@ class TransactionDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, request, transaction_id):
-        return Transaction.objects.get(
+        return get_object_or_404(
+            Transaction.objects.select_related(
+                "uploaded_file",
+            ),
             transaction_id=transaction_id,
             user=request.user,
         )
 
     def get(self, request, transaction_id):
-        transaction = self.get_object(request, transaction_id)
-        serializer = TransactionSerializer(transaction)
+        transaction = self.get_object(
+            request,
+            transaction_id,
+        )
+
+        serializer = TransactionDetailsSerializer(
+            transaction,
+            context={"request": request},
+        )
+
         return Response(serializer.data)
 
     def patch(self, request, transaction_id):
-        transaction = self.get_object(request, transaction_id)
+        transaction = self.get_object(
+            request,
+            transaction_id,
+        )
 
         serializer = TransactionSerializer(
             transaction,
@@ -128,21 +153,24 @@ class TransactionDetailView(APIView):
             partial=True,
         )
 
-        if serializer.is_valid():
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-            mark_insights_stale(request.user)
-            mark_report_dashboard_stale(request.user)
+        mark_insights_stale(request.user)
+        mark_report_dashboard_stale(request.user)
 
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data)
 
     def delete(self, request, transaction_id):
-        transaction = self.get_object(request, transaction_id)
+        transaction = self.get_object(
+            request,
+            transaction_id,
+        )
 
         try:
-            delete_transaction_vector(transaction.transaction_id)
+            delete_transaction_vector(
+                transaction.transaction_id,
+            )
         except Exception as error:
             print("Vector delete failed:", error)
 
@@ -152,7 +180,6 @@ class TransactionDetailView(APIView):
         mark_report_dashboard_stale(request.user)
 
         return Response(
-            {"detail": "Transaction deleted successfully."},
             status=status.HTTP_204_NO_CONTENT,
         )
 

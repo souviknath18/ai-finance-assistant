@@ -53,7 +53,7 @@ export default function AboutPage() {
             About Aura
           </p>
 
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-black sm:text-4xl lg:text-5xl">
+          <h1 className="mt-4 text-2xl font-bold tracking-tight text-black sm:text-3xl lg:text-4xl">
             Making personal finance easier to understand
           </h1>
 

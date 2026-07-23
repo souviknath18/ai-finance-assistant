@@ -10,7 +10,7 @@ export default function TransactionTableSkeleton({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[950px] border-collapse text-left">
           <thead>
-            <tr className="border-b border-[#c6c6cd] bg-[#f8f9ff]">
+            <tr className="border-b border-[#e8edf7] bg-[#f8f9ff]">
               <th className="w-12 p-4">
                 <div className="h-4 w-4 rounded bg-[#dce9ff]" />
               </th>

@@ -62,12 +62,11 @@ export default function AIInsightsCard({
   const iconMap = [AlertTriangle, WalletCards, Lightbulb, MessageCircle];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-white p-4 shadow-sm sm:rounded-3xl sm:p-5">
-      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-200/10 blur-3xl" />
+    <div className="overflow-hidden rounded-3xl border border-[#dbe5f5] bg-white shadow-sm">
 
-      <div className="relative mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-[#edf2fb] p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
             <Sparkles size={17} />
           </div>
 
@@ -82,19 +81,19 @@ export default function AIInsightsCard({
           </div>
         </div>
 
-        <span className="w-fit rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700">
+        <span className="inline-flex h-fit w-fit self-start items-center rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700">
           AI Active
         </span>
       </div>
 
-      <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2">
         {visibleInsights.map((insight, index) => {
           const Icon = iconMap[index] || Lightbulb;
 
           return (
             <div
               key={`${insight.title}-${index}`}
-              className="rounded-2xl border border-emerald-100 bg-white p-3.5 shadow-sm sm:p-4"
+              className="rounded-2xl border border-[#edf2fb] bg-[#f8f9ff] p-4 transition hover:border-emerald-200 hover:bg-white"
             >
               <div className="mb-2.5 flex items-start justify-between gap-3">
                 <p className="text-[11px] font-bold uppercase leading-5 tracking-wide text-black sm:text-[12px]">
