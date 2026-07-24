@@ -15,6 +15,7 @@ ALLOWED_CATEGORIES = [
     "Travel",
     "Entertainment",
     "Education",
+    "Household",
     "Income",
     "Cash Withdrawal",
     "Uncategorized",

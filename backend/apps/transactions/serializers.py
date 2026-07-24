@@ -19,8 +19,10 @@ class TransactionSerializer(serializers.ModelSerializer):
             "uploaded_file",
             "uploaded_file_name",
             "date",
+            "date_is_estimated",
             "description",
             "merchant_name",
+            "reference_number",
             "amount",
             "transaction_type",
             "category",
@@ -56,6 +58,7 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
             "date",
             "description",
             "merchant_name",
+            "reference_number",
             "amount",
             "transaction_type",
             "category",
@@ -89,11 +92,21 @@ class TransactionDetailsSerializer(TransactionSerializer):
         ]
 
     def get_review_needed(self, obj):
-        return (
+        if (
             not obj.category
             or obj.category == "Uncategorized"
             or obj.category_source == Transaction.CategorySource.NONE
-        )
+        ):
+            return True
+
+        if (
+            obj.category_source == Transaction.CategorySource.AI
+            and obj.ai_confidence is not None
+            and obj.ai_confidence < Decimal("0.85")
+        ):
+            return True
+
+        return False
 
     def get_status(self, obj):
         if self.get_review_needed(obj):
@@ -170,18 +183,29 @@ class TransactionDetailsSerializer(TransactionSerializer):
         ]
 
     def get_ai(self, obj):
+        category_source = obj.category_source
+
         if (
-            obj.ai_confidence is None
+            category_source == Transaction.CategorySource.NONE
+            and obj.ai_confidence is None
             and not obj.ai_reason
-            and not obj.is_ai_categorized
         ):
             return None
 
+        confidence = (
+            obj.ai_confidence
+            if category_source == Transaction.CategorySource.AI
+            else None
+        )
+
         return {
-            "categorized": obj.is_ai_categorized,
-            "confidence": obj.ai_confidence,
+            "categorized": (
+                category_source == Transaction.CategorySource.AI
+                and obj.is_ai_categorized
+            ),
+            "confidence": confidence,
             "reason": obj.ai_reason,
-            "category_source": obj.category_source,
+            "category_source": category_source,
         }
 
     def get_merchant(self, obj):

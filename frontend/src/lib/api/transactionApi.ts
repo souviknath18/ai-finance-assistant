@@ -100,6 +100,30 @@ function mapTransaction(
   };
 }
 
+function normalizeAIConfidence(
+  confidence: string | number | null,
+): number | null {
+  if (confidence === null || confidence === undefined) {
+    return null;
+  }
+
+  const value = Number(confidence);
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  // AI services commonly return probabilities between 0 and 1.
+  const percentage = value <= 1
+    ? value * 100
+    : value;
+
+  return Math.min(
+    100,
+    Math.max(0, percentage),
+  );
+}
+
 function mapTransactionDetails(
   transaction: BackendTransactionDetails,
 ): TransactionDetails {
@@ -159,13 +183,15 @@ function mapTransactionDetails(
           categorized:
             transaction.ai.categorized,
 
-          confidence:
-            transaction.ai.confidence !== null
-              ? Number(transaction.ai.confidence)
-              : null,
+          confidence: normalizeAIConfidence(
+            transaction.ai.confidence,
+          ),
 
           reason:
             transaction.ai.reason,
+
+          categorySource:
+            transaction.ai.category_source,
         }
       : null,
 

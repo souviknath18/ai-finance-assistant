@@ -1,190 +1,309 @@
-def detect_document_type(extracted_text: str) -> dict:
-    text = extracted_text.lower()
-
-    scores = {
-        "bank_statement": 0,
-        "receipt_invoice": 0,
-        "salary_slip": 0,
-        "subscription_receipt": 0,
-        "unknown": 0,
-    }
-
-    bank_keywords = [
-        "account statement",
-        "bank statement",
-        "transaction details",
-        "opening balance",
-        "closing balance",
-        "withdrawals",
-        "deposits",
-        "balance",
-        "account number",
-        "branch transit",
-    ]
-
-    receipt_invoice_keywords = [
-        "invoice",
-        "receipt",
-        "total",
-        "total due",
-        "amount paid",
-        "payment method",
-        "merchant",
-        "provider",
-        "restaurant",
-        "order id",
-        "billing month",
-        "subscription",
-        "tax invoice",
-        "delivery",
-    ]
-
-    salary_keywords = [
-        "salary slip",
-        "payslip",
-        "pay slip",
-        "gross salary",
-        "net salary",
-        "basic salary",
-        "hra",
-        "deductions",
-        "employee id",
-    ]
-
-    subscription_keywords = [
-        "subscription",
-        "recurring billing",
-        "billing month",
-        "membership",
-        "premium",
-        "monthly plan",
-        "renewal",
-        "netflix",
-        "spotify",
-        "youtube premium",
-        "apple icloud",
-        "google one",
-        "amazon prime",
-        "adobe",
-        "canva",
-        "figma",
-        "openai",
-        "chatgpt",
-    ]
-
-    for keyword in bank_keywords:
-        if keyword in text:
-            scores["bank_statement"] += 1
-
-    for keyword in receipt_invoice_keywords:
-        if keyword in text:
-            scores["receipt_invoice"] += 1
-
-    for keyword in salary_keywords:
-        if keyword in text:
-            scores["salary_slip"] += 1
-
-    for keyword in subscription_keywords:
-        if keyword in text:
-            scores["subscription_receipt"] += 1
-
-    highest_score = max(scores.values())
-
-    # No document type matched
-    if highest_score == 0:
-        return {
-            "document_type": "unknown",
-            "confidence": 0.0,
-            "scores": scores,
-        }
-
-    # Find all document types with the highest score
-    winners = [
-        document_type
-        for document_type, score in scores.items()
-        if score == highest_score
-    ]
-
-    # If multiple document types have the same score,
-    # don't guess. Let the AI parser decide later.
-    if len(winners) > 1:
-        detected_type = "unknown"
-        confidence = 0.0
-    else:
-        detected_type = winners[0]
-        confidence = highest_score / max(
-            len(get_keywords(detected_type)),
-            1,
-        )
-
-    return {
-        "document_type": detected_type,
-        "confidence": round(confidence, 2),
-        "scores": scores,
-    }
+import re
 
 
-def get_keywords(document_type: str):
-    keyword_map = {
-        "bank_statement": [
+DOCUMENT_SIGNALS = {
+    "bank_statement": {
+        "strong": [
             "account statement",
-            "bank statement",
-            "transaction details",
+            "statement of account",
             "opening balance",
             "closing balance",
-            "withdrawals",
-            "deposits",
-            "balance",
+            "transaction details",
+        ],
+        "medium": [
             "account number",
-            "branch transit",
+            "debit",
+            "credit",
+            "withdrawal",
+            "deposit",
+            "balance",
         ],
-        "receipt_invoice": [
-            "invoice",
-            "receipt",
-            "total",
-            "total due",
-            "amount paid",
-            "payment method",
-            "merchant",
-            "provider",
-            "restaurant",
-            "order id",
-            "billing month",
-            "subscription",
+    },
+    "credit_card_statement": {
+        "strong": [
+            "credit card statement",
+            "minimum amount due",
+            "payment due date",
+            "credit limit",
+            "available credit",
+        ],
+        "medium": [
+            "card number",
+            "previous balance",
+            "new charges",
+            "total amount due",
+        ],
+    },
+    "invoice": {
+        "strong": [
             "tax invoice",
-            "delivery",
+            "invoice number",
+            "invoice no",
+            "invoice date",
+            "bill to",
+            "ship to",
         ],
-        "salary_slip": [
+        "medium": [
+            "gstin",
+            "taxable value",
+            "unit price",
+            "quantity",
+            "hsn",
+            "sac",
+        ],
+    },
+    "utility_bill": {
+        "strong": [
+            "units consumed",
+            "meter number",
+            "meter no",
+            "tariff category",
+            "consumer number",
+            "service number",
+        ],
+        "medium": [
+            "billing period",
+            "due date",
+            "amount payable",
+            "energy charges",
+            "electricity duty",
+        ],
+    },
+    "receipt": {
+        "strong": [
+            "payment receipt",
+            "receipt number",
+            "receipt no",
+            "payment received",
+            "payment method",
+        ],
+        "medium": [
+            "amount paid",
+            "subtotal",
+            "cash",
+            "card",
+            "change",
+        ],
+    },
+    "salary_slip": {
+        "strong": [
             "salary slip",
             "payslip",
             "pay slip",
-            "gross salary",
             "net salary",
+            "net pay",
+        ],
+        "medium": [
+            "gross salary",
             "basic salary",
             "hra",
             "deductions",
             "employee id",
         ],
-        "subscription_receipt": [
+    },
+    "subscription_receipt": {
+        "strong": [
             "subscription",
+            "membership renewal",
             "recurring billing",
-            "billing month",
-            "membership",
-            "premium",
             "monthly plan",
-            "renewal",
+            "annual plan",
+        ],
+        "medium": [
             "netflix",
             "spotify",
             "youtube premium",
-            "apple icloud",
-            "google one",
             "amazon prime",
+            "openai",
+            "chatgpt",
             "adobe",
             "canva",
             "figma",
-            "openai",
-            "chatgpt",
+        ],
+    },
+    "travel_receipt": {
+        "strong": [
+            "boarding pass",
+            "booking reference",
+            "pnr",
+            "ticket number",
+            "fare summary",
+        ],
+        "medium": [
+            "departure",
+            "arrival",
+            "passenger",
+            "flight",
+            "train",
+            "hotel",
+        ],
+    },
+}
+
+
+def count_signal_matches(
+    text: str,
+    signals: list[str],
+) -> list[str]:
+    return [
+        signal
+        for signal in signals
+        if signal in text
+    ]
+
+
+def calculate_structural_bonus(
+    document_type: str,
+    text: str,
+) -> int:
+    bonus = 0
+
+    if document_type in {
+        "bank_statement",
+        "credit_card_statement",
+    }:
+        date_count = len(
+            re.findall(
+                r"\b\d{1,2}[-/ ]"
+                r"(?:\d{1,2}|[A-Za-z]{3,9})"
+                r"[-/ ]\d{2,4}\b",
+                text,
+            )
+        )
+
+        amount_count = len(
+            re.findall(
+                r"(?:INR\s*)?"
+                r"[-+]?\d[\d,]*\.\d{2}",
+                text,
+                flags=re.IGNORECASE,
+            )
+        )
+
+        if date_count >= 3:
+            bonus += 3
+
+        if amount_count >= 6:
+            bonus += 3
+
+    if document_type == "invoice":
+        if "invoice" in text:
+            bonus += 2
+
+        if re.search(
+            r"\bqty\b|\bquantity\b",
+            text,
+        ):
+            bonus += 2
+
+    if document_type == "utility_bill":
+        if re.search(
+            r"\bunits?\b.*\b(?:kwh|consumed)\b",
+            text,
+        ):
+            bonus += 3
+
+    return bonus
+
+
+def detect_document_type(
+    extracted_text: str,
+) -> dict:
+    text = str(
+        extracted_text or ""
+    ).lower()
+
+    ranked_results = []
+
+    for document_type, groups in (
+        DOCUMENT_SIGNALS.items()
+    ):
+        strong_matches = (
+            count_signal_matches(
+                text,
+                groups["strong"],
+            )
+        )
+
+        medium_matches = (
+            count_signal_matches(
+                text,
+                groups["medium"],
+            )
+        )
+
+        score = (
+            len(strong_matches) * 3
+            + len(medium_matches)
+            + calculate_structural_bonus(
+                document_type,
+                text,
+            )
+        )
+
+        ranked_results.append(
+            {
+                "document_type": document_type,
+                "score": score,
+                "strong_matches": strong_matches,
+                "medium_matches": medium_matches,
+            }
+        )
+
+    ranked_results.sort(
+        key=lambda item: item["score"],
+        reverse=True,
+    )
+
+    winner = ranked_results[0]
+    runner_up = ranked_results[1]
+
+    if winner["score"] == 0:
+        return {
+            "document_type": "unknown",
+            "confidence": 0.0,
+            "scores": ranked_results,
+            "alternatives": [],
+        }
+
+    score_gap = (
+        winner["score"]
+        - runner_up["score"]
+    )
+
+    confidence = min(
+        0.99,
+        0.45
+        + winner["score"] * 0.04
+        + score_gap * 0.03,
+    )
+
+    if (
+        score_gap == 0
+        and winner["score"] < 6
+    ):
+        detected_type = "unknown"
+        confidence = 0.35
+    else:
+        detected_type = winner[
+            "document_type"
+        ]
+
+    return {
+        "document_type": detected_type,
+        "confidence": round(
+            confidence,
+            2,
+        ),
+        "scores": ranked_results,
+        "alternatives": [
+            {
+                "document_type": item[
+                    "document_type"
+                ],
+                "score": item["score"],
+            }
+            for item in ranked_results[1:4]
+            if item["score"] > 0
         ],
     }
-
-    return keyword_map.get(document_type, [])
