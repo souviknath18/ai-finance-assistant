@@ -84,7 +84,7 @@ export type BackendTransactionSource = {
 
 export type BackendTransactionAI = {
   categorized: boolean;
-  confidence: string | null;
+  confidence: string | number | null;
   reason: string | null;
   category_source: BackendTransaction["category_source"];
 };
@@ -162,6 +162,11 @@ export type TransactionDetails = {
     categorized: boolean;
     confidence: number | null;
     reason: string | null;
+    categorySource:
+      | "rule"
+      | "ai"
+      | "user"
+      | "none";
   } | null;
 
   source: {

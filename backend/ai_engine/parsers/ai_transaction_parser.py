@@ -41,14 +41,27 @@ def normalize_ai_transaction(item):
     if transaction_type not in {"income", "expense"}:
         return None
 
+    # Date is optional.
+    # AI may return null when the document has no reliable date.
+    transaction_date = None
+
+    if item.get("date"):
+        try:
+            transaction_date = datetime.strptime(
+                str(item["date"]).strip(),
+                "%Y-%m-%d",
+            ).date()
+        except (
+            ValueError,
+            TypeError,
+        ):
+            transaction_date = None
+
+    # Amount is required.
     try:
-        transaction_date = datetime.strptime(
-            str(item["date"]).strip(),
-            "%Y-%m-%d",
-        ).date()
-
-        amount = Decimal(str(item["amount"]))
-
+        amount = Decimal(
+            str(item["amount"])
+        )
     except (
         KeyError,
         ValueError,
@@ -65,10 +78,16 @@ def normalize_ai_transaction(item):
 
     balance = None
 
-    if item.get("balance_after_transaction") is not None:
+    if item.get(
+        "balance_after_transaction"
+    ) is not None:
         try:
             balance = Decimal(
-                str(item["balance_after_transaction"])
+                str(
+                    item[
+                        "balance_after_transaction"
+                    ]
+                )
             )
         except (
             ValueError,
@@ -77,59 +96,100 @@ def normalize_ai_transaction(item):
         ):
             balance = None
 
+    merchant_name = None
+
+    if item.get("merchant_name"):
+        merchant_name = str(
+            item["merchant_name"]
+        ).strip()[:255]
+
+    reference_number = None
+
+    if item.get("reference_number"):
+        reference_number = str(
+            item["reference_number"]
+        ).strip()[:255]
+
     return {
         "date": transaction_date,
         "description": description[:500],
+        "merchant_name": merchant_name,
         "amount": amount,
         "transaction_type": transaction_type,
         "balance_after_transaction": balance,
+        "reference_number": reference_number,
         "raw_text": str(
             item.get("raw_text", "")
-        ),
+        )[:5000],
     }
 
 
-def parse_transactions_with_ai(extracted_text: str):
+def parse_transactions_with_ai(
+    extracted_text: str,
+    document_type: str = "unknown",
+):
     prompt = f"""
-    You are a financial document parser.
+    You are a strict financial document extraction system.
 
-    Extract financial transactions from the provided document text.
+    Detected document type:
+    {document_type}
 
-    The document may be:
-    - bank statement
-    - credit card statement
-    - invoice
-    - bill
-    - receipt
-    - subscription receipt
-    - travel receipt
-    - utility bill
-    - salary slip
+    Extract only real financial transactions from the document.
 
-    Return ONLY valid JSON in this format:
+    Return ONLY valid JSON:
+
     [
     {{
-        "date": "YYYY-MM-DD",
-        "description": "string",
+        "date": "YYYY-MM-DD or null",
+        "description": "merchant, provider, employer, or transaction description",
+        "merchant_name": "string or null",
         "amount": "decimal number",
         "transaction_type": "income or expense",
         "balance_after_transaction": "decimal number or null",
-        "raw_text": "original text used"
+        "reference_number": "string or null",
+        "raw_text": "source text used"
     }}
     ]
 
-    Rules:
-    - Do not include opening balance or closing balance.
-    - For bank statements, withdrawals/debits are expense and deposits/credits are income.
-    - For invoices, bills, receipts, and subscription receipts, create ONE expense transaction using the final total/amount paid/total due.
-    - Use merchant/provider/vendor name as description when available.
-    - If there is no date, use today's date: {datetime.today().strftime("%Y-%m-%d")}.
-    - Convert amounts like ₹4,398, Rs. 4,398, INR 4,398, or ■4,398 into decimal numbers.
-    - Expenses must be negative amounts.
-    - Income must be positive amounts.
-    - If a transaction spans multiple lines, combine the description.
-    - Do not invent transactions.
-    - If no financial transaction is found, return [].
+    Document rules:
+
+    BANK OR CREDIT-CARD STATEMENT:
+    - Return one item for every actual transaction row.
+    - Exclude opening balance, closing balance, summaries and totals.
+    - Debit, withdrawal, purchase and payment are expenses.
+    - Credit, deposit, refund and salary credit are income.
+
+    INVOICE:
+    - Return exactly one expense transaction.
+    - Use amount payable, net amount, invoice total,
+    grand total or total due.
+    - Do not create transactions from line items,
+    subtotal, tax, GST, discount or taxable value.
+
+    RECEIPT:
+    - Return exactly one expense transaction using
+    the final amount paid.
+    - Do not return each purchased product separately.
+
+    UTILITY BILL:
+    - Return exactly one expense transaction using
+    current bill amount, amount payable or total due.
+
+    SUBSCRIPTION RECEIPT:
+    - Return exactly one expense transaction for
+    the charged subscription amount.
+
+    SALARY SLIP:
+    - Return exactly one income transaction using net pay.
+    - Do not create separate transactions for allowances,
+    benefits, tax or deductions.
+
+    General rules:
+    - Do not invent values.
+    - If a date is unavailable, return null.
+    - Expenses must be negative.
+    - Income must be positive.
+    - If no valid financial transaction exists, return [].
 
     TEXT:
     {extracted_text}

@@ -21,27 +21,53 @@ export default function AIInsightsCard({
         </div>
 
         <h2 className="text-lg font-bold text-black">
-          AI Insights
+          Categorization Insights
         </h2>
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <div className="rounded-2xl border border-emerald-100 bg-[#eff4ff] p-4">
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
-            Confidence Score
-          </p>
+          {insight.categorySource === "ai" ? (
+            <>
+              <p className="mb-4 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
+                Confidence Score
+              </p>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-4 border-emerald-700 text-[13px] font-bold text-black">
-              {confidence !== null
-                ? `${confidence}%`
-                : "N/A"}
-            </div>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-4 border-emerald-700 text-[13px] font-bold text-black">
+                  {confidence !== null
+                    ? `${confidence}%`
+                    : "N/A"}
+                </div>
 
-            <p className="text-[13px] leading-6 text-[#565e74]">
-              {getConfidenceMessage(confidence)}
-            </p>
-          </div>
+                <p className="text-[13px] leading-6 text-[#565e74]">
+                  {getConfidenceMessage(confidence)}
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="mb-4 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
+                Categorization Method
+              </p>
+
+              <p className="text-[15px] font-semibold text-black">
+                {insight.categorySource === "rule"
+                  ? "Rule Engine"
+                  : insight.categorySource === "user"
+                    ? "User Verified"
+                    : "Uncategorized"}
+              </p>
+
+              <p className="mt-2 text-[13px] leading-6 text-[#565e74]">
+                {insight.categorySource === "rule"
+                  ? "The category was assigned using a matching transaction keyword."
+                  : insight.categorySource === "user"
+                    ? "The category was manually selected or confirmed by the user."
+                    : "No reliable categorization method has been applied yet."}
+              </p>
+            </>
+          )}
         </div>
 
         <div className="rounded-2xl border border-emerald-100 bg-[#eff4ff] p-4">
@@ -52,7 +78,7 @@ export default function AIInsightsCard({
           <p className="text-[13px] italic leading-6 text-black">
             {insight.reason
               ? `“${insight.reason}”`
-              : "No AI reasoning is available for this transaction."}
+              : "No categorization reasoning is available for this transaction."}
           </p>
         </div>
       </div>

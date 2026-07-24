@@ -40,9 +40,11 @@ class Transaction(models.Model):
     )
 
     date = models.DateField()
+    date_is_estimated = models.BooleanField(default=False)
     description = models.CharField(max_length=500)
 
     merchant_name = models.CharField(max_length=255, blank=True, null=True)
+    reference_number = models.CharField(max_length=100, blank=True, null=True)
 
     amount = models.DecimalField(max_digits=12, decimal_places=2)
 
