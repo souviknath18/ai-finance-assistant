@@ -97,23 +97,17 @@ export default function DashboardTopbar({
             )}
           </button>
 
-          <div className="flex min-w-0 items-center gap-2 md:hidden">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-black to-[#1f2937] text-white shadow-sm">
-              <Sparkles size={14} />
-            </div>
+          <div className="min-w-0 leading-tight md:hidden">
+            <h1 className="truncate text-[14px] font-bold tracking-tight text-black">
+              Aura Finance
+            </h1>
 
-            <div className="min-w-0 leading-tight">
-              <h1 className="truncate text-[14px] font-bold tracking-tight text-black">
-                Aura Finance
-              </h1>
-
-              <p className="truncate text-[10px] font-semibold tracking-wide text-[#7c839b]">
-                AI Finance Workspace
-              </p>
-            </div>
+            <p className="truncate text-[10px] font-semibold tracking-wide text-[#7c839b]">
+              AI Finance Workspace
+            </p>
           </div>
 
-          <div className="hidden leading-tight md:block">
+          <div className="hidden shrink-0 leading-tight md:mr-4 md:block lg:mr-6">
             <p className="text-[10px] font-bold uppercase tracking-wide text-[#7c839b]">
               Welcome back
             </p>
@@ -124,7 +118,7 @@ export default function DashboardTopbar({
           </div>
         </div>
 
-        <div className="hidden w-full max-w-[420px] items-center gap-2 rounded-xl border border-[#dbe5f5] bg-[#f8f9ff] px-3 py-2 md:flex">
+        <div className="hidden min-w-0 flex-1 max-w-[420px] items-center gap-2 rounded-xl border border-[#dbe5f5] bg-[#f8f9ff] px-3 py-2 md:flex">
           <Search size={15} className="shrink-0 text-[#7c839b]" />
 
           <input
@@ -135,7 +129,7 @@ export default function DashboardTopbar({
 
         <div className="flex shrink-0 items-center gap-2">
           <div className="hidden items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 lg:flex">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-breathe-glow" />
             <span className="text-[11px] font-bold text-emerald-700">
               AI Active
             </span>

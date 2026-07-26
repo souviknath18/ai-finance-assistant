@@ -31,11 +31,11 @@ export default function MetricCard({
       : "bg-emerald-50 text-emerald-700";
 
   const iconBoxClass =
-    type === "positive"
-      ? "bg-emerald-50 text-emerald-700"
-      : type === "negative"
-      ? "bg-red-50 text-red-600"
-      : "bg-emerald-50 text-emerald-700";
+  type === "positive"
+    ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+    : type === "negative"
+    ? "border-red-100 bg-red-50 text-red-600"
+    : "border-emerald-100 bg-emerald-50 text-emerald-700";
 
   const TrendIcon =
     type === "positive"
@@ -62,7 +62,7 @@ export default function MetricCard({
   const MetricIcon = getMetricIcon();
 
   return (
-    <div className="rounded-3xl border border-[#dbe5f5] bg-white p-4 shadow-sm transition-all duration-200 hover:border-emerald-300 hover:ring-2 hover:ring-emerald-50 sm:p-5">
+    <div className="rounded-3xl border border-[#e6edf9] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-emerald-300 hover:shadow-[0_8px_22px_rgba(15,23,42,0.08)] sm:p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[10px] font-bold uppercase tracking-wide text-[#7c839b] sm:text-[11px]">

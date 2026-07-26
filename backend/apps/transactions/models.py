@@ -39,7 +39,10 @@ class Transaction(models.Model):
         related_name="transactions",
     )
 
-    date = models.DateField()
+    date = models.DateField(
+        null=True,
+        blank=True,
+    )
     date_is_estimated = models.BooleanField(default=False)
     description = models.CharField(max_length=500)
 
@@ -67,6 +70,19 @@ class Transaction(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
+    )
+
+    parser_confidence = models.DecimalField(
+        max_digits=4,
+        decimal_places=3,
+        null=True,
+        blank=True,
+    )
+
+    parser_used = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
     )
 
     is_ai_categorized = models.BooleanField(default=False)

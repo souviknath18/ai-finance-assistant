@@ -61,7 +61,7 @@ export default function PreviousPaymentsCard({
             <tbody className="divide-y divide-[#eef3fb]">
               {payments.map((payment) => (
                 <tr
-                  key={payment.date}
+                  key={payment.id}
                   className="transition hover:bg-[#eff4ff]"
                 >
                   <td className="whitespace-nowrap px-4 py-4 text-[13px] text-black">

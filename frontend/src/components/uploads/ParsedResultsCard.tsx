@@ -31,7 +31,7 @@ export default function ParsedResultsCard({ files }: ParsedResultsCardProps) {
 
       <button
         onClick={() => router.push("/history")}
-        className="mt-5 w-full rounded-xl border border-black py-2.5 text-[13px] font-bold text-black transition hover:bg-black hover:text-white"
+        className="mt-5 w-full rounded-xl border border-[#c6c6cd] bg-white py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
       >
         Review All Results
       </button>

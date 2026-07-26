@@ -17,14 +17,24 @@ client = OpenAI(
     api_key=config("OPENAI_API_KEY")
 )
 
+MODEL_CONFIDENCE_CAP = 0.95
+
 
 def categorize_transaction_with_ai(
     description: str,
     transaction_type: str,
+    merchant_name: str | None = None,
+    parser_confidence: float | None = None,
+    parser_warnings: list[str] | None = None,
 ):
     cleaned_description = (
         " ".join((description or "").split())
         or "Unknown transaction"
+    )
+
+    cleaned_merchant = (
+        " ".join((merchant_name or "").split())
+        or "Unknown merchant"
     )
 
     allowed_categories_text = ", ".join(
@@ -34,8 +44,11 @@ def categorize_transaction_with_ai(
     prompt = f"""
 Classify this financial transaction.
 
-Transaction description:
+Purchased product or service:
 {cleaned_description}
+
+Merchant:
+{cleaned_merchant}
 
 Transaction type:
 {transaction_type}
@@ -53,8 +66,12 @@ Important classification rules:
 6. Home cleaning, appliance repair, plumbing, electrical repair,
    and household maintenance are home or household services.
 7. Return exactly one category from the allowed categories.
-8. Confidence must reflect how clearly the description supports
-   the selected category.
+8. Confidence guidelines:
+   - 0.90 to 0.95: explicit and unambiguous evidence
+   - 0.75 to 0.89: strong but not definitive evidence
+   - 0.55 to 0.74: moderate or incomplete evidence
+   - below 0.55: weak or ambiguous evidence
+   - Never return 1.0.
 
 Return valid JSON only:
 {{
@@ -121,7 +138,10 @@ Return valid JSON only:
 
     raw_confidence = max(
         0.0,
-        min(raw_confidence, 1.0),
+        min(
+            raw_confidence,
+            MODEL_CONFIDENCE_CAP,
+        ),
     )
 
     confidence = calculate_calibrated_confidence(
@@ -129,7 +149,13 @@ Return valid JSON only:
         transaction_type=transaction_type,
         category=category,
         ai_confidence=raw_confidence,
+        parser_confidence=parser_confidence,
+        merchant_name=merchant_name,
+        parser_warnings=parser_warnings,
     )
+
+    print("Raw AI confidence:", raw_confidence)
+    print("Calibrated confidence:", confidence)
 
     return {
         "category": category,

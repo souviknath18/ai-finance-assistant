@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
@@ -10,7 +10,15 @@ from apps.budgets.services import get_budget_dashboard
 
 
 def money(value):
-    value = value or Decimal("0.00")
+    if value is None:
+        value = Decimal("0.00")
+
+    if isinstance(value, str):
+        try:
+            value = Decimal(value)
+        except InvalidOperation:
+            value = Decimal("0.00")
+
     return f"₹{abs(value):,.2f}"
 
 
@@ -70,7 +78,7 @@ def get_dashboard_data(user):
         transactions.filter(transaction_type="expense")
         .values("category")
         .annotate(total=Sum("amount"))
-        .order_by("total")[:3]
+        .order_by("total")
     )
 
     top_spending_data = [
@@ -82,26 +90,55 @@ def get_dashboard_data(user):
         for item in top_spending
     ]
 
-    recent = transactions.order_by("-date", "-created_at")[:5]
+    recent = transactions.order_by(
+        "-date",
+        "-created_at",
+    )[:5]
 
-    recent_transactions = [
-        {
-            "date": tx.date.strftime("%b %d, %Y"),
-            "description": tx.merchant_name or tx.description,
-            "category": tx.category or "Uncategorized",
-            "amount": (
-                f"+{money(tx.amount)}"
-                if tx.transaction_type == "income"
-                else f"-{money(tx.amount)}"
-            ),
-            "type": tx.transaction_type,
-        }
-        for tx in recent
-    ]
+    recent_transactions = []
 
-    recent_uploads_queryset = UploadedFile.objects.filter(user=user).order_by(
+    for tx in recent:
+        description = (
+            tx.description
+            or tx.merchant_name
+            or "Unknown Transaction"
+        )
+
+        if " - " in description:
+            description = description.split(
+                " - ",
+                1,
+            )[0].strip()
+
+        recent_transactions.append(
+            {
+                "id": tx.transaction_id,
+                "date": (
+                    tx.date.strftime("%b %d, %Y")
+                    if tx.date
+                    else "Unknown date"
+                ),
+                "description": description,
+                "category": (
+                    tx.category
+                    or "Uncategorized"
+                ),
+                "amount": (
+                    f"+{money(tx.amount)}"
+                    if tx.transaction_type == "income"
+                    else f"-{money(tx.amount)}"
+                ),
+                "type": tx.transaction_type,
+            }
+        )
+
+    uploads_queryset = UploadedFile.objects.filter(user=user)
+
+    recent_uploads_queryset = uploads_queryset.order_by(
         "-uploaded_at"
-    )[:2]
+    )[:4]
+
+    recent_uploads_total = uploads_queryset.count()
 
     recent_uploads = []
 
@@ -196,7 +233,12 @@ def get_dashboard_data(user):
 
         semantic_preview.append(
             {
-                "merchant": tx.merchant_name or tx.description,
+                "id": str(tx.transaction_id),
+                "merchant": (
+                    tx.merchant_name
+                    or tx.description
+                    or "Unknown Transaction"
+                ),
                 "amount": money(tx.amount),
                 "category": tx.category or "Uncategorized",
                 "similarity": "Indexed",
@@ -224,6 +266,7 @@ def get_dashboard_data(user):
         "top_spending": top_spending_data,
         "recent_transactions": recent_transactions,
         "recent_uploads": recent_uploads,
+        "recent_uploads_total": recent_uploads_total,
         "subscriptions": subscriptions_data,
         "subscriptions_monthly_total": money(monthly_subscription_total),
         "budgets": budgets_data,

@@ -282,6 +282,21 @@ CATEGORY_RULES = {
         "reward",
         "credit received",
     ],
+
+    "Household": [
+        "home deep cleaning",
+        "deep cleaning",
+        "home cleaning",
+        "house cleaning",
+        "cleaning service",
+        "plumbing",
+        "plumber",
+        "electrician",
+        "electrical repair",
+        "appliance repair",
+        "household maintenance",
+        "pest control",
+    ],
 }
 
 for category in CATEGORY_RULES.keys():

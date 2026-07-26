@@ -51,10 +51,10 @@ export default function TransactionsFilters({
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
   return (
-    <div className="mb-5 overflow-visible rounded-2xl border border-[#e5eeff] bg-white p-4 shadow-sm">
+    <div className="mb-5 overflow-visible rounded-2xl border border-[#dfe9fb] bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
       {/* SEARCH SECTION */}
-      <div className="mb-4 flex flex-col gap-3 rounded-xl bg-[#eff4ff] p-3 md:flex-row md:items-center">
-        <div className="flex flex-1 items-center rounded-xl bg-white px-3 py-2.5">
+      <div className="mb-4 flex flex-col gap-3 rounded-xl border border-[#e5eeff] bg-[#f8faff] p-3 md:flex-row md:items-center">
+        <div className="flex flex-1 items-center rounded-xl border border-[#dfe9fb] bg-white px-3 py-2.5 transition focus-within:border-emerald-300 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.08)]">
           <Search size={16} className="text-[#76777d]" />
 
           <input

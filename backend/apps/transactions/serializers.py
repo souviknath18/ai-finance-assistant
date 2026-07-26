@@ -28,6 +28,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             "category",
             "category_source",
             "balance_after_transaction",
+            "parser_confidence",
+            "parser_used",
             "is_ai_categorized",
             "ai_confidence",
             "ai_reason",
@@ -41,6 +43,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "transaction_id",
+            "parser_confidence",
+            "parser_used",
             "created_at",
             "updated_at",
         ]
@@ -172,6 +176,7 @@ class TransactionDetailsSerializer(TransactionSerializer):
             {
                 "transaction_id": transaction.transaction_id,
                 "date": transaction.date,
+                "date_is_estimated": transaction.date_is_estimated,
                 "description": transaction.description,
                 "merchant_name": transaction.merchant_name,
                 "amount": transaction.amount,
@@ -218,7 +223,8 @@ class TransactionDetailsSerializer(TransactionSerializer):
 
     def get_trend(self, obj):
         if (
-            obj.transaction_type != Transaction.TransactionType.EXPENSE
+            obj.date is None
+            or obj.transaction_type != Transaction.TransactionType.EXPENSE
             or not obj.category
         ):
             return None

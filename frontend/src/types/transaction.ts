@@ -4,6 +4,7 @@ export type BackendTransaction = {
   uploaded_file: number | null;
   uploaded_file_name: string | null;
   date: string;
+  date_is_estimated: boolean;
   description: string;
   merchant_name: string | null;
   amount: string;
@@ -65,6 +66,7 @@ export type TransactionStatus =
 export type BackendPreviousPayment = {
   transaction_id: string;
   date: string;
+  date_is_estimated: boolean;
   description: string;
   merchant_name: string | null;
   amount: string;

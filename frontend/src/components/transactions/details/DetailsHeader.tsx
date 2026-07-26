@@ -21,19 +21,19 @@ export default function DetailsHeader({
   return (
     <section className="mb-6 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
       {/* Left */}
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1 xl:max-w-[55%]">
         <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-700">
           <BadgeCheck size={14} />
           {transaction.status} Transaction
         </div>
 
-        <h1 className="break-words text-2xl font-bold tracking-tight text-black sm:text-3xl">
+        <h1 className="line-clamp-2 break-words text-xl font-bold leading-tight tracking-tight text-black sm:text-2xl">
           {toTitleCase(transaction.title)}
         </h1>
       </div>
 
       {/* Right */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap xl:justify-end">
+      <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:flex-nowrap xl:justify-end">
         <ActionButton
           icon={<Edit size={16} />}
           label="Edit Details"

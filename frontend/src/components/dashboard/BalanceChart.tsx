@@ -59,12 +59,35 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
       ? ((latestBalance - previousBalance) / previousBalance) * 100
       : 0;
 
+  const monthsWithData = chartData.filter((item) => item.hasData);
+
+  const averageBalance =
+    monthsWithData.length > 0
+      ? monthsWithData.reduce(
+          (total, item) => total + item.balance,
+          0
+        ) / monthsWithData.length
+      : 0;
+
+  const highestMonth =
+    monthsWithData.length > 0
+      ? monthsWithData.reduce((highest, item) =>
+          item.balance > highest.balance ? item : highest
+        )
+      : {
+          month: "—",
+          balance: 0,
+          income: 0,
+          expense: 0,
+          hasData: false,
+        };
+
   return (
-    <div className="overflow-hidden rounded-3xl border border-[#dbe5f5] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
       <div className="flex flex-col gap-4 border-b border-[#edf2fb] p-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700">
               <BarChart3 size={18} />
             </div>
 
@@ -79,38 +102,87 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
           </div>
 
           {hasData && (
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <h2 className="text-2xl font-bold tracking-tight text-black">
-                {formatMoney(latestBalance)}
-              </h2>
+            <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
+              {/* Current balance */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+                  Current balance
+                </p>
 
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                  balanceChange >= 0
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-red-50 text-red-600"
-                }`}
-              >
-                <TrendingUp size={13} />
-                {balanceChange >= 0 ? "+" : ""}
-                {balanceChange.toFixed(1)}%
-              </span>
+                <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+                  <h2 className="text-2xl font-bold tracking-tight text-black">
+                    {formatMoney(latestBalance)}
+                  </h2>
 
-              <span className="text-[12px] font-medium text-[#7c839b]">
-                vs previous month
-              </span>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold ${
+                      balanceChange >= 0
+                        ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+                        : "border-red-100 bg-red-50 text-red-600"
+                    }`}
+                  >
+                    <TrendingUp
+                      size={13}
+                      className={balanceChange < 0 ? "rotate-180" : ""}
+                    />
+
+                    {balanceChange >= 0 ? "+" : ""}
+                    {balanceChange.toFixed(1)}%
+                  </span>
+                </div>
+
+                <p className="mt-1 text-[11px] font-medium text-[#7c839b]">
+                  Compared with the previous month
+                </p>
+              </div>
+
+              {/* Vertical divider */}
+              <div className="hidden h-12 w-px bg-[#e6edf9] sm:block" />
+
+              {/* Average */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+                  Monthly average
+                </p>
+
+                <p className="mt-1.5 text-[17px] font-bold tracking-tight text-black">
+                  {formatMoney(averageBalance)}
+                </p>
+
+                <p className="mt-1 text-[11px] font-medium text-[#7c839b]">
+                  Across the selected period
+                </p>
+              </div>
+
+              {/* Vertical divider */}
+              <div className="hidden h-12 w-px bg-[#e6edf9] sm:block" />
+
+              {/* Highest month */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+                  Highest month
+                </p>
+
+                <p className="mt-1.5 text-[17px] font-bold tracking-tight text-black">
+                  {highestMonth.month}
+                </p>
+
+                <p className="mt-1 text-[11px] font-medium text-[#7c839b]">
+                  {formatMoney(highestMonth.balance)}
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="inline-flex w-fit rounded-xl border border-[#dbe5f5] bg-[#f8f9ff] p-1">
+        <div className="inline-flex w-fit rounded-xl border border-[#e6edf9] bg-[#fbfcff] p-1">
           {(["6M", "1Y"] as const).map((item) => (
             <button
               key={item}
               onClick={() => setPeriod(item)}
               className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition ${
                 period === item
-                  ? "bg-black text-white shadow-sm"
+                  ? "bg-black text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)]"
                   : "text-[#565e74] hover:bg-white hover:text-black"
               }`}
             >
@@ -121,10 +193,10 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
       </div>
 
       <div className="p-5">
-        <div className="relative h-[320px] rounded-2xl bg-[#f8f9ff] px-3 pb-8 pt-6 sm:px-5">
+        <div className="relative h-[320px] rounded-2xl bg-gradient-to-b from-[#fbfcff] to-[#f6f9ff] px-3 pb-8 pt-6 sm:px-5">
           <div className="pointer-events-none absolute inset-x-5 top-6 bottom-8 flex flex-col justify-between">
             {[0, 1, 2, 3].map((item) => (
-              <div key={item} className="border-t border-dashed border-[#dbe5f5]" />
+              <div key={item} className="border-t border-dashed border-[#edf2fb]" />
             ))}
           </div>
 
@@ -176,7 +248,7 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
         </div>
 
         {!hasData && (
-          <div className="mt-5 rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/60 p-5 text-center">
+          <div className="mt-5 rounded-2xl border border-dashed border-emerald-200 bg-[#fbfffd] p-5 text-center">
             <p className="text-[13px] font-bold text-black">
               No financial activity yet
             </p>
@@ -188,7 +260,7 @@ export default function BalanceChart({ data, hasData }: BalanceChartProps) {
 
             <button
               onClick={() => router.push("/uploads")}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(15,23,42,.12)]"
             >
               <Upload size={15} />
               Upload File
