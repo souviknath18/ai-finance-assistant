@@ -93,15 +93,32 @@ export default function CustomSelect({
       setOpen(false);
     };
 
+    const handleScroll = (event: Event) => {
+      const target = event.target;
+
+      // Allow scrolling inside the dropdown
+      if (
+        target instanceof Node &&
+        dropdownRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      // Close when the page or another scroll container scrolls
+      setOpen(false);
+    };
+
     const handleResize = () => {
       setOpen(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true);
     window.addEventListener("resize", handleResize);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
       window.removeEventListener("resize", handleResize);
     };
   }, [open]);

@@ -12,6 +12,7 @@ import {
 import { TransactionTableItem } from "@/types/transaction";
 import { useRouter } from "next/navigation";
 import TableSelect from "@/components/ui/TableSelect";
+import CategoryBadge from "@/components/ui/CategoryBadge";
 
 type TransactionRowProps = {
   transaction: TransactionTableItem;
@@ -110,7 +111,10 @@ export default function TransactionRow({
 
       <td className="p-4">
         <div className="flex flex-col">
-          <span className="text-[13px] font-bold text-black">
+          <span
+            className="line-clamp-2 max-w-[320px] text-[13px] font-bold text-black"
+            title={transaction.title}
+          >
             {transaction.title}
           </span>
 
@@ -131,15 +135,7 @@ export default function TransactionRow({
             }
           />
         ) : (
-          <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-              transaction.type === "income"
-                ? "bg-emerald-100 text-emerald-800"
-                : "bg-[#e5eeff] text-black"
-            }`}
-          >
-            {transaction.category}
-          </span>
+          <CategoryBadge category={transaction.category} />
         )}
       </td>
 

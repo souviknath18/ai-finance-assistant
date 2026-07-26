@@ -1,4 +1,8 @@
-from ai_engine.categorization.category_rules import CATEGORY_RULES
+from typing import Iterable
+
+from ai_engine.categorization.category_rules import (
+    CATEGORY_RULES,
+)
 
 
 INCOME_CATEGORIES = {
@@ -23,6 +27,31 @@ EXPENSE_CATEGORIES = {
     "Entertainment",
     "Education",
     "Cash Withdrawal",
+    "Household",
+}
+
+
+AMBIGUOUS_MERCHANTS = {
+    "amazon",
+    "flipkart",
+    "google",
+    "apple",
+    "paytm",
+    "phonepe",
+    "razorpay",
+    "cashfree",
+}
+
+VAGUE_DESCRIPTIONS = {
+    "payment",
+    "purchase",
+    "transaction",
+    "transfer",
+    "debit",
+    "credit",
+    "invoice",
+    "bill",
+    "order",
 }
 
 
@@ -31,65 +60,156 @@ def calculate_calibrated_confidence(
     transaction_type: str,
     category: str,
     ai_confidence: float,
+    parser_confidence: float | None = None,
+    merchant_name: str | None = None,
+    parser_warnings: Iterable[str] | None = None,
 ) -> float:
-    text = str(description or "").lower().strip()
-    normalized_type = str(transaction_type or "").lower().strip()
+    """
+    Adjust AI confidence only when deterministic evidence supports
+    or contradicts the AI categorization.
 
-    # Reduce the influence of the model's self-reported confidence.
-    confidence = 0.50 + ((ai_confidence - 0.50) * 0.50)
+    The AI confidence is preserved by default.
+    """
 
-    category_keywords = CATEGORY_RULES.get(category, [])
+    text = normalize_text(description)
+    merchant = normalize_text(merchant_name)
+    normalized_type = normalize_text(
+        transaction_type
+    )
 
-    matching_keywords = [
-        keyword
-        for keyword in category_keywords
-        if keyword.lower() in text
-    ]
+    confidence = clamp_confidence(
+        ai_confidence
+    )
 
-    # Strong direct evidence in the transaction description.
-    if matching_keywords:
-        confidence += 0.12
+    matching_keywords = get_matching_keywords(
+        text=text,
+        category=category,
+    )
 
-    # More than one relevant keyword provides stronger evidence.
-    if len(matching_keywords) >= 2:
-        confidence += 0.04
+    # ----------------------------------------
+    # Negative evidence
+    # ----------------------------------------
 
-    # Check whether the selected category agrees with transaction type.
+    # Uncategorized results should never appear
+    # as high-confidence classifications.
+    if category == "Uncategorized":
+        confidence = min(confidence, 0.40)
+
+    # Penalize category and transaction-type
+    # contradictions.
     if (
         normalized_type == "income"
-        and category in INCOME_CATEGORIES
+        and category in EXPENSE_CATEGORIES
     ):
-        confidence += 0.08
+        confidence -= 0.25
 
     elif (
         normalized_type == "expense"
-        and category in EXPENSE_CATEGORIES
-    ):
-        confidence += 0.05
-
-    # Penalize contradictory category/type combinations.
-    if (
-        normalized_type == "income"
-        and category in EXPENSE_CATEGORIES
-    ):
-        confidence -= 0.15
-
-    if (
-        normalized_type == "expense"
         and category in INCOME_CATEGORIES
     ):
+        confidence -= 0.25
+
+    # Reduce confidence when the parser itself
+    # was uncertain about the extracted fields.
+    if parser_confidence is not None:
+        parser_confidence = clamp_confidence(
+            parser_confidence
+        )
+
+        if parser_confidence < 0.50:
+            confidence -= 0.20
+
+        elif parser_confidence < 0.70:
+            confidence -= 0.10
+
+    # Very short or generic descriptions provide
+    # weak classification evidence.
+    if is_vague_description(text):
         confidence -= 0.15
 
-    # Short or vague descriptions provide less evidence.
-    word_count = len(text.split())
+    # Large marketplaces and payment processors are
+    # ambiguous when no purchased item is available.
+    if (
+        merchant
+        and is_ambiguous_merchant(merchant)
+        and not matching_keywords
+    ):
+        confidence -= 0.10
 
-    if word_count <= 1 and not matching_keywords:
-        confidence -= 0.08
+    # Parser warnings represent uncertainty that the
+    # AI model may not be aware of.
+    warnings = list(parser_warnings or [])
 
-    if category == "Uncategorized":
-        confidence = min(confidence, 0.49)
+    if warnings:
+        warning_penalty = min(
+            0.15,
+            len(warnings) * 0.04,
+        )
+        confidence -= warning_penalty
 
     return round(
-        max(0.0, min(confidence, 0.99)),
+        clamp_confidence(confidence),
         2,
+    )
+
+
+def normalize_text(
+    value: str | None,
+) -> str:
+    return " ".join(
+        str(value or "").lower().split()
+    )
+
+
+def clamp_confidence(
+    value: float,
+) -> float:
+    try:
+        confidence = float(value)
+    except (TypeError, ValueError):
+        confidence = 0.0
+
+    return max(
+        0.0,
+        min(confidence, 0.99),
+    )
+
+
+def get_matching_keywords(
+    text: str,
+    category: str,
+) -> set[str]:
+    category_keywords = CATEGORY_RULES.get(
+        category,
+        [],
+    )
+
+    return {
+        keyword.lower()
+        for keyword in category_keywords
+        if keyword.lower() in text
+    }
+
+
+def is_vague_description(
+    text: str,
+) -> bool:
+    if not text:
+        return True
+
+    words = text.split()
+
+    if len(words) <= 1:
+        return True
+
+    return text in VAGUE_DESCRIPTIONS
+
+
+def is_ambiguous_merchant(
+    merchant_name: str,
+) -> bool:
+    return any(
+        ambiguous_merchant in merchant_name
+        for ambiguous_merchant
+        in AMBIGUOUS_MERCHANTS
     )

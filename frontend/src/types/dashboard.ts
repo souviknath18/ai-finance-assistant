@@ -20,6 +20,7 @@ export type DashboardData = {
     total: number;
   }[];
   recent_transactions: {
+    id: string;
     date: string;
     description: string;
     category: string;
@@ -34,6 +35,8 @@ export type DashboardData = {
     status: "pending" | "processing" | "success" | "failed";
     progress: number;
   }[];
+
+  recent_uploads_total: number;
 
   subscriptions: {
     id: number;
@@ -59,6 +62,7 @@ export type DashboardData = {
   semantic_preview_query: string;
 
   semantic_preview: {
+    id: string;
     merchant: string;
     amount: string;
     category: string;

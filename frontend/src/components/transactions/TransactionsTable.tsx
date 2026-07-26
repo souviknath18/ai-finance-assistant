@@ -61,7 +61,7 @@ export default function TransactionsTable({
   );
 
   return (
-    <div className="overflow-hidden rounded-t-2xl border border-0 border-b-0 bg-white shadow-0">
+    <div className="overflow-hidden rounded-t-2xl bg-white">
       <div className="overflow-x-auto overflow-y-visible">
         <table className="w-full min-w-[950px] border-collapse text-left">
           <thead>

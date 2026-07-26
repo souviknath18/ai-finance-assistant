@@ -27,6 +27,9 @@ from ai_engine.parsers.parser_validator import (
 from ai_engine.parsers.text_normalizer import (
     normalize_extracted_text,
 )
+from ai_engine.extraction.invoice_enhancer import (
+    enhance_invoice_result,
+)
 
 
 ALLOWED_EXTENSIONS = [".pdf", ".csv", ".jpg", ".jpeg", ".png"]
@@ -291,15 +294,29 @@ def parse_extracted_document(
 
         parser_used = "ai_transaction_parser"
 
-        print(
-            "\n========== AI PARSER RESULT =========="
-        )
-        print(parsed_transactions)
-        print(
-            "======================================\n"
-        )
+        parser_confidence = None
 
     else:
+        if document_type == "invoice":
+            update_processing_status(
+                uploaded_file,
+                60,
+                "Enhancing invoice details with AI",
+            )
+
+            parser_result = enhance_invoice_result(
+                parser_result=parser_result,
+                extracted_text=normalized_text,
+            )
+
+            print(
+                "\n========== ENHANCED INVOICE RESULT =========="
+            )
+            print(parser_result)
+            print(
+                "=============================================\n"
+            )
+
         parsed_transactions = parser_result.get(
             "transactions",
             [],
@@ -310,13 +327,18 @@ def parse_extracted_document(
             "unknown_parser",
         )
 
+        parser_confidence = parser_result.get(
+            "confidence",
+            0.0,
+        )
+
         if should_use_ai_repair(
             parser_result,
             validation_result,
         ):
             print(
                 "Medium-confidence deterministic result. "
-                "Keeping it without replacement."
+                "Keeping it with optional semantic enhancement."
             )
 
     return {
@@ -326,8 +348,20 @@ def parse_extracted_document(
         "parser_result": parser_result,
         "validation_result": validation_result,
         "parser_used": parser_used,
+        "parser_confidence": parser_confidence,
         "transactions": parsed_transactions,
     }
+
+def resolve_transaction_date(
+    item: dict,
+):
+    transaction_date = item.get(
+        "date"
+    )
+    if transaction_date:
+        return transaction_date, False
+
+    return None, True
 
 
 def process_uploaded_file(uploaded_file: UploadedFile):
@@ -390,6 +424,15 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 "transactions"
             ]
 
+            parser_confidence = document_result.get(
+                "parser_confidence"
+            )
+
+            parser_used = document_result.get(
+                "parser_used",
+                "unknown_parser",
+            )
+
             print(
                 "Final parser used:",
                 document_result["parser_used"],
@@ -419,8 +462,9 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 )
 
                 category_text = (
-                    item.get("merchant_name")
-                    or item["description"]
+                    item.get("description")
+                    or item.get("merchant_name")
+                    or "Unknown transaction"
                 )
 
                 category_result = get_cached_category_result(
@@ -433,12 +477,12 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                     category_result
                 )
 
-                if item.get("date"):
-                    transaction_date = item["date"]
-                    date_is_estimated = False
-                else:
-                    transaction_date = timezone.localdate()
-                    date_is_estimated = True
+                (
+                    transaction_date,
+                    date_is_estimated,
+                ) = resolve_transaction_date(
+                    item
+                )
 
                 transaction = Transaction.objects.create(
                     user=uploaded_file.user,
@@ -461,6 +505,8 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                         "raw_text",
                         extracted_text,
                     ),
+                    parser_confidence=parser_confidence,
+                    parser_used=parser_used,
                     category=category_fields["category"],
                     category_source=category_fields[
                         "category_source"
@@ -527,8 +573,9 @@ def process_uploaded_file(uploaded_file: UploadedFile):
 
                 else:
                     category_text = (
-                        item.get("merchant_name")
-                        or item["description"]
+                        item.get("description")
+                        or item.get("merchant_name")
+                        or "Unknown transaction"
                     )
 
                     category_result = get_cached_category_result(
@@ -541,12 +588,12 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                         category_result
                     )
 
-                if item.get("date"):
-                    transaction_date = item["date"]
-                    date_is_estimated = False
-                else:
-                    transaction_date = timezone.localdate()
-                    date_is_estimated = True
+                (
+                    transaction_date,
+                    date_is_estimated,
+                ) = resolve_transaction_date(
+                    item
+                )
 
                 transaction = Transaction.objects.create(
                     user=uploaded_file.user,
@@ -634,6 +681,15 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 "transactions"
             ]
 
+            parser_confidence = document_result.get(
+                "parser_confidence"
+            )
+
+            parser_used = document_result.get(
+                "parser_used",
+                "unknown_parser",
+            )
+
             print(
                 "Final image parser used:",
                 document_result["parser_used"],
@@ -678,8 +734,9 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 )
 
                 category_text = (
-                    item.get("merchant_name")
-                    or item["description"]
+                    item.get("description")
+                    or item.get("merchant_name")
+                    or "Unknown transaction"
                 )
 
                 category_result = get_cached_category_result(
@@ -692,12 +749,12 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                     category_result
                 )
 
-                if item.get("date"):
-                    transaction_date = item["date"]
-                    date_is_estimated = False
-                else:
-                    transaction_date = timezone.localdate()
-                    date_is_estimated = True
+                (
+                    transaction_date,
+                    date_is_estimated,
+                ) = resolve_transaction_date(
+                    item
+                )
 
                 transaction = Transaction.objects.create(
                     user=uploaded_file.user,
@@ -722,6 +779,8 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                         "raw_text",
                         extracted_text,
                     ),
+                    parser_confidence=parser_confidence,
+                    parser_used=parser_used,
                     category=category_fields["category"],
                     category_source=category_fields[
                         "category_source"

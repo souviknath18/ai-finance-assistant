@@ -9,12 +9,22 @@ import {
 
 import { authFetch } from "@/lib/api/authFetch";
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function formatTransactionDate(
+  date: string,
+  isEstimated: boolean,
+) {
+  if (isEstimated) {
+    return "Date unavailable";
+  }
+
+  return new Date(date).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  );
 }
 
 function formatAmount(amount: string, type: string) {
@@ -66,10 +76,14 @@ function mapTransaction(
 
   return {
     id: transaction.transaction_id,
-    date: formatDate(transaction.date),
+    date: formatTransactionDate(
+      transaction.date,
+      transaction.date_is_estimated,
+    ),
     title:
+      transaction.description ||
       transaction.merchant_name ||
-      transaction.description,
+      "Unknown transaction",
     subtitle:
       transaction.uploaded_file_name ||
       "Manual Transaction",
@@ -132,13 +146,17 @@ function mapTransactionDetails(
     backendId: transaction.id,
 
     title:
+      transaction.description ||
       transaction.merchant_name ||
-      transaction.description,
+      "Unknown transaction",
 
     description: transaction.description,
     rawText: transaction.raw_text,
 
-    date: formatDate(transaction.date),
+    date: formatTransactionDate(
+      transaction.date,
+      transaction.date_is_estimated,
+    ),
     rawDate: transaction.date,
 
     amount: formatAmount(
@@ -216,11 +234,15 @@ function mapTransactionDetails(
         (payment) => ({
           id: payment.transaction_id,
 
-          date: formatDate(payment.date),
+          date: formatTransactionDate(
+            payment.date,
+            payment.date_is_estimated,
+          ),
 
           title:
+            payment.description ||
             payment.merchant_name ||
-            payment.description,
+            "Unknown transaction",
 
           amount: formatAmount(
             payment.amount,

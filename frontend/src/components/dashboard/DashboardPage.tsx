@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import PageLoader from "@/components/ui/PageLoader";
+import ErrorScreen from "../ui/ErrorScreen";
+
 import { getDashboardData } from "@/lib/api/dashboardApi";
 import { DashboardData } from "@/types/dashboard";
 
@@ -20,13 +22,35 @@ import FloatingAuraButton from "./FloatingAuraButton";
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [retrying, setRetrying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (isRetry = false) => {
+    // Prevent duplicate retry requests
+    if (retrying) return;
+
     try {
+      if (isRetry) {
+        setRetrying(true);
+      } else {
+        setLoading(true);
+      }
+
+      setError(null);
+
       const result = await getDashboardData();
       setData(result);
+    } catch (err) {
+      setData(null);
+
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Unable to load your dashboard. Please try again."
+      );
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
   };
 
@@ -34,13 +58,22 @@ export default function DashboardPage() {
     loadDashboard();
   }, []);
 
-  if (loading) return <PageLoader message="Loading dashboard..." />;
+  if (loading) {
+    return <PageLoader message="Loading dashboard..." />;
+  }
 
-  if (!data) {
+  if (error || !data) {
     return (
-      <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-[13px] font-semibold text-red-600">
-        Failed to load dashboard.
-      </div>
+      <ErrorScreen
+        title="Dashboard unavailable"
+        message={
+          error ??
+          "We couldn't load your dashboard data. Please try again."
+        }
+        retryText="Reload Dashboard"
+        onRetryAction={() => loadDashboard(true)}
+        isRetrying={retrying}
+      />
     );
   }
 
@@ -105,7 +138,10 @@ export default function DashboardPage() {
         </section>
 
         <aside className="space-y-5 xl:col-span-4">
-          <RecentStatementUploadsCard uploads={data.recent_uploads} />
+          <RecentStatementUploadsCard
+            uploads={data.recent_uploads}
+            totalUploads={data.recent_uploads_total}
+          />
 
           <SubscriptionsOverviewCard
             subscriptions={data.subscriptions}

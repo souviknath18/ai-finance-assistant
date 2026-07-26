@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import TransactionsHeader from "./TransactionsHeader";
 import TransactionsFilters from "./TransactionsFilters";
 import SelectedToolbar from "./SelectedToolbar";
@@ -25,6 +26,7 @@ import { getCategoryOptions } from "@/lib/api/categoryApi";
 import PageLoader from "@/components/ui/PageLoader";
 
 export default function TransactionsPage() {
+  const router = useRouter();
   const [transactions, setTransactions] = useState<TransactionTableItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -305,7 +307,7 @@ export default function TransactionsPage() {
         />
       )}
 
-      <div className="overflow-visible rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
+      <div className="overflow-visible rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
         <TransactionsTable
           transactions={transactions}
           loading={tableLoading}
@@ -318,7 +320,7 @@ export default function TransactionsPage() {
           onFindSimilarAction={handleFindSimilar}
           emptyMessage={
             totalCount === 0
-              ? "No transactions found. Upload a bank statement first."
+              ? "No transactions found."
               : semanticMode
               ? "No matching transactions found for your semantic search."
               : "No transactions found for the selected filters."
@@ -336,8 +338,41 @@ export default function TransactionsPage() {
       </div>
 
       <section className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <SpendingVelocityCard />
-        <AIPulseCard />
+        <SpendingVelocityCard
+          data={[
+            { month: "Jan", amount: 9820 },
+            { month: "Feb", amount: 11420 },
+            { month: "Mar", amount: 7850 },
+            { month: "Apr", amount: 13200 },
+            { month: "May", amount: 15870 },
+            { month: "Jun", amount: 14120 },
+          ]}
+          currency="INR"
+          locale="en-IN"
+          onViewReportAction={() => router.push("/reports")}
+        />
+        <AIPulseCard
+          insights={[
+            {
+              id: "1",
+              title: "Subscription increase",
+              description: "Netflix increased from $14 to $16 this month.",
+              confidence: 96,
+              confidenceLevel: "high",
+              type: "subscription",
+            },
+            {
+              id: "2",
+              title: "Cloud spending",
+              description: "AWS spending is 18% above your monthly average.",
+              confidence: 89,
+              confidenceLevel: "high",
+              type: "cloud",
+            },
+          ]}
+          generatedLabel="Updated 10 minutes ago"
+          onReviewInsightsAction={() => router.push("/insights")}
+        />
       </section>
 
       <ConfirmModal
