@@ -10,7 +10,7 @@ export default function ParsedResultsCard({ files }: ParsedResultsCardProps) {
   const router = useRouter();
 
   return (
-    <div className="rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-[#dfe9fb] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
       <h3 className="mb-5 text-lg font-bold text-black">
         Recent Parsed Results
       </h3>
@@ -31,7 +31,7 @@ export default function ParsedResultsCard({ files }: ParsedResultsCardProps) {
 
       <button
         onClick={() => router.push("/history")}
-        className="mt-5 w-full rounded-xl border border-[#c6c6cd] bg-white py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
+        className="mt-5 w-full rounded-xl border border-[#dfe9fb] bg-white py-2.5 text-[13px] font-bold text-black transition hover:border-[#c9d9f3] hover:bg-[#eff4ff]"
       >
         Review All Results
       </button>

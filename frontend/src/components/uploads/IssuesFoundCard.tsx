@@ -66,7 +66,7 @@ export default function IssuesFoundCard({
   };
 
   return (
-    <div className="rounded-2xl border border-red-100 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-red-100 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
       <div className="mb-4 flex items-center gap-2">
         <AlertTriangle size={18} className="text-red-600" />
         <h3 className="text-lg font-bold text-black">Issues Found</h3>

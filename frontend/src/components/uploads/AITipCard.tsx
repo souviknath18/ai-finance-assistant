@@ -9,7 +9,7 @@ export default function AITipCard({
   message = "Aura is analyzing your financial activity to generate personalized insights.",
 }: AITipCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-200 bg-white p-5 shadow-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
       <Lightbulb
         size={72}
         className="pointer-events-none absolute right-4 top-4 z-0 text-emerald-100"

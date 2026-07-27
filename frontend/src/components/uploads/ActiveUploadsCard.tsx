@@ -9,7 +9,7 @@ type ActiveUploadsCardProps = {
 export default function ActiveUploadsCard({ files }: ActiveUploadsCardProps) {
   if (files.length === 0) {
     return (
-      <div className="mt-4 rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-2xl border border-[#dfe9fb] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
         <h3 className="text-lg font-bold text-black">Active Uploads</h3>
         <p className="mt-2 text-[13px] text-[#565e74]">
           No files are currently processing.
@@ -19,7 +19,7 @@ export default function ActiveUploadsCard({ files }: ActiveUploadsCardProps) {
   }
 
   return (
-    <div className="mt-4 rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
+    <div className="mt-4 rounded-2xl border border-[#dfe9fb] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-lg font-bold text-black">Active Uploads</h3>
 

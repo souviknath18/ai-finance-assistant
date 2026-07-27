@@ -57,6 +57,8 @@ export default function DashboardSidebar({
   const pathname = usePathname();
   const router = useRouter();
 
+  const showLabels = sidebarOpen || !sidebarCollapsed;
+
   useEffect(() => {
     if (sidebarOpen) {
       document.body.style.overflow = "hidden";
@@ -93,25 +95,30 @@ export default function DashboardSidebar({
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-dvh flex-col border-r border-[#c6c6cd]/50 bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
+        className={`fixed left-0 top-0 z-50 flex h-dvh w-64 flex-col border-r border-[#dfe9fb] bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
           sidebarCollapsed ? "md:w-[76px]" : "md:w-[248px]"
         } ${
           sidebarOpen
             ? "translate-x-0"
             : "-translate-x-full md:translate-x-0"
-        } w-64`}
+        }`}
       >
         <div className="mb-5 flex shrink-0 items-center justify-between px-2">
           <Link
             href="/dashboard"
             onClick={handleSidebarLinkClick}
-            className="flex items-center gap-3"
+            title={sidebarCollapsed ? "Aura Finance" : undefined}
+            className={`flex items-center ${
+              sidebarCollapsed && !sidebarOpen
+                ? "w-full justify-center"
+                : "gap-3"
+            }`}
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black text-white">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white">
               <Sparkles size={16} />
             </div>
 
-            {!sidebarCollapsed && (
+            {showLabels && (
               <div>
                 <h1 className="text-[15px] font-bold tracking-tight text-black">
                   Aura Finance
@@ -125,8 +132,10 @@ export default function DashboardSidebar({
           </Link>
 
           <button
+            type="button"
             onClick={() => setSidebarOpenAction(false)}
             className="rounded-lg p-2 text-[#565e74] transition hover:bg-[#dce9ff] hover:text-black md:hidden"
+            aria-label="Close sidebar"
           >
             <X size={17} />
           </button>
@@ -145,15 +154,24 @@ export default function DashboardSidebar({
                 key={item.href}
                 href={item.href}
                 onClick={handleSidebarLinkClick}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 ${
+                title={
+                  sidebarCollapsed && !sidebarOpen
+                    ? item.label
+                    : undefined
+                }
+                className={`flex items-center rounded-xl py-2.5 text-[13px] font-semibold transition-all duration-200 ${
+                  sidebarCollapsed && !sidebarOpen
+                    ? "justify-center px-2"
+                    : "gap-3 px-3"
+                } ${
                   active
-                    ? "bg-emerald-100 text-emerald-800"
+                    ? "bg-emerald-100/80 text-emerald-800 shadow-[inset_3px_0_0_#047857]"
                     : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
                 }`}
               >
                 <Icon size={17} className="shrink-0" />
 
-                {!sidebarCollapsed && (
+                {showLabels && (
                   <span className="truncate">{item.label}</span>
                 )}
               </Link>
@@ -161,8 +179,8 @@ export default function DashboardSidebar({
           })}
         </nav>
 
-        <div className="mt-3 shrink-0 border-t border-[#c6c6cd]/50 pt-3">
-          {!sidebarCollapsed && (
+        <div className="mt-3 shrink-0 border-t border-[#dfe9fb] pt-3">
+          {showLabels && (
             <Link
               href="/billing/upgrade"
               onClick={handleSidebarLinkClick}
@@ -185,15 +203,24 @@ export default function DashboardSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={handleSidebarLinkClick}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold transition-all duration-200 ${
+                  title={
+                    sidebarCollapsed && !sidebarOpen
+                      ? item.label
+                      : undefined
+                  }
+                  className={`flex items-center rounded-xl py-2 text-[13px] font-semibold transition-all duration-200 ${
+                    sidebarCollapsed && !sidebarOpen
+                      ? "justify-center px-2"
+                      : "gap-3 px-3"
+                  } ${
                     active
-                      ? "bg-emerald-100 text-emerald-800"
+                      ? "bg-emerald-100/80 text-emerald-800 shadow-[inset_3px_0_0_#047857]"
                       : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
                   }`}
                 >
                   <Icon size={16} className="shrink-0" />
 
-                  {!sidebarCollapsed && (
+                  {showLabels && (
                     <span className="truncate">{item.label}</span>
                   )}
                 </Link>
@@ -201,12 +228,22 @@ export default function DashboardSidebar({
             })}
 
             <button
+              type="button"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50"
+              title={
+                sidebarCollapsed && !sidebarOpen
+                  ? "Logout"
+                  : undefined
+              }
+              className={`flex w-full items-center rounded-xl py-2 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 ${
+                sidebarCollapsed && !sidebarOpen
+                  ? "justify-center px-2"
+                  : "gap-3 px-3"
+              }`}
             >
               <LogOut size={16} className="shrink-0" />
 
-              {!sidebarCollapsed && <span>Logout</span>}
+              {showLabels && <span>Logout</span>}
             </button>
           </div>
         </div>

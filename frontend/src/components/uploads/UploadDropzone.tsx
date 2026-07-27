@@ -98,8 +98,10 @@ export default function UploadDropzone({
 
         handleFile(event.dataTransfer.files[0]);
       }}
-      className={`group flex min-h-[320px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-white p-8 text-center shadow-sm transition hover:border-emerald-600 hover:shadow-md ${
-        dragging ? "border-emerald-600 bg-emerald-50" : "border-[#c6c6cd]"
+      className={`group flex min-h-[320px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-white p-8 text-center shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition ${
+        dragging
+          ? "border-emerald-400 bg-emerald-50 shadow-[0_8px_30px_rgba(16,185,129,0.10)]"
+          : "border-[#dfe9fb] hover:border-emerald-300"
       } ${
         uploading
           ? "pointer-events-none border-emerald-200 bg-emerald-50/40"
@@ -209,7 +211,7 @@ export default function UploadDropzone({
             event.stopPropagation();
             cameraInputRef.current?.click();
           }}
-          className="flex items-center gap-2 rounded-xl border border-[#c6c6cd] bg-white px-6 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex items-center gap-2 rounded-xl border border-[#dfe9fb] bg-white px-6 py-2.5 text-[13px] font-bold text-black transition hover:border-[#c9d9f3] hover:bg-[#eff4ff] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 lg:hidden"
         >
           <Camera size={16} />
           Take Photo
