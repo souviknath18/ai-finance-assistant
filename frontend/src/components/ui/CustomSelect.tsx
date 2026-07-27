@@ -132,7 +132,7 @@ export default function CustomSelect({
             updateDropdownPosition();
             setOpen(!open);
           }}
-          className="flex h-11 w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+          className="flex h-11 w-full items-center justify-between rounded-xl border border-[#dfe9fb] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-[#c9d9f3] focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
         >
           <span>{selectedOption?.label || placeholder}</span>
 

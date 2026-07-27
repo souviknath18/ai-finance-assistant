@@ -208,7 +208,7 @@ export default function DateRangeFilter({
                   onChangeAction(name, "");
                   setOpen(false);
                 }}
-                className="mt-4 w-full rounded-xl border border-[#c6c6cd] py-2 text-xs font-bold text-black transition hover:bg-[#eff4ff]"
+                className="mt-4 w-full rounded-xl border border-[#dfe9fb] py-2 text-xs font-bold text-black transition hover:border-[#c9d9f3] hover:bg-[#eff4ff]"
               >
                 Clear Date
               </button>
@@ -228,7 +228,7 @@ export default function DateRangeFilter({
         ref={buttonRef}
         type="button"
         onClick={toggleCalendar}
-        className="flex h-11 w-full items-center justify-between rounded-xl border border-[#c6c6cd] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-emerald-500 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+        className="flex h-11 w-full items-center justify-between rounded-xl border border-[#dfe9fb] bg-[#f8f9ff] px-3 text-left text-[13px] text-[#0b1c30] outline-none transition hover:border-[#c9d9f3] focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
       >
         <span className={value ? "text-[#0b1c30]" : "text-[#76777d]"}>
           {value || "Select date"}
