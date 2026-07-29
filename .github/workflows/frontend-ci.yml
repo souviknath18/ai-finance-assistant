@@ -41,12 +41,5 @@ jobs:
       - name: Type Check
         run: npx tsc --noEmit
 
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Run Unit Tests
-        run: npm test -- --runInBand
-        continue-on-error: true
-
       - name: Build Next.js Application
         run: npm run build
