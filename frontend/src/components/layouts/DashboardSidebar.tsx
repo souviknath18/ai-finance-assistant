@@ -49,6 +49,9 @@ const bottomItems = [
   { label: "Billing", href: "/billing", icon: CreditCard },
 ];
 
+const tooltipClassName =
+  "pointer-events-none absolute left-[calc(100%+12px)] top-1/2 z-[100] -translate-y-1/2 translate-x-0 whitespace-nowrap rounded-lg border border-[#dfe9fb] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#0b1c30] opacity-0 shadow-[0_10px_25px_rgba(15,23,42,0.08)] transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100";
+
 export default function DashboardSidebar({
   sidebarOpen,
   setSidebarOpenAction,
@@ -58,13 +61,10 @@ export default function DashboardSidebar({
   const router = useRouter();
 
   const showLabels = sidebarOpen || !sidebarCollapsed;
+  const showCollapsedTooltip = sidebarCollapsed && !sidebarOpen;
 
   useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
@@ -95,7 +95,7 @@ export default function DashboardSidebar({
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-dvh w-64 flex-col border-r border-[#dfe9fb] bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
+        className={`fixed left-0 top-0 z-50 flex h-dvh w-64 flex-col overflow-visible border-r border-[#dfe9fb] bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
           sidebarCollapsed ? "md:w-[76px]" : "md:w-[248px]"
         } ${
           sidebarOpen
@@ -107,16 +107,18 @@ export default function DashboardSidebar({
           <Link
             href="/dashboard"
             onClick={handleSidebarLinkClick}
-            title={sidebarCollapsed ? "Aura Finance" : undefined}
-            className={`flex items-center ${
-              sidebarCollapsed && !sidebarOpen
-                ? "w-full justify-center"
-                : "gap-3"
+            aria-label="Aura Finance dashboard"
+            className={`group relative flex items-center ${
+              showCollapsedTooltip ? "w-full justify-center" : "gap-3"
             }`}
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white">
               <Sparkles size={16} />
             </div>
+
+            {showCollapsedTooltip && (
+              <div className={tooltipClassName}>Aura Finance</div>
+            )}
 
             {showLabels && (
               <div>
@@ -141,7 +143,7 @@ export default function DashboardSidebar({
           </button>
         </div>
 
-        <nav className="sidebar-scroll flex-1 space-y-[2px] overflow-y-auto pr-[2px]">
+        <nav className="sidebar-scroll flex-1 space-y-[2px] overflow-y-auto overflow-x-visible pr-[2px]">
           {navItems.map((item) => {
             const Icon = item.icon;
 
@@ -154,13 +156,9 @@ export default function DashboardSidebar({
                 key={item.href}
                 href={item.href}
                 onClick={handleSidebarLinkClick}
-                title={
-                  sidebarCollapsed && !sidebarOpen
-                    ? item.label
-                    : undefined
-                }
-                className={`flex items-center rounded-xl py-2.5 text-[13px] font-semibold transition-all duration-200 ${
-                  sidebarCollapsed && !sidebarOpen
+                aria-label={item.label}
+                className={`group relative flex items-center rounded-xl py-2.5 text-[13px] font-semibold transition-all duration-200 ${
+                  showCollapsedTooltip
                     ? "justify-center px-2"
                     : "gap-3 px-3"
                 } ${
@@ -170,6 +168,10 @@ export default function DashboardSidebar({
                 }`}
               >
                 <Icon size={17} className="shrink-0" />
+
+                {showCollapsedTooltip && (
+                  <div className={tooltipClassName}>{item.label}</div>
+                )}
 
                 {showLabels && (
                   <span className="truncate">{item.label}</span>
@@ -203,13 +205,9 @@ export default function DashboardSidebar({
                   key={item.href}
                   href={item.href}
                   onClick={handleSidebarLinkClick}
-                  title={
-                    sidebarCollapsed && !sidebarOpen
-                      ? item.label
-                      : undefined
-                  }
-                  className={`flex items-center rounded-xl py-2 text-[13px] font-semibold transition-all duration-200 ${
-                    sidebarCollapsed && !sidebarOpen
+                  aria-label={item.label}
+                  className={`group relative flex items-center rounded-xl py-2 text-[13px] font-semibold transition-all duration-200 ${
+                    showCollapsedTooltip
                       ? "justify-center px-2"
                       : "gap-3 px-3"
                   } ${
@@ -219,6 +217,10 @@ export default function DashboardSidebar({
                   }`}
                 >
                   <Icon size={16} className="shrink-0" />
+
+                  {showCollapsedTooltip && (
+                    <div className={tooltipClassName}>{item.label}</div>
+                  )}
 
                   {showLabels && (
                     <span className="truncate">{item.label}</span>
@@ -230,18 +232,18 @@ export default function DashboardSidebar({
             <button
               type="button"
               onClick={handleLogout}
-              title={
-                sidebarCollapsed && !sidebarOpen
-                  ? "Logout"
-                  : undefined
-              }
-              className={`flex w-full items-center rounded-xl py-2 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 ${
-                sidebarCollapsed && !sidebarOpen
+              aria-label="Logout"
+              className={`group relative flex w-full items-center rounded-xl py-2 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 ${
+                showCollapsedTooltip
                   ? "justify-center px-2"
                   : "gap-3 px-3"
               }`}
             >
               <LogOut size={16} className="shrink-0" />
+
+              {showCollapsedTooltip && (
+                <div className={tooltipClassName}>Logout</div>
+              )}
 
               {showLabels && <span>Logout</span>}
             </button>
