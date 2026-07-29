@@ -304,17 +304,31 @@ def extract_final_total(
         WEAK_FINAL_TOTAL_LABELS,
     ):
         for label in labels:
-            for index in range(
-                len(lines) - 1,
-                -1,
-                -1,
-            ):
+            for index, line in enumerate(lines):
                 line = lines[index]
                 lower_line = line.lower()
+                
+                footer_terms = (
+                    "please pay",
+                    "before the due date",
+                    "service interruption",
+                    "late payment",
+                    "for any queries",
+                    "thank you",
+                    "important notes",
+                )
+
+                if any(term in lower_line for term in footer_terms):
+                    continue
+
                 if is_total_table_heading(line):
                     continue
 
-                if label not in lower_line:
+                if not re.search(
+                    rf"{re.escape(label)}\s*[:=]",
+                    lower_line,
+                    flags=re.IGNORECASE,
+                ):
                     continue
 
                 if any(
