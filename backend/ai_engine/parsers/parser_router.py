@@ -48,14 +48,49 @@ PARSER_MAP: dict[str, ParserFunction] = {
 }
 
 
-FALLBACK_ORDER: list[ParserFunction] = [
-    parse_bank_statement_transactions,
-    parse_invoice_transactions,
-    parse_receipt_transactions,
-    parse_utility_bill_transactions,
-    parse_subscription_transactions,
-    parse_salary_slip_transactions,
-]
+BANK_STATEMENT_TYPES = {
+    "bank_statement",
+    "credit_card_statement",
+}
+
+
+COMPATIBLE_FALLBACKS: dict[
+    str,
+    list[ParserFunction],
+] = {
+    "bank_statement": [
+        parse_bank_statement_transactions,
+    ],
+    "credit_card_statement": [
+        parse_bank_statement_transactions,
+    ],
+    "invoice": [
+        parse_invoice_transactions,
+        parse_receipt_transactions,
+    ],
+    "receipt": [
+        parse_receipt_transactions,
+        parse_invoice_transactions,
+    ],
+    "utility_bill": [
+        parse_utility_bill_transactions,
+    ],
+    "subscription_receipt": [
+        parse_subscription_transactions,
+        parse_receipt_transactions,
+    ],
+    "salary_slip": [
+        parse_salary_slip_transactions,
+    ],
+    "unknown": [
+        parse_bank_statement_transactions,
+        parse_invoice_transactions,
+        parse_receipt_transactions,
+        parse_utility_bill_transactions,
+        parse_subscription_transactions,
+        parse_salary_slip_transactions,
+    ],
+}
 
 
 def parse_financial_document(
@@ -84,15 +119,28 @@ def parse_financial_document(
         ):
             return primary_result
 
+        # A bank statement must never be reinterpreted
+        # as an invoice, receipt or utility bill.
+        if detected_type in BANK_STATEMENT_TYPES:
+            return primary_result
+
     best_result = empty_parser_result(
         document_type=detected_type,
         parser="parser_router",
         confidence=0.0,
     )
 
-    for candidate_parser in FALLBACK_ORDER:
+    fallback_parsers = (
+        COMPATIBLE_FALLBACKS.get(
+            detected_type,
+            COMPATIBLE_FALLBACKS["unknown"],
+        )
+    )
+
+    for candidate_parser in fallback_parsers:
         if candidate_parser is parser:
             continue
+
         candidate_result = normalize_legacy_result(
             candidate_parser(
                 extracted_text
@@ -104,7 +152,9 @@ def parse_financial_document(
             candidate_result
         )
 
-        if validation["has_critical_errors"]:
+        if validation[
+            "has_critical_errors"
+        ]:
             continue
 
         if (
@@ -153,7 +203,9 @@ def normalize_legacy_result(
         ),
     }
 
-    for transaction in result["transactions"]:
+    for transaction in result[
+        "transactions"
+    ]:
         transaction.setdefault(
             "merchant_name",
             None,

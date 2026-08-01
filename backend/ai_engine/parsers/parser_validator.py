@@ -31,6 +31,53 @@ def validate_parser_result(
         "unknown",
     )
 
+    document_metadata = parser_result.get(
+        "document_metadata",
+        {},
+    )
+
+    candidate_count = int(
+        document_metadata.get(
+            "candidate_transaction_count",
+            0,
+        )
+        or 0
+    )
+
+    parsed_count = len(transactions)
+
+    if (
+        document_type
+        in {
+            "bank_statement",
+            "credit_card_statement",
+        }
+        and candidate_count >= 2
+    ):
+        coverage_ratio = (
+            parsed_count / candidate_count
+        )
+
+        if coverage_ratio < 0.70:
+            critical_errors.append(
+                "Bank statement parser extracted "
+                f"only {parsed_count} of approximately "
+                f"{candidate_count} transaction rows."
+            )
+
+        elif coverage_ratio < 0.90:
+            warnings.append(
+                {
+                    "code": (
+                        "partial_statement_extraction"
+                    ),
+                    "message": (
+                        "Some transaction rows may "
+                        "not have been extracted."
+                    ),
+                }
+            )
+
     if not isinstance(transactions, list):
         critical_errors.append(
             "Parser transactions must be a list."
@@ -123,9 +170,23 @@ def should_use_ai_fallback(
         )
     )
 
+    document_type = parser_result.get(
+        "document_type",
+        "unknown",
+    )
+
+    minimum_confidence = (
+        0.85
+        if document_type in {
+            "bank_statement",
+            "credit_card_statement",
+        }
+        else 0.70
+    )
+
     return (
         not transactions
-        or confidence < 0.55
+        or confidence < minimum_confidence
         or validation_result[
             "has_critical_errors"
         ]

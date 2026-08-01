@@ -1,34 +1,42 @@
 from pathlib import Path
+
 from pypdf import PdfReader
 
 
 def extract_text_from_pdf(file_path: str) -> str:
     """
     Extract readable text from a digital PDF.
+
+    Page boundaries use form-feed characters so they do not
+    accidentally become part of transaction descriptions.
     """
 
     path = Path(file_path)
 
     if not path.exists():
-        raise FileNotFoundError(f"PDF file not found: {file_path}")
+        raise FileNotFoundError(
+            f"PDF file not found: {file_path}"
+        )
 
     reader = PdfReader(str(path))
 
-    extracted_pages = []
+    extracted_pages: list[str] = []
 
-    for page_number, page in enumerate(reader.pages, start=1):
+    for page in reader.pages:
         text = page.extract_text() or ""
+        text = text.strip()
 
-        if text.strip():
-            extracted_pages.append(
-                f"\n--- Page {page_number} ---\n{text.strip()}"
-            )
+        if text:
+            extracted_pages.append(text)
 
-    final_text = "\n".join(extracted_pages).strip()
+    final_text = "\n\f\n".join(
+        extracted_pages
+    ).strip()
 
     if not final_text:
         raise ValueError(
-            "No readable text found in this PDF. It may be scanned or image-based."
+            "No readable text found in this PDF. "
+            "It may be scanned or image-based."
         )
 
     return final_text

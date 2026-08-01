@@ -649,6 +649,14 @@ def process_uploaded_file(uploaded_file: UploadedFile):
                 temporary_path
             )
 
+            print(
+                "\n========== RAW IMAGE OCR TEXT =========="
+            )
+            print(extracted_text)
+            print(
+                "========================================\n"
+            )
+
             update_processing_status(
                 uploaded_file,
                 30,

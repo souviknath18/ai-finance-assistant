@@ -85,56 +85,77 @@ def choose_best_ocr_text(
     def score(text: str) -> int:
         lower_text = text.lower()
 
-        important_terms = (
+        result = 0
+
+        result += min(
+            len(text),
+            3000,
+        ) // 20
+
+        financial_terms = (
+            "bank statement",
+            "account statement",
+            "transaction details",
+            "opening balance",
+            "closing balance",
+            "debit",
+            "credit",
+            "balance",
             "invoice date",
             "invoice number",
-            "invoice value",
             "grand total",
             "amount payable",
             "bill to",
             "sold by",
         )
 
-        date_patterns = (
-            r"\b\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\b",
-            r"\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b",
-            r"\b\d{4}-\d{1,2}-\d{1,2}\b",
-        )
-
-        result = 0
-
-        # Small reward for readable content.
-        result += min(len(text), 2000) // 20
-
-        # Strong reward for financial labels.
         result += sum(
-            300
-            for term in important_terms
+            150
+            for term in financial_terms
             if term in lower_text
         )
 
-        # Strong reward for a complete invoice date.
-        if (
-            "invoice date" in lower_text
-            and any(
-                re.search(
-                    pattern,
-                    text,
-                    flags=re.IGNORECASE,
-                )
-                for pattern in date_patterns
+        transaction_date_count = len(
+            re.findall(
+                r"\b\d{1,2}\s+"
+                r"[A-Za-z]{3,9}\s+"
+                r"\d{4}\b",
+                text,
+                flags=re.IGNORECASE,
             )
-        ):
-            result += 1000
+        )
 
-        # Reward invoice value containing a decimal amount.
-        if re.search(
-            r"invoice\s+value.{0,20}"
-            r"\d[\d,]*\.\d{2}",
-            text,
-            flags=re.IGNORECASE,
+        decimal_amount_count = len(
+            re.findall(
+                r"\b\d[\d,]*\.\d{2}\b",
+                text,
+            )
+        )
+
+        # Bank statements should preserve many dated rows.
+        if transaction_date_count >= 3:
+            result += (
+                transaction_date_count * 100
+            )
+
+        if decimal_amount_count >= 6:
+            result += (
+                decimal_amount_count * 30
+            )
+
+        if (
+            "transaction details"
+            in lower_text
         ):
-            result += 600
+            result += 800
+
+        if (
+            "opening balance"
+            in lower_text
+            and "closing balance"
+            in lower_text
+        ):
+            result += 500
 
         return result
 
