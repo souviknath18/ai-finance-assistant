@@ -154,10 +154,18 @@ def parse_transactions_with_ai(
     Document rules:
 
     BANK OR CREDIT-CARD STATEMENT:
-    - Return one item for every actual transaction row.
-    - Exclude opening balance, closing balance, summaries and totals.
-    - Debit, withdrawal, purchase and payment are expenses.
-    - Credit, deposit, refund and salary credit are income.
+    - Return one JSON object for every actual transaction row.
+    - Preserve the relationship between the date, description,
+    debit, credit and balance from the same row.
+    - The debit or credit column is the transaction amount.
+    - The running balance is never the transaction amount.
+    - Debit values are expenses.
+    - Credit values are income.
+    - Exclude opening balance, closing balance, account summary,
+    statement date, statement period and totals.
+    - Do not use the statement date as a transaction date.
+    - If ten transaction rows are visible, return ten objects.
+    - Never merge multiple transaction rows into one object.
 
     INVOICE:
     - Return exactly one expense transaction.

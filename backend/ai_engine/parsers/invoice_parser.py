@@ -15,19 +15,22 @@ from .transaction_normalizer import (
 
 STRONG_FINAL_TOTAL_LABELS = [
     "grand total",
-    "invoice value",
     "total amount payable",
-    "amount payable",
     "net amount payable",
+    "amount payable",
     "net payable",
     "total payable",
     "total due",
     "balance due",
     "amount due",
-    "amount paid",
     "invoice total",
-    "total invoice value",
     "total invoice amount",
+    "total invoice value",
+]
+
+MEDIUM_FINAL_TOTAL_LABELS = [
+    "invoice value",
+    "amount paid",
 ]
 
 WEAK_FINAL_TOTAL_LABELS = [
@@ -128,7 +131,7 @@ def parse_invoice_transactions(
 ):
     result = empty_parser_result(
         document_type="invoice",
-        parser="invoice_parser_v1",
+        parser="invoice_parser_v2",
         confidence=0.20,
     )
 
@@ -136,8 +139,14 @@ def parse_invoice_transactions(
         extracted_text
     )
 
-    amount = extract_final_total(
+    amount_result = extract_final_total(
         extracted_text
+    )
+
+    amount = (
+        amount_result["amount"]
+        if amount_result
+        else None
     )
 
     invoice_date = extract_invoice_date(
@@ -148,20 +157,38 @@ def parse_invoice_transactions(
         extracted_text
     )
 
-    service_description = extract_invoice_service_description(
-        extracted_text
+    service_description = (
+        extract_invoice_service_description(
+            extracted_text
+        )
     )
 
     logger.info(
         "Invoice parsing completed",
         extra={
-            "merchant_found": bool(merchant_name),
+            "merchant_found": bool(
+                merchant_name
+            ),
             "service_description_found": bool(
                 service_description
             ),
             "amount_found": amount is not None,
-            "invoice_date_found": invoice_date is not None,
-            "invoice_number_found": invoice_number is not None,
+            "amount_label": (
+                amount_result.get("label")
+                if amount_result
+                else None
+            ),
+            "amount_strategy": (
+                amount_result.get("strategy")
+                if amount_result
+                else None
+            ),
+            "invoice_date_found": (
+                invoice_date is not None
+            ),
+            "invoice_number_found": (
+                invoice_number is not None
+            ),
         },
     )
 
@@ -233,10 +260,22 @@ def parse_invoice_transactions(
         "merchant_name": merchant_name,
         "service_description": service_description,
         "final_total": amount,
+        "final_total_label": (
+            amount_result.get("label")
+            if amount_result
+            else None
+        ),
+        "final_total_strategy": (
+            amount_result.get("strategy")
+            if amount_result
+            else None
+        ),
         "parser_output": {
             "confidence": result["confidence"],
             "merchant_name": merchant_name,
-            "service_description": service_description,
+            "service_description": (
+                service_description
+            ),
         },
     }
 
@@ -272,21 +311,21 @@ def is_total_table_heading(
 
 def extract_final_total(
     extracted_text: str,
-) -> Decimal | None:
+) -> dict | None:
     lines = [
-        " ".join(line.split()).strip()
+        " ".join(
+            line.split()
+        ).strip()
         for line in extracted_text.splitlines()
         if line.strip()
     ]
-
-    for line in lines:
-      print(line)
 
     rejected_terms = {
         "taxable value",
         "tax amount",
         "subtotal",
         "sub total",
+        "promotion discount",
         "discount",
         "previous paid",
         "previous balance",
@@ -295,39 +334,33 @@ def extract_final_total(
         "igst",
     }
 
-    # Strategy 1:
-    # Look for final-total labels and check:
-    # - the same line
-    # - the next one or two lines
-    for labels in (
+    footer_terms = (
+        "please pay",
+        "before the due date",
+        "service interruption",
+        "late payment",
+        "for any queries",
+        "thank you",
+        "important notes",
+        "not a demand for payment",
+    )
+
+    label_groups = (
         STRONG_FINAL_TOTAL_LABELS,
+        MEDIUM_FINAL_TOTAL_LABELS,
         WEAK_FINAL_TOTAL_LABELS,
-    ):
+    )
+
+    for labels in label_groups:
         for label in labels:
-            for index, line in enumerate(lines):
-                line = lines[index]
+            for index, line in enumerate(
+                lines
+            ):
                 lower_line = line.lower()
-                
-                footer_terms = (
-                    "please pay",
-                    "before the due date",
-                    "service interruption",
-                    "late payment",
-                    "for any queries",
-                    "thank you",
-                    "important notes",
-                )
 
-                if any(term in lower_line for term in footer_terms):
-                    continue
-
-                if is_total_table_heading(line):
-                    continue
-
-                if not re.search(
-                    rf"{re.escape(label)}\s*[:=]",
-                    lower_line,
-                    flags=re.IGNORECASE,
+                if any(
+                    term in lower_line
+                    for term in footer_terms
                 ):
                     continue
 
@@ -337,126 +370,103 @@ def extract_final_total(
                 ):
                     continue
 
-                same_line_amounts = extract_amounts(
-                    line,
-                    allow_integer=True,
-                )
-                print(
-                    "Matched label:",
-                    label,
-                )
+                if is_total_table_heading(
+                    line
+                ):
+                    continue
 
-                print(
-                    "Matched line:",
-                    line,
-                )
-
-                print(
-                    "Amounts:",
-                    same_line_amounts,
-                )
-
-                if same_line_amounts:
-                    return same_line_amounts[-1]
-
-                for offset in (1, 2):
-                    next_index = index + offset
-
-                    if next_index >= len(lines):
-                        break
-
-                    next_line = lines[next_index]
-                    next_lower = next_line.lower()
-
-                    if any(
-                        rejected in next_lower
-                        for rejected in rejected_terms
-                    ):
-                        continue
-
-                    next_amounts = extract_amounts(
-                        next_line,
-                        allow_integer=False,
+                amount_result = (
+                    extract_amount_near_label(
+                        lines=lines,
+                        index=index,
+                        label=label,
                     )
+                )
 
-                    print(next_line)
-                    print(next_amounts)
+                if amount_result:
+                    return amount_result
 
-                    if next_amounts:
-                        return next_amounts[-1]
+    return None
 
-    # Strategy 2:
-    # Use values near strong payment words.
-    strong_payment_terms = (
-        "payable",
-        "amount due",
-        "amount paid",
-        "invoice total",
-        "grand total",
+
+def extract_amount_near_label(
+    *,
+    lines: list[str],
+    index: int,
+    label: str,
+) -> dict | None:
+    line = lines[index]
+
+    label_match = re.search(
+        rf"\b{re.escape(label)}\b"
+        rf"\s*[:=\-|]?",
+        line,
+        flags=re.IGNORECASE,
     )
 
-    contextual_candidates: list[Decimal] = []
+    if not label_match:
+        return None
 
-    for index, line in enumerate(lines):
-        lower_line = line.lower()
+    # Only inspect content after the matched label.
+    # This prevents transaction IDs and dates before the label
+    # from being treated as invoice amounts.
+    after_label = line[
+        label_match.end():
+    ].strip()
 
-        if not any(
-            term in lower_line
-            for term in strong_payment_terms
-        ):
-            continue
+    same_line_amounts = extract_amounts(
+        after_label,
+        allow_integer=True,
+    )
 
-        if any(
-            rejected in lower_line
-            for rejected in rejected_terms
-        ):
-            continue
+    if same_line_amounts:
+        return {
+            "amount": same_line_amounts[-1],
+            "label": label,
+            "strategy": "same_line",
+        }
 
-        contextual_candidates.extend(
-            extract_amounts(
-                lines[index + 1],
-                allow_integer=False,
-            )
+    # OCR may put the value on the next line.
+    for offset in (1, 2):
+        next_index = index + offset
+
+        if next_index >= len(lines):
+            break
+
+        next_line = lines[next_index]
+        next_lower = next_line.lower()
+
+        # Do not cross into another financial label.
+        conflicting_labels = (
+            "subtotal",
+            "tax amount",
+            "taxable value",
+            "net amount",
+            "total amount",
+            "grand total",
+            "discount",
+            "invoice value",
         )
 
-        if index + 1 < len(lines):
-            contextual_candidates.extend(
-                extract_amounts(
-                    lines[index + 1],
-                    allow_integer=False,
-                )
-            )
-
-    if contextual_candidates:
-        return contextual_candidates[-1]
-
-    # Strategy 3:
-    # Safe fallback—ignore tax/subtotal values and their
-    # immediately following numeric lines.
-    candidates: list[Decimal] = []
-
-    for index, line in enumerate(lines):
-        lower_line = line.lower()
-
         if any(
-            rejected in lower_line
-            for rejected in rejected_terms
+            term in next_lower
+            for term in conflicting_labels
         ):
             continue
 
-        if index > 0:
-            previous_lower = lines[index - 1].lower()
+        next_amounts = extract_amounts(
+            next_line,
+            allow_integer=True,
+        )
 
-            if any(
-                rejected in previous_lower
-                for rejected in rejected_terms
-            ):
-                continue
-
-        amounts = extract_amounts(line)
-
-        if amounts:
-            candidates.extend(amounts)
+        if next_amounts:
+            return {
+                "amount": next_amounts[-1],
+                "label": label,
+                "strategy": (
+                    f"next_line_{offset}"
+                ),
+            }
 
     return None
 
@@ -465,27 +475,44 @@ def extract_amounts(
     line: str,
     allow_integer: bool = False,
 ) -> list[Decimal]:
+    normalized_line = " ".join(
+        str(line or "").split()
+    ).strip()
+
+    if not normalized_line:
+        return []
+
     if allow_integer:
         pattern = (
-            r"(?:₹|INR|Rs\.?)?\s*"
-            r"(-?\d[\d,]*(?:\.\d{1,2})?)"
+            r"(?<![\d,])"
+            r"(?:₹|INR|Rs\.?|[%~§])?\s*"
+            r"(-?\d{1,3}(?:,\d{3})*"
+            r"(?:\.\d{1,2})?"
+            r"|-?\d+(?:\.\d{1,2})?)"
+            r"(?![\d,])"
         )
     else:
         pattern = (
-            r"(?:₹|INR|Rs\.?)?\s*"
-            r"(-?\d[\d,]*\.\d{1,2})"
+            r"(?<![\d,])"
+            r"(?:₹|INR|Rs\.?|[%~§])?\s*"
+            r"(-?\d{1,3}(?:,\d{3})*"
+            r"\.\d{2}"
+            r"|-?\d+\.\d{2})"
+            r"(?![\d,])"
         )
 
     values = re.findall(
         pattern,
-        line,
+        normalized_line,
         flags=re.IGNORECASE,
     )
 
     amounts: list[Decimal] = []
 
     for value in values:
-        parsed = parse_decimal_amount(value)
+        parsed = parse_decimal_amount(
+            value
+        )
 
         if parsed is None:
             continue
@@ -493,6 +520,11 @@ def extract_amounts(
         parsed = abs(parsed)
 
         if parsed == 0:
+            continue
+
+        if parsed > Decimal(
+            "1000000000"
+        ):
             continue
 
         amounts.append(parsed)
@@ -760,6 +792,51 @@ def extract_date_from_text(
     return None
 
 
+def trim_merchant_address(
+    value: str,
+) -> str:
+    cleaned = " ".join(
+        str(value or "").split()
+    ).strip()
+
+    stop_patterns = (
+        r"\bunit\s*(?:no\.?|number)?\b",
+        r"\bflat\b",
+        r"\bplot\s*(?:no\.?|number)?\b",
+        r"\bbuilding\b",
+        r"\bblock\b",
+        r"\bfloor\b",
+        r"\broad\b",
+        r"\bstreet\b",
+        r"\blane\b",
+        r"\bsector\b",
+        r"\blayout\b",
+        r"\baddress\b",
+        r"\b\d{6}\b",
+    )
+
+    earliest_position = len(
+        cleaned
+    )
+
+    for pattern in stop_patterns:
+        match = re.search(
+            pattern,
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+
+        if match:
+            earliest_position = min(
+                earliest_position,
+                match.start(),
+            )
+
+    return cleaned[
+        :earliest_position
+    ].strip(" ,:-|")
+
+
 def clean_merchant_candidate(
     line: str,
 ) -> str:
@@ -826,7 +903,13 @@ def clean_merchant_candidate(
             flags=re.IGNORECASE,
         )
 
-    return cleaned.strip(" ,:-|")
+    cleaned = cleaned.strip(
+        " ,:-|"
+    )
+
+    return trim_merchant_address(
+        cleaned
+    )
 
 
 def is_meaningful_merchant_candidate(
