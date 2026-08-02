@@ -20,6 +20,7 @@ type TransactionsFiltersProps = {
   onSemanticSearchAction: (query?: string) => void;
   onQuickSearchAction: (query: string) => void;
   onClearSearchAction: () => void;
+  onClearFiltersAction: () => void;
   onFilterChangeAction: (name: string, value: string) => void;
 };
 
@@ -46,9 +47,17 @@ export default function TransactionsFilters({
   onSemanticSearchAction,
   onQuickSearchAction,
   onClearSearchAction,
+  onClearFiltersAction,
   onFilterChangeAction,
 }: TransactionsFiltersProps) {
   const [openFilter, setOpenFilter] = useState<string | null>(null);
+
+  const hasActiveFilters =
+    Boolean(startDate) ||
+    Boolean(endDate) ||
+    category !== "all" ||
+    transactionType !== "all" ||
+    statusFilter !== "all";
 
   return (
     <div className="mb-5 overflow-visible rounded-2xl border border-[#dfe9fb] bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
@@ -108,6 +117,24 @@ export default function TransactionsFilters({
             {chip}
           </button>
         ))}
+      </div>
+
+      {/* FILTER HEADER */}
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[12px] font-bold uppercase tracking-wide text-[#565e74]">
+          Filters
+        </p>
+
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onClearFiltersAction}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-bold text-red-600 transition hover:bg-red-50"
+          >
+            <X size={14} />
+            Clear Filters
+          </button>
+        )}
       </div>
 
       {/* FILTERS */}

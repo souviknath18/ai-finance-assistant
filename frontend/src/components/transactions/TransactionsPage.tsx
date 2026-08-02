@@ -65,6 +65,19 @@ export default function TransactionsPage() {
     setCurrentPage(1);
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      startDate: "",
+      endDate: "",
+      category: "all",
+      transactionType: "all",
+      statusFilter: "all",
+    });
+
+    setCurrentPage(1);
+    setSelectedIds([]);
+  };
+
   useEffect(() => {
     const loadTransactions = async () => {
       const isFirstLoad = pageLoading;
@@ -287,6 +300,7 @@ export default function TransactionsPage() {
         onSemanticSearchAction={handleSemanticSearch}
         onQuickSearchAction={handleQuickSearch}
         onClearSearchAction={handleClearSearch}
+        onClearFiltersAction={handleClearFilters}
         onFilterChangeAction={handleFilterChange}
         categoryOptions={categoryOptions}
       />

@@ -10,16 +10,19 @@ import CustomCategories from "./CustomCategories";
 import MergeWorkflowCard from "./MergeWorkflowCard";
 import CreateCategoryModal from "./CreateCategoryModal";
 import ConfirmModal from "../ui/ConfirmModal";
-import { Category, CategorySummary } from "@/types/category";
+import { Category, CategoryDistributionItem, CategorySummary } from "@/types/category";
 import {
   deleteCategory,
   getCategories,
+  getCategoryDistribution,
   getCategorySummary,
 } from "@/lib/api/categoryApi";
 import PageLoader from "@/components/ui/PageLoader";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<CategorySummary[]>([]);
+  const [categoryDistribution, setCategoryDistribution] = useState<CategoryDistributionItem[]>([]);
+  const [distributionMonth, setDistributionMonth] = useState("");
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
@@ -41,18 +44,42 @@ export default function CategoriesPage() {
     setTableLoading(!isFirstLoad);
 
     try {
-      const [summaryData, categoryData] = await Promise.all([
+      const [
+        summaryData,
+        categoryData,
+        distributionData,
+      ] = await Promise.all([
         getCategorySummary({
           page,
           pageSize: rowsPerPage,
         }),
         getCategories(),
+        getCategoryDistribution(5),
       ]);
 
-      setCategories(summaryData.results);
-      setTotalCount(summaryData.count);
-      setTotalPages(summaryData.total_pages);
-      setCustomCategories(categoryData);
+      setCategories(
+        summaryData.results
+      );
+
+      setTotalCount(
+        summaryData.count
+      );
+
+      setTotalPages(
+        summaryData.total_pages
+      );
+
+      setCustomCategories(
+        categoryData
+      );
+
+      setCategoryDistribution(
+        distributionData.results
+      );
+
+      setDistributionMonth(
+        distributionData.month_label
+      );
     } finally {
       setPageLoading(false);
       setTableLoading(false);
@@ -111,7 +138,10 @@ export default function CategoriesPage() {
       />
 
       <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
-        <MonthlyDistributionCard categories={categories} />
+        <MonthlyDistributionCard
+          categories={categoryDistribution}
+          monthLabel={distributionMonth}
+        />
         <CategoryAIInsights categories={categories} />
       </section>
 

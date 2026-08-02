@@ -2,6 +2,7 @@ import {
   Category,
   PaginatedCategorySummaryResponse,
   CreateCategoryPayload,
+  CategoryDistributionResponse,
 } from "@/types/category";
 
 import { authFetch } from "@/lib/api/authFetch";
@@ -90,4 +91,27 @@ export async function deleteCategory(categoryId: string) {
   }
 
   return true;
+}
+
+export async function getCategoryDistribution(
+  limit = 5
+): Promise<CategoryDistributionResponse> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+  });
+
+  const response = await authFetch(
+    `/api/categories/distribution/?${params.toString()}`,
+    {
+      method: "GET",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
 }
