@@ -4,6 +4,17 @@ from .models import Category
 from apps.transactions.models import Transaction
 from ai_engine.categorization.category_constants import ALLOWED_CATEGORIES
 from ai_engine.categorization.category_rules import CATEGORY_RULES
+from django.db.models import (
+    Case,
+    Count,
+    DecimalField,
+    F,
+    Sum,
+    Value,
+    When,
+)
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 
 def create_category(user, validated_data):
@@ -49,6 +60,127 @@ def get_category_options(user):
         user=user,
         is_active=True,
     ).order_by("-is_system", "name")
+
+
+def get_top_category_distribution(
+    user,
+    limit: int = 5,
+):
+    """
+    Return the user's top expense categories for the latest
+    month that contains dated expense transactions.
+    """
+
+    safe_limit = min(
+        max(int(limit), 1),
+        10,
+    )
+
+    expense_transactions = Transaction.objects.filter(
+        user=user,
+        amount__lt=0,
+        date__isnull=False,
+    )
+
+    latest_transaction = (
+        expense_transactions
+        .order_by("-date")
+        .only("date")
+        .first()
+    )
+
+    if latest_transaction is None:
+        current_month = timezone.localdate().replace(
+            day=1
+        )
+
+        return {
+            "month": current_month.strftime("%Y-%m"),
+            "month_label": current_month.strftime("%B %Y"),
+            "results": [],
+        }
+
+    month_start = latest_transaction.date.replace(
+        day=1
+    )
+
+    if month_start.month == 12:
+        next_month_start = month_start.replace(
+            year=month_start.year + 1,
+            month=1,
+        )
+    else:
+        next_month_start = month_start.replace(
+            month=month_start.month + 1,
+        )
+
+    spending_expression = Case(
+        When(
+            amount__lt=0,
+            then=-F("amount"),
+        ),
+        default=Value(
+            Decimal("0.00"),
+            output_field=DecimalField(
+                max_digits=14,
+                decimal_places=2,
+            ),
+        ),
+        output_field=DecimalField(
+            max_digits=14,
+            decimal_places=2,
+        ),
+    )
+
+    rows = (
+        expense_transactions
+        .filter(
+            date__gte=month_start,
+            date__lt=next_month_start,
+        )
+        .annotate(
+            resolved_category=Coalesce(
+                "category",
+                Value("Uncategorized"),
+            )
+        )
+        .values(
+            "resolved_category"
+        )
+        .annotate(
+            spending=Coalesce(
+                Sum(spending_expression),
+                Value(
+                    Decimal("0.00"),
+                    output_field=DecimalField(
+                        max_digits=14,
+                        decimal_places=2,
+                    ),
+                ),
+            ),
+            transactions=Count("id"),
+        )
+        .filter(
+            spending__gt=0
+        )
+        .order_by(
+            "-spending",
+            "resolved_category",
+        )[:safe_limit]
+    )
+
+    return {
+        "month": month_start.strftime("%Y-%m"),
+        "month_label": month_start.strftime("%B %Y"),
+        "results": [
+            {
+                "name": row["resolved_category"],
+                "spending": str(row["spending"]),
+                "transactions": row["transactions"],
+            }
+            for row in rows
+        ],
+    }
 
 
 def get_category_summary(user):

@@ -3,12 +3,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from math import ceil
+from decimal import Decimal
 
 from .services import (
     create_category,
     get_category_options,
     get_category_summary,
     get_custom_categories,
+    get_top_category_distribution,
     soft_delete_category,
 )
 from .serializers import CategorySerializer
@@ -87,4 +89,91 @@ class CategoryDetailView(APIView):
         return Response(
             {"detail": "Category deleted successfully."},
             status=status.HTTP_200_OK,
+        )
+
+
+class CategoryDistributionView(
+    APIView
+):
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    def get(self, request):
+        raw_limit = request.GET.get(
+            "limit",
+            5,
+        )
+
+        try:
+            limit = int(raw_limit)
+        except (
+            TypeError,
+            ValueError,
+        ):
+            limit = 5
+
+        distribution = (
+            get_top_category_distribution(
+                user=request.user,
+                limit=limit,
+            )
+        )
+
+        data = distribution[
+            "results"
+        ]
+
+        top_categories_spending = sum(
+            (
+                Decimal(
+                    item["spending"]
+                )
+                for item in data
+            ),
+            Decimal("0.00"),
+        )
+
+        results = []
+
+        for item in data:
+            spending = Decimal(
+                item["spending"]
+            )
+
+            percentage = (
+                (
+                    spending
+                    / top_categories_spending
+                )
+                * Decimal("100")
+                if top_categories_spending > 0
+                else Decimal("0.00")
+            )
+
+            results.append(
+                {
+                    **item,
+                    "percentage": str(
+                        percentage.quantize(
+                            Decimal("0.01")
+                        )
+                    ),
+                }
+            )
+
+        return Response(
+            {
+                "month": distribution[
+                    "month"
+                ],
+                "month_label": distribution[
+                    "month_label"
+                ],
+                "count": len(results),
+                "total_spending": str(
+                    top_categories_spending
+                ),
+                "results": results,
+            }
         )

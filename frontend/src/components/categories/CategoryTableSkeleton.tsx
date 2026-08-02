@@ -8,10 +8,6 @@ export default function CategoryTableSkeleton({
       <table className="w-full min-w-[900px] border-collapse text-left">
         <thead>
           <tr className="bg-[#eff4ff]">
-            <th className="w-12 px-5 py-3.5">
-              <div className="h-4 w-4 rounded bg-[#dce9ff]" />
-            </th>
-
             <TableHead>Category</TableHead>
             <TableHead>Transactions</TableHead>
             <TableHead>Total Spending</TableHead>
@@ -21,15 +17,17 @@ export default function CategoryTableSkeleton({
         </thead>
 
         <tbody className="divide-y divide-[#e5eeff]">
-          {Array.from({ length: rowsPerPage }).map((_, index) => (
-            <tr key={index} className="animate-pulse">
-              <td className="px-5 py-4">
-                <div className="h-4 w-4 rounded bg-[#e5eeff]" />
-              </td>
-
+          {Array.from({
+            length: rowsPerPage,
+          }).map((_, index) => (
+            <tr
+              key={index}
+              className="animate-pulse"
+            >
               <td className="px-5 py-4">
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 rounded-xl bg-[#e5eeff]" />
+
                   <div className="h-4 w-28 rounded bg-[#e5eeff]" />
                 </div>
               </td>
@@ -47,7 +45,7 @@ export default function CategoryTableSkeleton({
               </td>
 
               <td className="px-5 py-4">
-                <div className="flex justify-end gap-2 opacity-70">
+                <div className="flex justify-end gap-2">
                   <div className="h-[27px] w-[27px] rounded-lg bg-[#e5eeff]" />
                   <div className="h-[27px] w-[27px] rounded-lg bg-[#e5eeff]" />
                   <div className="h-[27px] w-[27px] rounded-lg bg-[#e5eeff]" />
@@ -71,7 +69,9 @@ function TableHead({
   return (
     <th
       className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
-        align === "right" ? "text-right" : "text-left"
+        align === "right"
+          ? "text-right"
+          : "text-left"
       }`}
     >
       {children}

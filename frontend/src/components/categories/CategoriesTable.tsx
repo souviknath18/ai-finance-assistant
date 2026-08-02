@@ -16,9 +16,18 @@ type CategoriesTableProps = {
 };
 
 function formatCurrency(value: string) {
-  return `₹${Number(value).toLocaleString("en-IN", {
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount)) {
+    return "₹0.00";
+  }
+
+  return amount.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
     minimumFractionDigits: 2,
-  })}`;
+    maximumFractionDigits: 2,
+  });
 }
 
 export default function CategoriesTable({
@@ -32,17 +41,23 @@ export default function CategoriesTable({
   onRowsPerPageChangeAction,
 }: CategoriesTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-[#e5eeff] bg-[#f8f9ff] px-5 py-4">
-        <h2 className="text-lg font-bold text-black">
-          Active Categories
-        </h2>
+    <div className="rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)] overflow-visible">
+      <div className="flex flex-col gap-2 border-b border-[#e5eeff] bg-[#f8f9ff] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-black">
+            Category Summary
+          </h2>
+
+          <p className="mt-1 text-[12px] text-[#76777d]">
+            Spending and income grouped by transaction category.
+          </p>
+        </div>
 
         <span className="text-[13px] text-[#565e74]">
-          Show:{" "}
           <strong className="text-black">
-            All ({totalCount})
-          </strong>
+            {totalCount}
+          </strong>{" "}
+          categor{totalCount === 1 ? "y" : "ies"} with transactions
         </span>
       </div>
 
@@ -53,13 +68,6 @@ export default function CategoriesTable({
           <table className="w-full min-w-[900px] border-collapse text-left">
             <thead>
               <tr className="bg-[#eff4ff]">
-                <th className="w-12 px-5 py-3.5">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded"
-                  />
-                </th>
-
                 <TableHead>Category</TableHead>
                 <TableHead>Transactions</TableHead>
                 <TableHead>Total Spending</TableHead>
@@ -72,10 +80,10 @@ export default function CategoriesTable({
               {categories.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
-                    className="px-5 py-8 text-center text-[13px] font-semibold text-[#565e74]"
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-[13px] font-semibold text-[#565e74]"
                   >
-                    No categories found.
+                    No category summary is available yet.
                   </td>
                 </tr>
               ) : (
@@ -88,8 +96,6 @@ export default function CategoriesTable({
                       transactions: category.transactions,
                       spending: formatCurrency(category.spending),
                       income: formatCurrency(category.income),
-                      highlighted:
-                        category.name !== "Uncategorized",
                     }}
                   />
                 ))

@@ -33,3 +33,18 @@ export type PaginatedCategorySummaryResponse = {
   page_size: number;
   results: CategorySummary[];
 };
+
+export type CategoryDistributionItem = {
+  name: string;
+  spending: string;
+  transactions: number;
+  percentage: string;
+};
+
+export type CategoryDistributionResponse = {
+  month: string;
+  month_label: string;
+  count: number;
+  total_spending: string;
+  results: CategoryDistributionItem[];
+};
