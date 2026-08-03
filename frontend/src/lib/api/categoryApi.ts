@@ -2,7 +2,10 @@ import {
   Category,
   PaginatedCategorySummaryResponse,
   CreateCategoryPayload,
+  UpdateCategoryPayload,
   CategoryDistributionResponse,
+  MergeCategoryPayload,
+  MergeCategoryResponse,
 } from "@/types/category";
 
 import { authFetch } from "@/lib/api/authFetch";
@@ -104,6 +107,47 @@ export async function getCategoryDistribution(
     `/api/categories/distribution/?${params.toString()}`,
     {
       method: "GET",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+export async function mergeCategories(
+  payload: MergeCategoryPayload
+): Promise<MergeCategoryResponse> {
+  const response = await authFetch(
+    "/api/categories/merge/",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+export async function updateCategory(
+  categoryId: string,
+  payload: UpdateCategoryPayload
+): Promise<Category> {
+  const response = await authFetch(
+    `/api/categories/${categoryId}/`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(payload),
     }
   );
 

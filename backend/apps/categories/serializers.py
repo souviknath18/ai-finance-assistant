@@ -30,11 +30,56 @@ class CategorySerializer(serializers.ModelSerializer):
         value = value.strip()
 
         if not value:
-            raise serializers.ValidationError("Category name is required.")
+            raise serializers.ValidationError(
+                "Category name is required."
+            )
 
         if len(value) < 2:
             raise serializers.ValidationError(
                 "Category name must be at least 2 characters."
             )
 
+        request = self.context.get("request")
+
+        if request:
+            duplicate_query = Category.objects.filter(
+                user=request.user,
+                name__iexact=value,
+            )
+
+            if self.instance:
+                duplicate_query = duplicate_query.exclude(
+                    id=self.instance.id
+                )
+
+            if duplicate_query.exists():
+                raise serializers.ValidationError(
+                    "A category with this name already exists."
+                )
+
         return value
+
+
+class MergeCategorySerializer(serializers.Serializer):
+    source_category_id = serializers.CharField(
+        max_length=40
+    )
+
+    destination_category_id = serializers.CharField(
+        max_length=40
+    )
+
+    def validate(self, attrs):
+        if (
+            attrs["source_category_id"]
+            == attrs["destination_category_id"]
+        ):
+            raise serializers.ValidationError(
+                {
+                    "destination_category_id": (
+                        "A category cannot be merged into itself."
+                    )
+                }
+            )
+
+        return attrs

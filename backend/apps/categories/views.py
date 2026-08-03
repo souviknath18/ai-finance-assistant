@@ -4,16 +4,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from math import ceil
 from decimal import Decimal
-
+from .models import Category
 from .services import (
     create_category,
     get_category_options,
     get_category_summary,
     get_custom_categories,
     get_top_category_distribution,
+    merge_categories,
     soft_delete_category,
+    update_category,
 )
-from .serializers import CategorySerializer
+from .serializers import CategorySerializer, MergeCategorySerializer
+from django.shortcuts import get_object_or_404
 
 
 class CategoryListCreateView(APIView):
@@ -176,4 +179,120 @@ class CategoryDistributionView(
                 ),
                 "results": results,
             }
+        )
+
+
+class CategoryMergeView(APIView):
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    def post(self, request):
+        serializer = MergeCategorySerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        result = merge_categories(
+            user=request.user,
+            source_category_id=(
+                serializer.validated_data[
+                    "source_category_id"
+                ]
+            ),
+            destination_category_id=(
+                serializer.validated_data[
+                    "destination_category_id"
+                ]
+            ),
+        )
+
+        return Response(
+            {
+                "detail": (
+                    "Category merged successfully."
+                ),
+                **result,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class CategoryDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_category(
+        self,
+        request,
+        category_id,
+    ):
+        return get_object_or_404(
+            Category,
+            user=request.user,
+            category_id=category_id,
+            is_active=True,
+        )
+
+    def patch(
+        self,
+        request,
+        category_id,
+    ):
+        category = self.get_category(
+            request,
+            category_id,
+        )
+
+        if category.is_system:
+            return Response(
+                {
+                    "detail": (
+                        "System categories cannot be edited."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = CategorySerializer(
+            category,
+            data=request.data,
+            partial=True,
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        category = update_category(
+            category=category,
+            validated_data=serializer.validated_data,
+        )
+
+        return Response(
+            CategorySerializer(
+                category
+            ).data,
+            status=status.HTTP_200_OK,
+        )
+
+    def delete(
+        self,
+        request,
+        category_id,
+    ):
+        soft_delete_category(
+            user=request.user,
+            category_id=category_id,
+        )
+
+        return Response(
+            {
+                "detail": (
+                    "Category deleted successfully."
+                )
+            },
+            status=status.HTTP_200_OK,
         )
