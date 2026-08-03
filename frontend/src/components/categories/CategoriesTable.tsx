@@ -13,6 +13,14 @@ type CategoriesTableProps = {
   totalPages: number;
   onPageChangeAction: (page: number) => void;
   onRowsPerPageChangeAction: (value: number) => void;
+  onMergeCategoryAction: (
+    categoryId: string,
+    categoryName: string
+  ) => void;
+  onDeleteCategoryAction: (
+    categoryId: string,
+    categoryName: string
+  ) => void;
 };
 
 function formatCurrency(value: string) {
@@ -39,10 +47,12 @@ export default function CategoriesTable({
   totalPages,
   onPageChangeAction,
   onRowsPerPageChangeAction,
+  onMergeCategoryAction,
+  onDeleteCategoryAction,
 }: CategoriesTableProps) {
   return (
-    <div className="rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)] overflow-visible">
-      <div className="flex flex-col gap-2 border-b border-[#e5eeff] bg-[#f8f9ff] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="overflow-visible rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+      <div className="flex flex-col gap-2 rounded-t-2xl border-b border-[#e5eeff] bg-[#f8f9ff] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-bold text-black">
             Category Summary
@@ -91,12 +101,30 @@ export default function CategoriesTable({
                   <CategoryRow
                     key={category.name}
                     category={{
+                      categoryId:
+                        category.category_id ||
+                        undefined,
+                      isSystem:
+                        category.is_system,
                       name: category.name,
-                      icon: getCategoryIcon(category.name),
-                      transactions: category.transactions,
-                      spending: formatCurrency(category.spending),
-                      income: formatCurrency(category.income),
+                      icon: getCategoryIcon(
+                        category.name
+                      ),
+                      transactions:
+                        category.transactions,
+                      spending: formatCurrency(
+                        category.spending
+                      ),
+                      income: formatCurrency(
+                        category.income
+                      ),
                     }}
+                    onMergeCategoryAction={
+                      onMergeCategoryAction
+                    }
+                    onDeleteCategoryAction={
+                      onDeleteCategoryAction
+                    }
                   />
                 ))
               )}

@@ -15,6 +15,8 @@ from django.db.models import (
 )
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
 
 
 def create_category(user, validated_data):
@@ -184,31 +186,85 @@ def get_top_category_distribution(
 
 
 def get_category_summary(user):
-    transactions = Transaction.objects.filter(user=user)
+    create_default_categories_for_user(user)
+
+    transactions = Transaction.objects.filter(
+        user=user
+    )
+
+    active_categories = Category.objects.filter(
+        user=user,
+        is_active=True,
+    )
+
+    category_lookup = {
+        category.name.strip().lower(): {
+            "category_id": category.category_id,
+            "is_system": category.is_system,
+        }
+        for category in active_categories
+    }
 
     summary = {}
 
     for transaction in transactions:
-        category = transaction.category or "Uncategorized"
+        category_name = (
+            transaction.category
+            or "Uncategorized"
+        ).strip()
 
-        if category not in summary:
-            summary[category] = {
-                "name": category,
+        lookup_key = category_name.lower()
+
+        category_record = category_lookup.get(
+            lookup_key
+        )
+
+        if category_name not in summary:
+            summary[category_name] = {
+                "category_id": (
+                    category_record[
+                        "category_id"
+                    ]
+                    if category_record
+                    else None
+                ),
+                "is_system": (
+                    category_record[
+                        "is_system"
+                    ]
+                    if category_record
+                    else False
+                ),
+                "name": category_name,
                 "transactions": 0,
                 "spending": Decimal("0.00"),
                 "income": Decimal("0.00"),
                 "expense": Decimal("0.00"),
             }
 
-        summary[category]["transactions"] += 1
+        summary[
+            category_name
+        ]["transactions"] += 1
 
-        amount = transaction.amount or Decimal("0.00")
+        amount = (
+            transaction.amount
+            or Decimal("0.00")
+        )
 
         if amount < 0:
-            summary[category]["expense"] += abs(amount)
-            summary[category]["spending"] += abs(amount)
+            expense_amount = abs(amount)
+
+            summary[
+                category_name
+            ]["expense"] += expense_amount
+
+            summary[
+                category_name
+            ]["spending"] += expense_amount
         else:
-            summary[category]["income"] += amount
+            summary[
+                category_name
+            ]["income"] += amount
 
     data = sorted(
         summary.values(),
@@ -217,9 +273,15 @@ def get_category_summary(user):
     )
 
     for item in data:
-        item["spending"] = str(item["spending"])
-        item["income"] = str(item["income"])
-        item["expense"] = str(item["expense"])
+        item["spending"] = str(
+            item["spending"]
+        )
+        item["income"] = str(
+            item["income"]
+        )
+        item["expense"] = str(
+            item["expense"]
+        )
 
     return data
 
@@ -234,5 +296,149 @@ def soft_delete_category(user, category_id):
 
     category.is_active = False
     category.save(update_fields=["is_active", "updated_at"])
+
+    return category
+
+
+def merge_category_keywords(
+    destination_keywords: str | None,
+    source_keywords: str | None,
+) -> str | None:
+    unique_keywords: dict[str, str] = {}
+
+    for keyword_text in (
+        destination_keywords,
+        source_keywords,
+    ):
+        for keyword in str(
+            keyword_text or ""
+        ).split(","):
+            cleaned_keyword = keyword.strip()
+
+            if not cleaned_keyword:
+                continue
+
+            unique_keywords.setdefault(
+                cleaned_keyword.lower(),
+                cleaned_keyword,
+            )
+
+    if not unique_keywords:
+        return None
+
+    return ", ".join(
+        unique_keywords.values()
+    )
+
+
+@transaction.atomic
+def merge_categories(
+    *,
+    user,
+    source_category_id: str,
+    destination_category_id: str,
+):
+    source_category = get_object_or_404(
+        Category.objects.select_for_update(),
+        user=user,
+        category_id=source_category_id,
+        is_active=True,
+    )
+
+    destination_category = get_object_or_404(
+        Category.objects.select_for_update(),
+        user=user,
+        category_id=destination_category_id,
+        is_active=True,
+    )
+
+    if source_category.id == destination_category.id:
+        raise ValidationError(
+            {
+                "destination_category_id": (
+                    "A category cannot be merged into itself."
+                )
+            }
+        )
+
+    if source_category.is_system:
+        raise ValidationError(
+            {
+                "source_category_id": (
+                    "System categories cannot be merged."
+                )
+            }
+        )
+
+    updated_transactions = (
+        Transaction.objects.filter(
+            user=user,
+            category__iexact=source_category.name,
+        )
+        .update(
+            category=destination_category.name
+        )
+    )
+
+    merged_keywords = merge_category_keywords(
+        destination_category.keywords,
+        source_category.keywords,
+    )
+
+    destination_category.keywords = merged_keywords
+
+    destination_category.save(
+        update_fields=[
+            "keywords",
+            "updated_at",
+        ]
+    )
+
+    source_category.is_active = False
+
+    source_category.save(
+        update_fields=[
+            "is_active",
+            "updated_at",
+        ]
+    )
+
+    return {
+        "source_category": {
+            "category_id": source_category.category_id,
+            "name": source_category.name,
+        },
+        "destination_category": {
+            "category_id": destination_category.category_id,
+            "name": destination_category.name,
+        },
+        "updated_transactions": updated_transactions,
+    }
+
+
+@transaction.atomic
+def update_category(
+    *,
+    category,
+    validated_data,
+):
+    old_name = category.name
+
+    for field, value in validated_data.items():
+        setattr(
+            category,
+            field,
+            value,
+        )
+
+    category.save()
+
+    if old_name.lower() != category.name.lower():
+        Transaction.objects.filter(
+            user=category.user,
+            category__iexact=old_name,
+        ).update(
+            category=category.name
+        )
 
     return category

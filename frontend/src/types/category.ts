@@ -1,4 +1,6 @@
 export type CategorySummary = {
+  category_id: string | null;
+  is_system: boolean;
   name: string;
   transactions: number;
   spending: string;
@@ -47,4 +49,29 @@ export type CategoryDistributionResponse = {
   count: number;
   total_spending: string;
   results: CategoryDistributionItem[];
+};
+
+export type MergeCategoryPayload = {
+  source_category_id: string;
+  destination_category_id: string;
+};
+
+export type MergeCategoryResponse = {
+  detail: string;
+  source_category: {
+    category_id: string;
+    name: string;
+  };
+  destination_category: {
+    category_id: string;
+    name: string;
+  };
+  updated_transactions: number;
+};
+
+export type UpdateCategoryPayload = {
+  name?: string;
+  description?: string;
+  category_type?: "expense" | "income" | "both";
+  keywords?: string;
 };

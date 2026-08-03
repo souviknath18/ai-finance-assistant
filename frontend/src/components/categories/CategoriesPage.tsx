@@ -10,11 +10,14 @@ import CustomCategories from "./CustomCategories";
 import MergeWorkflowCard from "./MergeWorkflowCard";
 import CreateCategoryModal from "./CreateCategoryModal";
 import ConfirmModal from "../ui/ConfirmModal";
+import MergeCategoryModal from "./MergeCategoryModal";
+import EditCategoryModal from "./EditCategoryModal";
 import { Category, CategoryDistributionItem, CategorySummary } from "@/types/category";
 import {
   deleteCategory,
   getCategories,
   getCategoryDistribution,
+  getCategoryOptions,
   getCategorySummary,
 } from "@/lib/api/categoryApi";
 import PageLoader from "@/components/ui/PageLoader";
@@ -35,9 +38,16 @@ export default function CategoriesPage() {
   const [deleteModal, setDeleteModal] = useState({
     open: false,
     categoryId: "",
+    categoryName: "",
   });
-
   const [deleting, setDeleting] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState<Category[]>([]);
+  const [mergeModal, setMergeModal] = useState({
+    open: false,
+    categoryId: "",
+    categoryName: "",
+  });
+  const [editCategory, setEditCategory] = useState<Category | null>(null);
 
   const loadCategories = async () => {
     const isFirstLoad = pageLoading;
@@ -48,6 +58,7 @@ export default function CategoriesPage() {
         summaryData,
         categoryData,
         distributionData,
+        categoryOptionsData,
       ] = await Promise.all([
         getCategorySummary({
           page,
@@ -55,6 +66,7 @@ export default function CategoriesPage() {
         }),
         getCategories(),
         getCategoryDistribution(5),
+        getCategoryOptions(),
       ]);
 
       setCategories(
@@ -77,6 +89,10 @@ export default function CategoriesPage() {
         distributionData.results
       );
 
+      setCategoryOptions(
+        categoryOptionsData
+      );
+
       setDistributionMonth(
         distributionData.month_label
       );
@@ -95,10 +111,14 @@ export default function CategoriesPage() {
     setPage(1);
   };
 
-  const openDeleteModal = (categoryId: string) => {
+  const openDeleteModal = (
+    categoryId: string,
+    categoryName: string
+  ) => {
     setDeleteModal({
       open: true,
       categoryId,
+      categoryName,
     });
   };
 
@@ -106,6 +126,7 @@ export default function CategoriesPage() {
     setDeleteModal({
       open: false,
       categoryId: "",
+      categoryName: "",
     });
   };
 
@@ -125,6 +146,61 @@ export default function CategoriesPage() {
     } finally {
       setDeleting(false);
     }
+  };
+
+  const openMergeModal = (
+    categoryId: string,
+    categoryName: string
+  ) => {
+    if (!categoryId) {
+      return;
+    }
+
+    setMergeModal({
+      open: true,
+      categoryId,
+      categoryName,
+    });
+  };
+
+  const closeMergeModal = () => {
+    setMergeModal({
+      open: false,
+      categoryId: "",
+      categoryName: "",
+    });
+  };
+
+  const handleMergeSuccess = async () => {
+    closeMergeModal();
+    await loadCategories();
+  };
+
+  const openEditModal = (
+    categoryId: string
+  ) => {
+    const selectedCategory =
+      customCategories.find(
+        (category) =>
+          category.category_id ===
+          categoryId
+      );
+
+    if (!selectedCategory) {
+      return;
+    }
+
+    setEditCategory(
+      selectedCategory
+    );
+  };
+
+  const closeEditModal = () => {
+    setEditCategory(null);
+  };
+
+  const handleEditSuccess = async () => {
+    await loadCategories();
   };
 
   if (pageLoading) {
@@ -153,12 +229,24 @@ export default function CategoriesPage() {
         totalCount={totalCount}
         totalPages={totalPages}
         onPageChangeAction={setPage}
-        onRowsPerPageChangeAction={handleRowsPerPageChange}
+        onRowsPerPageChangeAction={
+          handleRowsPerPageChange
+        }
+        onMergeCategoryAction={
+          openMergeModal
+        }
+        onDeleteCategoryAction={
+          openDeleteModal
+        }
       />
 
       <CustomCategories
         categories={customCategories}
-        onCreateCategoryAction={() => setCreateModalOpen(true)}
+        onCreateCategoryAction={() =>
+          setCreateModalOpen(true)
+        }
+        onEditCategoryAction={openEditModal}
+        // onMergeCategoryAction={openMergeModal}
         onDeleteCategoryAction={openDeleteModal}
       />
 
@@ -173,11 +261,31 @@ export default function CategoriesPage() {
       <ConfirmModal
         open={deleteModal.open}
         title="Delete Category?"
-        message="This category will be hidden from your active categories, but historical transactions will remain unchanged."
-        confirmText="Delete"
+        message={`"${deleteModal.categoryName}" will be hidden from active categories. Historical transactions will remain unchanged.`}
+        confirmText="Delete Category"
         loading={deleting}
         onCloseAction={closeDeleteModal}
         onConfirmAction={handleDeleteCategory}
+      />
+
+      <MergeCategoryModal
+        open={mergeModal.open}
+        sourceCategoryId={
+          mergeModal.categoryId
+        }
+        sourceCategoryName={
+          mergeModal.categoryName
+        }
+        categories={categoryOptions}
+        onCloseAction={closeMergeModal}
+        onSuccessAction={handleMergeSuccess}
+      />
+
+      <EditCategoryModal
+        open={Boolean(editCategory)}
+        category={editCategory}
+        onCloseAction={closeEditModal}
+        onSuccessAction={handleEditSuccess}
       />
     </>
   );

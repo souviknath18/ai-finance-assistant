@@ -1,6 +1,7 @@
 import {
   CategoryDistributionItem,
 } from "@/types/category";
+import { getCategoryStyles } from "@/lib/utils/categoryStyles";
 
 type Props = {
   categories: CategoryDistributionItem[];
@@ -43,72 +44,65 @@ export default function MonthlyDistributionCard({
         </p>
       ) : (
         <div className="mt-6 space-y-4">
-          {categories.map(
-            (category) => {
-              const percentage =
-                Number(
-                  category.percentage
-                );
+          {categories.map((category) => {
+            const percentage = Number(category.percentage);
+            const styles = getCategoryStyles(category.name);
 
-              return (
-                <div
-                  key={
-                    category.name
-                  }
-                >
-                  <div className="mb-2 flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-[13px] font-bold text-black">
-                        {
-                          category.name
-                        }
-                      </p>
+            return (
+              <div
+                key={
+                  category.name
+                }
+              >
+                <div className="mb-2 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[13px] font-bold text-black">
+                      {
+                        category.name
+                      }
+                    </p>
 
-                      <p className="mt-0.5 text-[11px] text-[#76777d]">
-                        {
-                          category.transactions
-                        }{" "}
-                        transaction
-                        {
-                          category.transactions ===
-                          1
-                            ? ""
-                            : "s"
-                        }
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-[13px] font-bold text-black">
-                        {formatCurrency(
-                          category.spending
-                        )}
-                      </p>
-
-                      <p className="mt-0.5 text-[11px] font-semibold text-emerald-700">
-                        {percentage.toFixed(
-                          1
-                        )}
-                        %
-                      </p>
-                    </div>
+                    <p className="mt-0.5 text-[11px] text-[#76777d]">
+                      {
+                        category.transactions
+                      }{" "}
+                      transaction
+                      {
+                        category.transactions ===
+                        1
+                          ? ""
+                          : "s"
+                      }
+                    </p>
                   </div>
 
-                  <div className="h-2.5 overflow-hidden rounded-full bg-[#e5eeff]">
-                    <div
-                      className="h-full rounded-full bg-emerald-600 transition-all duration-500"
-                      style={{
-                        width: `${Math.max(
-                          percentage,
-                          2
-                        )}%`,
-                      }}
-                    />
+                  <div className="text-right">
+                    <p className="text-[13px] font-bold text-black">
+                      {formatCurrency(
+                        category.spending
+                      )}
+                    </p>
+
+                    <p className="mt-0.5 text-[11px] font-semibold text-emerald-700">
+                      {percentage.toFixed(
+                        1
+                      )}
+                      %
+                    </p>
                   </div>
                 </div>
-              );
-            }
-          )}
+
+                <div className="h-2.5 overflow-hidden rounded-full bg-[#e5eeff]">
+                  <div
+                    className={`h-full rounded-full bg-gradient-to-r ${styles.progress} transition-all duration-500`}
+                    style={{
+                      width: `${Math.max(percentage, 2)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
