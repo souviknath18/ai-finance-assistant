@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Lightbulb } from "lucide-react";
 
 export default function ExtractionTipCard() {
@@ -13,15 +14,20 @@ export default function ExtractionTipCard() {
         </h2>
 
         <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
-          Aura noticed that higher-resolution scans have a 15% higher success
-          rate in categorizing complex bank statements. Try uploading original
-          digital PDFs instead of scanned photos when possible.
+          Upload original digital PDFs whenever
+          possible. For images, use clear,
+          high-resolution files where transaction
+          dates, descriptions, and amounts are fully
+          visible.
         </p>
       </div>
 
-      <button className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90">
-        Learn More
-      </button>
+      <Link
+        href="/uploads"
+        className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90"
+      >
+        Upload File
+      </Link>
     </div>
   );
 }
