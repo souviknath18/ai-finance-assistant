@@ -3,9 +3,14 @@ type FileStatCardProps = {
   value: string;
   helper?: string;
   icon?: React.ReactNode;
+
   tone?: "green" | "muted";
+
   progress?: number;
-  variant?: "default" | "highlight";
+
+  variant?:
+    | "default"
+    | "highlight";
 };
 
 export default function FileStatCard({
@@ -17,7 +22,16 @@ export default function FileStatCard({
   progress,
   variant = "default",
 }: FileStatCardProps) {
-  const highlighted = variant === "highlight";
+  const highlighted =
+    variant === "highlight";
+
+  const safeProgress =
+    progress === undefined
+      ? undefined
+      : Math.min(
+          Math.max(progress, 0),
+          100
+        );
 
   return (
     <div
@@ -29,7 +43,9 @@ export default function FileStatCard({
     >
       <p
         className={`mb-1.5 text-[11px] font-bold uppercase tracking-wide ${
-          highlighted ? "text-emerald-900" : "text-[#565e74]"
+          highlighted
+            ? "text-emerald-900"
+            : "text-[#565e74]"
         }`}
       >
         {label}
@@ -37,24 +53,28 @@ export default function FileStatCard({
 
       <h2
         className={`text-xl font-bold ${
-          highlighted ? "text-emerald-900" : "text-black"
+          highlighted
+            ? "text-emerald-900"
+            : "text-black"
         }`}
       >
         {value}
       </h2>
 
-      {progress !== undefined && (
-        <div className="mt-3.5 h-1.5 w-full rounded-full bg-[#e5eeff]">
+      {safeProgress !== undefined && (
+        <div className="mt-3.5 h-1.5 w-full overflow-hidden rounded-full bg-[#e5eeff]">
           <div
-            className="h-1.5 rounded-full bg-emerald-700"
-            style={{ width: `${progress}%` }}
+            className="h-full rounded-full bg-emerald-700 transition-all duration-500"
+            style={{
+              width: `${safeProgress}%`,
+            }}
           />
         </div>
       )}
 
       {helper && (
         <p
-          className={`mt-2.5 flex items-center gap-1 text-[11px] font-bold ${
+          className={`mt-2.5 flex items-center gap-1.5 text-[11px] font-bold ${
             tone === "green"
               ? "text-emerald-700"
               : highlighted

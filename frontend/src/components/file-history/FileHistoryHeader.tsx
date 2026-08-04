@@ -10,8 +10,9 @@ export default function FileHistoryHeader() {
         </h1>
 
         <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
-          Review uploaded documents, extraction status, parsed transactions, and
-          AI processing results.
+          Review uploaded documents, extraction
+          status, parsed transactions, and AI
+          processing results.
         </p>
       </div>
 

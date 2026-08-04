@@ -1,21 +1,46 @@
 import FileHistoryTabs from "./FileHistoryTabs";
 import FileHistoryRow from "./FileHistoryRow";
-import Pagination from "@/components/ui/Pagination";
 import FileHistoryTableSkeleton from "./FileHistoryTableSkeleton";
-import { UploadedFile, UploadStatus } from "@/types/upload";
+
+import Pagination from "@/components/ui/Pagination";
+
+import {
+  UploadedFile,
+  UploadStatus,
+} from "@/types/upload";
 
 type Props = {
   files: UploadedFile[];
   loading: boolean;
+
   statusFilter: "all" | UploadStatus;
-  onStatusFilterChangeAction: (value: "all" | UploadStatus) => void;
+
+  onStatusFilterChangeAction: (
+    value: "all" | UploadStatus
+  ) => void;
+
   page: number;
+  rowsPerPage: number;
   totalCount: number;
   totalPages: number;
-  onPageChangeAction: (page: number) => void;
-  rowsPerPage: number;
-  onRowsPerPageChangeAction: (value: number) => void;
-  onDeleteAction: (file: UploadedFile) => void;
+
+  retryingId: number | null;
+
+  onPageChangeAction: (
+    page: number
+  ) => void;
+
+  onRowsPerPageChangeAction: (
+    value: number
+  ) => void;
+
+  onRetryAction: (
+    file: UploadedFile
+  ) => Promise<void>;
+
+  onDeleteAction: (
+    file: UploadedFile
+  ) => void;
 };
 
 export default function FileHistoryTable({
@@ -25,32 +50,55 @@ export default function FileHistoryTable({
   onStatusFilterChangeAction,
   page,
   rowsPerPage,
-  onRowsPerPageChangeAction,
-  onDeleteAction,
   totalCount,
   totalPages,
+  retryingId,
   onPageChangeAction,
+  onRowsPerPageChangeAction,
+  onRetryAction,
+  onDeleteAction,
 }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
       <FileHistoryTabs
         statusFilter={statusFilter}
-        onStatusFilterChangeAction={onStatusFilterChangeAction}
+        onStatusFilterChangeAction={
+          onStatusFilterChangeAction
+        }
       />
 
       {loading ? (
-        <FileHistoryTableSkeleton />
+        <FileHistoryTableSkeleton
+          rowsPerPage={rowsPerPage}
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] border-collapse text-left">
             <thead>
               <tr className="bg-[#eff4ff]/70">
-                <TableHead>File Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Upload Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Extraction</TableHead>
-                <TableHead align="right">Actions</TableHead>
+                <TableHead>
+                  File Name
+                </TableHead>
+
+                <TableHead>
+                  Type
+                </TableHead>
+
+                <TableHead>
+                  Upload Date
+                </TableHead>
+
+                <TableHead>
+                  Status
+                </TableHead>
+
+                <TableHead>
+                  Extraction
+                </TableHead>
+
+                <TableHead align="right">
+                  Actions
+                </TableHead>
               </tr>
             </thead>
 
@@ -59,9 +107,17 @@ export default function FileHistoryTable({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-5 py-8 text-center text-[13px] font-semibold text-[#565e74]"
+                    className="px-5 py-10 text-center"
                   >
-                    No files found.
+                    <p className="text-[13px] font-bold text-black">
+                      No files found
+                    </p>
+
+                    <p className="mt-1 text-[12px] font-medium text-[#565e74]">
+                      Upload a financial
+                      document or select a
+                      different status.
+                    </p>
                   </td>
                 </tr>
               ) : (
@@ -69,7 +125,15 @@ export default function FileHistoryTable({
                   <FileHistoryRow
                     key={file.id}
                     file={file}
-                    onDeleteAction={onDeleteAction}
+                    retrying={
+                      retryingId === file.id
+                    }
+                    onRetryAction={
+                      onRetryAction
+                    }
+                    onDeleteAction={
+                      onDeleteAction
+                    }
                   />
                 ))
               )}
@@ -84,8 +148,12 @@ export default function FileHistoryTable({
         totalPages={totalPages}
         rowsPerPage={rowsPerPage}
         itemLabel="files"
-        onPageChangeAction={onPageChangeAction}
-        onRowsPerPageChangeAction={onRowsPerPageChangeAction}
+        onPageChangeAction={
+          onPageChangeAction
+        }
+        onRowsPerPageChangeAction={
+          onRowsPerPageChangeAction
+        }
       />
     </div>
   );
@@ -101,7 +169,9 @@ function TableHead({
   return (
     <th
       className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
-        align === "right" ? "text-right" : "text-left"
+        align === "right"
+          ? "text-right"
+          : "text-left"
       }`}
     >
       {children}

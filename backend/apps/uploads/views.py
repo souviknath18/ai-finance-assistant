@@ -10,6 +10,9 @@ from math import ceil
 from django.db.models import Sum
 from .models import UploadedFile
 from apps.insights.services import mark_insights_stale
+from django.shortcuts import get_object_or_404
+from django.db import transaction
+from apps.transactions.models import Transaction
 from .serializers import (
     UploadedFileSerializer,
     UploadedFileListSerializer,
@@ -96,7 +99,11 @@ class UploadedFileDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, request, pk):
-        return UploadedFile.objects.get(id=pk, user=request.user)
+        return get_object_or_404(
+            UploadedFile,
+            id=pk,
+            user=request.user,
+        )
 
     def get(self, request, pk):
         uploaded_file = self.get_object(request, pk)
@@ -110,13 +117,13 @@ class UploadedFileDetailView(APIView):
 
     def delete(self, request, pk):
         uploaded_file = self.get_object(request, pk)
+
         uploaded_file.file.delete(save=False)
         uploaded_file.delete()
 
         mark_insights_stale(request.user)
 
         return Response(
-            {"detail": "File deleted successfully."},
             status=status.HTTP_204_NO_CONTENT,
         )
 
@@ -125,20 +132,54 @@ class RetryUploadProcessingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        uploaded_file = UploadedFile.objects.get(id=pk, user=request.user)
-
-        uploaded_file.status = UploadedFile.Status.PENDING
-        uploaded_file.error_message = None
-        uploaded_file.processed_at = None
-        uploaded_file.uploaded_at = timezone.now()
-        uploaded_file.save(
-            update_fields=[
-                "status",
-                "error_message",
-                "processed_at",
-                "uploaded_at",
-            ]
+        uploaded_file = get_object_or_404(
+            UploadedFile,
+            id=pk,
+            user=request.user,
         )
+
+        if uploaded_file.status in [
+            UploadedFile.Status.PENDING,
+            UploadedFile.Status.PROCESSING,
+        ]:
+            return Response(
+                {
+                    "detail": "This file is already being processed."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        with transaction.atomic():
+            Transaction.objects.filter(
+                uploaded_file=uploaded_file
+            ).delete()
+
+            uploaded_file.status = UploadedFile.Status.PENDING
+            uploaded_file.error_message = None
+            uploaded_file.processed_at = None
+
+            uploaded_file.processing_progress = 0
+            uploaded_file.processing_step = "Queued for retry"
+
+            uploaded_file.extracted_transactions_count = 0
+            uploaded_file.extracted_amount = None
+            uploaded_file.extracted_text = None
+
+            uploaded_file.uploaded_at = timezone.now()
+
+            uploaded_file.save(
+                update_fields=[
+                    "status",
+                    "error_message",
+                    "processed_at",
+                    "processing_progress",
+                    "processing_step",
+                    "extracted_transactions_count",
+                    "extracted_amount",
+                    "extracted_text",
+                    "uploaded_at",
+                ]
+            )
 
         process_uploaded_file_task.delay(uploaded_file.id)
 
@@ -162,27 +203,47 @@ class UploadStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        files = UploadedFile.objects.filter(user=request.user)
+        files = UploadedFile.objects.filter(
+            user=request.user
+        )
 
         total_uploads = files.count()
-        successful_uploads = files.filter(status=UploadedFile.Status.SUCCESS).count()
+
+        successful_uploads = files.filter(
+            status=UploadedFile.Status.SUCCESS
+        ).count()
 
         success_rate = (
-            round((successful_uploads / total_uploads) * 100, 1)
+            round(
+                (successful_uploads / total_uploads) * 100,
+                1,
+            )
             if total_uploads > 0
             else 0
         )
 
-        transactions_extracted = (
-            files.aggregate(total=Sum("extracted_transactions_count"))["total"] or 0
+        transactions_extracted = Transaction.objects.filter(
+            user=request.user,
+            uploaded_file__isnull=False,
+        ).count()
+
+        storage_used_bytes = (
+            files.aggregate(
+                total=Sum("file_size")
+            )["total"]
+            or 0
         )
 
-        storage_used_bytes = files.aggregate(total=Sum("file_size"))["total"] or 0
-        storage_used_mb = round(storage_used_bytes / (1024 * 1024), 2)
+        storage_used_mb = round(
+            storage_used_bytes / (1024 * 1024),
+            2,
+        )
 
-        return Response({
-            "total_uploads": total_uploads,
-            "success_rate": success_rate,
-            "transactions_extracted": transactions_extracted,
-            "storage_used_mb": storage_used_mb,
-        })
+        return Response(
+            {
+                "total_uploads": total_uploads,
+                "success_rate": success_rate,
+                "transactions_extracted": transactions_extracted,
+                "storage_used_mb": storage_used_mb,
+            }
+        )
