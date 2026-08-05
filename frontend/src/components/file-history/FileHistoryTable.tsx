@@ -114,9 +114,7 @@ export default function FileHistoryTable({
                     </p>
 
                     <p className="mt-1 text-[12px] font-medium text-[#565e74]">
-                      Upload a financial
-                      document or select a
-                      different status.
+                      Upload a financial document or select a different status.
                     </p>
                   </td>
                 </tr>
