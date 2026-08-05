@@ -69,8 +69,15 @@ class UploadedFileListView(APIView):
         files = UploadedFile.objects.filter(user=request.user).order_by("-uploaded_at")
 
         status_filter = request.GET.get("status", "").strip()
-        page = int(request.GET.get("page", 1))
-        page_size = int(request.GET.get("page_size", 10))
+        try:
+            page = int(request.GET.get("page", 1))
+        except (TypeError, ValueError):
+            page = 1
+
+        try:
+            page_size = int(request.GET.get("page_size", 10))
+        except (TypeError, ValueError):
+            page_size = 10
 
         page = max(page, 1)
         page_size = min(max(page_size, 1), 50)
@@ -138,13 +145,10 @@ class RetryUploadProcessingView(APIView):
             user=request.user,
         )
 
-        if uploaded_file.status in [
-            UploadedFile.Status.PENDING,
-            UploadedFile.Status.PROCESSING,
-        ]:
+        if uploaded_file.status != UploadedFile.Status.FAILED:
             return Response(
                 {
-                    "detail": "This file is already being processed."
+                    "detail": "Only failed uploads can be retried."
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -157,15 +161,11 @@ class RetryUploadProcessingView(APIView):
             uploaded_file.status = UploadedFile.Status.PENDING
             uploaded_file.error_message = None
             uploaded_file.processed_at = None
-
             uploaded_file.processing_progress = 0
             uploaded_file.processing_step = "Queued for retry"
-
             uploaded_file.extracted_transactions_count = 0
             uploaded_file.extracted_amount = None
             uploaded_file.extracted_text = None
-
-            uploaded_file.uploaded_at = timezone.now()
 
             uploaded_file.save(
                 update_fields=[
@@ -177,18 +177,22 @@ class RetryUploadProcessingView(APIView):
                     "extracted_transactions_count",
                     "extracted_amount",
                     "extracted_text",
-                    "uploaded_at",
                 ]
             )
 
-        process_uploaded_file_task.delay(uploaded_file.id)
+        process_uploaded_file_task.delay(
+            uploaded_file.id
+        )
 
         serializer = UploadedFileSerializer(
             uploaded_file,
             context={"request": request},
         )
 
-        return Response(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class UploadAITipView(APIView):

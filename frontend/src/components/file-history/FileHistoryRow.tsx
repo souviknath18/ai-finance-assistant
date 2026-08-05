@@ -74,6 +74,22 @@ export default function FileHistoryRow({
       ? `${file.file_size_mb.toFixed(2)} MB`
       : "Size unavailable";
 
+  const processingProgress = Math.min(
+    Math.max(
+      file.processing_progress || 0,
+      0
+    ),
+    100
+  );
+
+  const handleRetryClick = async () => {
+    if (!isFailed || retrying) {
+      return;
+    }
+
+    await onRetryAction(file);
+  };
+
   return (
     <tr className="transition hover:bg-[#eff4ff]/60">
       <td className="px-5 py-4">
@@ -169,20 +185,13 @@ export default function FileHistoryRow({
               <div
                 className="h-full rounded-full bg-black transition-all duration-500"
                 style={{
-                  width: `${Math.min(
-                    Math.max(
-                      file.processing_progress ||
-                        0,
-                      0
-                    ),
-                    100
-                  )}%`,
+                  width: `${processingProgress}%`,
                 }}
               />
             </div>
 
             <p className="mt-1 text-[10px] font-semibold text-[#7c839b]">
-              {file.processing_progress || 0}%
+              {processingProgress}%
             </p>
           </div>
         )}
@@ -218,10 +227,14 @@ export default function FileHistoryRow({
             <button
               type="button"
               disabled={retrying}
-              onClick={() =>
-                onRetryAction(file)
+              onClick={
+                handleRetryClick
               }
-              title="Retry processing"
+              title={
+                retrying
+                  ? "Retrying processing"
+                  : "Retry processing"
+              }
               aria-label={`Retry processing ${file.original_filename}`}
               className="rounded-lg p-1.5 text-[#565e74] transition hover:bg-[#e5eeff] hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -238,12 +251,13 @@ export default function FileHistoryRow({
 
           <button
             type="button"
+            disabled={retrying}
             onClick={() =>
               onDeleteAction(file)
             }
             title="Delete file"
             aria-label={`Delete ${file.original_filename}`}
-            className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50"
+            className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Trash2 size={16} />
           </button>
