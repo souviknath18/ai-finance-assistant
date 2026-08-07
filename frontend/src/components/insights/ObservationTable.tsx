@@ -9,35 +9,47 @@ export default function ObservationTable({
   observations,
 }: ObservationTableProps) {
   return (
-    <section>
-      <h2 className="mb-4 text-lg font-bold text-black">
-        Recent Observations
-      </h2>
+    <section className="mb-8">
+      {/* Section Header */}
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-black">
+            Recent Observations
+          </h2>
 
+          <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
+            Important patterns and financial events detected by Aura.
+          </p>
+        </div>
+
+        {observations.length > 0 && (
+          <span className="shrink-0 rounded-full bg-[#eff4ff] px-3 py-1.5 text-[11px] font-bold text-[#565e74]">
+            {observations.length}{" "}
+            {observations.length === 1
+              ? "Insight"
+              : "Insights"}
+          </span>
+        )}
+      </div>
+
+      {/* Table Card */}
       <div className="overflow-hidden rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-left">
-            <thead className="border-b border-[#e5eeff] bg-[#eff4ff]">
-              <tr>
-                <TableHead>Insight</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Impact</TableHead>
-                <TableHead>Action</TableHead>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-[#e5eeff]">
-              {observations.length === 0 ? (
+        {observations.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[800px] text-left">
+              <thead className="border-b border-[#e5eeff] bg-[#f8faff]">
                 <tr>
-                  <td
-                    colSpan={4}
-                    className="px-5 py-6 text-[13px] font-semibold text-[#565e74]"
-                  >
-                    No observations yet. Upload more transactions to generate insights.
-                  </td>
+                  <TableHead>Insight</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Impact</TableHead>
+                  <TableHead>Action</TableHead>
                 </tr>
-              ) : (
-                observations.map((item, index) => (
+              </thead>
+
+              <tbody className="divide-y divide-[#e5eeff]">
+                {observations.map((item, index) => (
                   <ObservationRow
                     key={`${item.title}-${index}`}
                     title={item.title}
@@ -47,20 +59,44 @@ export default function ObservationTable({
                     action={item.action}
                     neutral={item.tone === "neutral"}
                   />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
-function TableHead({ children }: { children: React.ReactNode }) {
+function TableHead({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <th className="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
+    <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#565e74]">
       {children}
     </th>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex min-h-48 flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#eff4ff]">
+        <span className="text-lg">✨</span>
+      </div>
+
+      <p className="text-[13px] font-bold text-black">
+        No observations yet
+      </p>
+
+      <p className="mt-1.5 max-w-sm text-[12px] leading-5 text-[#565e74]">
+        Upload more financial transactions and Aura will start detecting
+        spending patterns, unusual activity, recurring expenses, and saving
+        opportunities.
+      </p>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import IconCircle from "./IconCircle";
 
 type InsightMetricCardProps = {
@@ -18,24 +19,35 @@ export default function InsightMetricCard({
   tone = "default",
 }: InsightMetricCardProps) {
   return (
-    <div className="flex flex-col rounded-2xl border border-transparent bg-white p-5 shadow-sm transition hover:border-[#c6c6cd] hover:shadow-md">
-      <div className="mb-4 flex items-center gap-3">
+    <div className="flex flex-col rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm transition hover:border-[#d7e6ff] hover:shadow-md">
+      {/* Header */}
+      <div className="mb-5 flex items-center gap-3">
         <IconCircle tone={tone}>{icon}</IconCircle>
 
-        <h3 className="text-[11px] font-bold uppercase tracking-wide text-black">
-          {title}
-        </h3>
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#565e74]">
+            {title}
+          </p>
+
+          <h3 className="mt-1 text-2xl font-bold leading-none text-black">
+            {value}
+          </h3>
+        </div>
       </div>
 
-      <div className="flex-1">
-        <p className="mb-1.5 text-xl font-bold text-black">{value}</p>
+      {/* Description */}
+      <p className="text-[13px] leading-6 text-[#565e74]">
+        {description}
+      </p>
 
-        <p className="mb-4 text-[13px] leading-5 text-[#565e74]">
-          {description}
-        </p>
+      {/* Content */}
+      {children && (
+        <>
+          <div className="my-5 h-px bg-[#e5eeff]" />
 
-        {children}
-      </div>
+          <div className="flex-1">{children}</div>
+        </>
+      )}
     </div>
   );
 }
