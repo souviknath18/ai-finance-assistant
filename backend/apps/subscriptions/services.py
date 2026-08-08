@@ -137,7 +137,7 @@ def detect_subscriptions(user):
     return {
         "subscriptions": detected,
         "duplicates": detect_duplicate_services(detected),
-        "upcoming_bills": detect_upcoming_bills(detected),
+        "upcoming_bills": detect_upcoming_bills(user, detected),
     }
 
 
@@ -174,7 +174,7 @@ def detect_duplicate_services(detected_subscriptions):
     return duplicates
 
 
-def detect_upcoming_bills(detected_subscriptions):
+def detect_upcoming_bills(user, detected_subscriptions):
     today = now().date()
     upcoming = []
 
@@ -197,7 +197,7 @@ def detect_upcoming_bills(detected_subscriptions):
             )
 
             create_notification_once(
-                user=item_user,
+                user=user,
                 title=f"Upcoming Bill: {item['merchant']}",
                 description=f"{item['merchant']} may bill ₹{item['average_amount']} in {days_remaining} day(s).",
                 notification_type="subscription",

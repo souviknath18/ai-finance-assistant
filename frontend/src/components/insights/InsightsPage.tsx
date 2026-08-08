@@ -20,7 +20,10 @@ import MiniBars from "./MiniBars";
 
 import PageLoader from "@/components/ui/PageLoader";
 
-import { getInsightsDashboard } from "@/lib/api/insightsApi";
+import {
+  getInsightsDashboard,
+  regenerateInsightsDashboard,
+} from "@/lib/api/insightsApi";
 import { InsightDashboard } from "@/types/insights";
 
 export default function InsightsPage() {
@@ -29,30 +32,54 @@ export default function InsightsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadInsights = useCallback(async (showRefresh = false) => {
+  const loadInsights = useCallback(async () => {
     try {
       setError(null);
-
-      if (showRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
 
       const result = await getInsightsDashboard();
 
       setData(result);
     } catch (err) {
-      console.error("Failed to load insights:", err);
+      console.error(
+        "Failed to load insights:",
+        err
+      );
 
       setError(
-        "We couldn't load your financial insights right now. Please try again."
+        err instanceof Error
+          ? err.message
+          : "We couldn't load your financial insights."
       );
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, []);
+
+  const refreshInsights = async () => {
+    try {
+      setError(null);
+      setRefreshing(true);
+
+      const result =
+        await regenerateInsightsDashboard();
+
+      setData(result);
+    } catch (err) {
+      console.error(
+        "Failed to regenerate insights:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn't refresh your financial insights."
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     loadInsights();
@@ -109,23 +136,42 @@ export default function InsightsPage() {
           </h1>
 
           <p className="mt-1.5 max-w-2xl text-[13px] leading-6 text-[#565e74]">
-            Intelligent observations about your spending, recurring expenses,
-            financial health, and saving opportunities.
+            Intelligent observations about your spending,
+            recurring expenses, financial health, and saving
+            opportunities.
           </p>
+
+          {data.generated_at && (
+            <p className="mt-1 text-[11px] text-[#8a92a5]">
+              Updated{" "}
+              {new Date(
+                data.generated_at
+              ).toLocaleString("en-IN", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
+            </p>
+          )}
         </div>
 
         <button
           type="button"
-          onClick={() => loadInsights(true)}
+          onClick={refreshInsights}
           disabled={refreshing}
           className="flex w-fit items-center gap-2 rounded-xl border border-[#e5eeff] bg-white px-4 py-2.5 text-[12px] font-bold text-black shadow-sm transition hover:bg-[#eff4ff] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <RefreshCcw
             size={15}
-            className={refreshing ? "animate-spin" : ""}
+            className={
+              refreshing
+                ? "animate-spin"
+                : ""
+            }
           />
 
-          {refreshing ? "Refreshing..." : "Refresh Insights"}
+          {refreshing
+            ? "Refreshing..."
+            : "Refresh Insights"}
         </button>
       </section>
 
@@ -240,14 +286,20 @@ export default function InsightsPage() {
         </InsightMetricCard>
 
         {/* Category */}
-        <CategoryBreakdownCard items={data.category_breakdown || []} />
+        <CategoryBreakdownCard
+          items={data.category_breakdown}
+        />
 
         {/* Financial Health */}
         <FinancialHealthCard
           icon={<Lightbulb size={18} />}
-          score={data.metrics.health_score}
-          status={data.metrics.health_status}
-          description={data.wealth_tip.description}
+          score={data.health.score}
+          status={data.health.status}
+          description={
+            `Your savings rate is ${data.health.savings_rate.toFixed(
+              1
+            )}%. Aura evaluates savings, cash flow, spending stability, recurring costs, and unusual activity.`
+          }
         />
       </section>
 
