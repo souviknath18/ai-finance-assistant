@@ -1,20 +1,30 @@
 import React from "react";
+
 import IconCircle from "./IconCircle";
+
+import {
+  FinancialHealth,
+  FinancialHealthComponent,
+} from "@/types/insights";
+
 
 type FinancialHealthCardProps = {
   icon: React.ReactNode;
-  score: number;
-  status: string;
-  description: string;
+  health: FinancialHealth;
 };
+
 
 export default function FinancialHealthCard({
   icon,
-  score,
-  status,
-  description,
+  health,
 }: FinancialHealthCardProps) {
-  const safeScore = Math.min(Math.max(score || 0, 0), 100);
+  const safeScore = Math.min(
+    Math.max(
+      health.score || 0,
+      0
+    ),
+    100
+  );
 
   const scoreTone =
     safeScore >= 80
@@ -30,11 +40,44 @@ export default function FinancialHealthCard({
       ? "bg-amber-500"
       : "bg-red-600";
 
+  const breakdownItems = [
+    {
+      label: "Savings",
+      data: health.breakdown.savings,
+    },
+    {
+      label: "Cash Flow",
+      data: health.breakdown.cashflow,
+    },
+    {
+      label: "Stability",
+      data: health.breakdown.stability,
+    },
+    {
+      label: "Recurring",
+      data: health.breakdown.recurring,
+    },
+    {
+      label: "Anomalies",
+      data: health.breakdown.anomalies,
+    },
+    {
+      label: "Budgets",
+      data: health.breakdown.budgets,
+    },
+    {
+      label: "Goals",
+      data: health.breakdown.goals,
+    },
+  ];
+
   return (
-    <div className="flex flex-col rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm transition hover:border-[#d7e6ff] hover:shadow-md">
+    <div className="flex flex-col rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
       {/* Header */}
       <div className="mb-5 flex items-center gap-3">
-        <IconCircle tone="green">{icon}</IconCircle>
+        <IconCircle tone="green">
+          {icon}
+        </IconCircle>
 
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#565e74]">
@@ -47,7 +90,7 @@ export default function FinancialHealthCard({
         </div>
       </div>
 
-      {/* Score */}
+      {/* Main Score */}
       <div className="rounded-2xl border border-[#e5eeff] bg-[#f8faff] p-5">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -55,18 +98,24 @@ export default function FinancialHealthCard({
               className={`text-4xl font-bold tracking-tight ${scoreTone}`}
             >
               {safeScore}
-              <span className="ml-1 text-lg text-[#8a92a5]">/100</span>
+
+              <span className="ml-1 text-lg text-[#8a92a5]">
+                /100
+              </span>
             </p>
 
             <p className="mt-2 text-[13px] font-bold text-black">
-              {status || "Not enough data"}
+              {health.status ||
+                "Not enough data"}
             </p>
           </div>
 
-          <ScoreCircle score={safeScore} />
+          <ScoreCircle
+            score={safeScore}
+          />
         </div>
 
-        {/* Progress */}
+        {/* Main progress */}
         <div className="mt-5">
           <div className="h-2 w-full overflow-hidden rounded-full bg-[#e5eeff]">
             <div
@@ -84,28 +133,114 @@ export default function FinancialHealthCard({
         </div>
       </div>
 
-      {/* Description */}
-      <p className="mt-4 text-[13px] leading-6 text-[#565e74]">
-        {description}
-      </p>
+      {/* Savings Summary */}
+      <div className="mt-4 rounded-xl border border-[#e5eeff] bg-white px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8a92a5]">
+              Savings Rate
+            </p>
 
-      {/* Score explanation */}
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        <HealthMetric
-          label="Savings"
-          status={getMetricStatus(safeScore, 75)}
-        />
+            <p className="mt-1 text-[13px] font-semibold text-[#565e74]">
+              Portion of income retained this period
+            </p>
+          </div>
 
-        <HealthMetric
-          label="Spending"
-          status={getMetricStatus(safeScore, 65)}
-        />
-
-        <HealthMetric
-          label="Stability"
-          status={getMetricStatus(safeScore, 55)}
-        />
+          <p
+            className={`shrink-0 text-lg font-bold ${
+              health.savings_rate >= 20
+                ? "text-emerald-700"
+                : health.savings_rate > 0
+                ? "text-amber-600"
+                : "text-red-700"
+            }`}
+          >
+            {health.savings_rate.toFixed(
+              1
+            )}
+            %
+          </p>
+        </div>
       </div>
+
+      {/* Real Health Breakdown */}
+      <div className="mt-5">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#565e74]">
+            Score Breakdown
+          </p>
+
+          <span className="text-[10px] font-semibold text-[#8a92a5]">
+            7 factors
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {breakdownItems.map(
+            (item) => (
+              <HealthBreakdownRow
+                key={item.label}
+                label={item.label}
+                data={item.data}
+              />
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Strengths */}
+      {health.strengths.length >
+        0 && (
+        <div className="mt-5 border-t border-[#e5eeff] pt-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">
+            Strengths
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            {health.strengths.map(
+              (item) => (
+                <span
+                  key={item.key}
+                  className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700"
+                >
+                  {item.label}{" "}
+                  {item.score_percent.toFixed(
+                    0
+                  )}
+                  %
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Concerns */}
+      {health.concerns.length >
+        0 && (
+        <div className="mt-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700">
+            Needs Attention
+          </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            {health.concerns.map(
+              (item) => (
+                <span
+                  key={item.key}
+                  className="rounded-full border border-amber-100 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700"
+                >
+                  {item.label}{" "}
+                  {item.score_percent.toFixed(
+                    0
+                  )}
+                  %
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Action */}
       <div className="mt-5 border-t border-[#e5eeff] pt-4">
@@ -120,34 +255,82 @@ export default function FinancialHealthCard({
   );
 }
 
-type HealthMetricProps = {
-  label: string;
-  status: "Good" | "Fair" | "Low";
-};
 
-function HealthMetric({
+function HealthBreakdownRow({
   label,
-  status,
-}: HealthMetricProps) {
+  data,
+}: {
+  label: string;
+  data: FinancialHealthComponent;
+}) {
+  const percentage = Math.min(
+    Math.max(
+      data.percentage || 0,
+      0
+    ),
+    100
+  );
+
+  const barClass =
+    data.status === "good"
+      ? "bg-emerald-700"
+      : data.status === "fair"
+      ? "bg-amber-500"
+      : "bg-red-600";
+
   const statusClass =
-    status === "Good"
+    data.status === "good"
       ? "text-emerald-700"
-      : status === "Fair"
+      : data.status === "fair"
       ? "text-amber-600"
       : "text-red-700";
 
-  return (
-    <div className="rounded-xl bg-[#f8faff] px-3 py-3 text-center">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-[#8a92a5]">
-        {label}
-      </p>
+  const statusLabel =
+    data.status === "good"
+      ? "Good"
+      : data.status === "fair"
+      ? "Fair"
+      : "Low";
 
-      <p className={`mt-1 text-[12px] font-bold ${statusClass}`}>
-        {status}
-      </p>
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-bold text-black">
+            {label}
+          </p>
+
+          <p className="mt-0.5 text-[10px] text-[#8a92a5]">
+            {data.score}/
+            {data.max_score} points
+          </p>
+        </div>
+
+        <div className="text-right">
+          <p
+            className={`text-[11px] font-bold ${statusClass}`}
+          >
+            {statusLabel}
+          </p>
+
+          <p className="mt-0.5 text-[10px] font-semibold text-[#8a92a5]">
+            {percentage.toFixed(0)}%
+          </p>
+        </div>
+      </div>
+
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e5eeff]">
+        <div
+          className={`h-full rounded-full transition-all ${barClass}`}
+          style={{
+            width: `${percentage}%`,
+          }}
+        />
+      </div>
     </div>
   );
 }
+
 
 function ScoreCircle({
   score,
@@ -155,15 +338,28 @@ function ScoreCircle({
   score: number;
 }) {
   const radius = 28;
-  const circumference = 2 * Math.PI * radius;
-  const progress = circumference - (score / 100) * circumference;
+
+  const circumference =
+    2 * Math.PI * radius;
+
+  const progress =
+    circumference -
+    (score / 100) *
+      circumference;
+
+  const circleClass =
+    score >= 80
+      ? "text-emerald-700"
+      : score >= 60
+      ? "text-amber-500"
+      : "text-red-600";
 
   return (
     <div className="relative flex h-16 w-16 shrink-0 items-center justify-center">
       <svg
         viewBox="0 0 64 64"
         className="h-16 w-16 -rotate-90"
-        aria-hidden="true"
+        aria-label={`Financial health score ${score} out of 100`}
       >
         <circle
           cx="32"
@@ -182,14 +378,14 @@ function ScoreCircle({
           stroke="currentColor"
           strokeWidth="5"
           strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={progress}
+          strokeDasharray={
+            circumference
+          }
+          strokeDashoffset={
+            progress
+          }
           className={
-            score >= 80
-              ? "text-emerald-700"
-              : score >= 60
-              ? "text-amber-500"
-              : "text-red-600"
+            circleClass
           }
         />
       </svg>
@@ -199,19 +395,4 @@ function ScoreCircle({
       </span>
     </div>
   );
-}
-
-function getMetricStatus(
-  score: number,
-  threshold: number
-): "Good" | "Fair" | "Low" {
-  if (score >= threshold) {
-    return "Good";
-  }
-
-  if (score >= threshold - 20) {
-    return "Fair";
-  }
-
-  return "Low";
 }

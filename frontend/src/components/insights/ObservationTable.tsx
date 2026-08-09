@@ -1,15 +1,21 @@
 import ObservationRow from "./ObservationRow";
-import { InsightObservation } from "@/types/insights";
+
+import { InsightItem } from "@/types/insights";
+
 
 type ObservationTableProps = {
-  observations: InsightObservation[];
+  observations: InsightItem[];
 };
+
 
 export default function ObservationTable({
   observations,
 }: ObservationTableProps) {
   return (
-    <section className="mb-8">
+    <section
+      id="recent-observations"
+      className="mb-8 scroll-mt-6"
+    >
       {/* Section Header */}
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
@@ -18,12 +24,13 @@ export default function ObservationTable({
           </h2>
 
           <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
-            Important patterns and financial events detected by Aura.
+            Prioritized financial patterns, risks, and opportunities
+            detected by Aura.
           </p>
         </div>
 
         {observations.length > 0 && (
-          <span className="shrink-0 rounded-full bg-[#eff4ff] px-3 py-1.5 text-[11px] font-bold text-[#565e74]">
+          <span className="shrink-0 rounded-full border border-[#e5eeff] bg-[#f8faff] px-3 py-1.5 text-[11px] font-bold text-[#565e74]">
             {observations.length}{" "}
             {observations.length === 1
               ? "Insight"
@@ -32,13 +39,13 @@ export default function ObservationTable({
         )}
       </div>
 
-      {/* Table Card */}
-      <div className="overflow-hidden rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
+      {/* Desktop Table */}
+      <div className="hidden overflow-hidden rounded-2xl border border-[#e5eeff] bg-white shadow-sm md:block">
         {observations.length === 0 ? (
           <EmptyState />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-left">
+            <table className="w-full min-w-[820px] text-left">
               <thead className="border-b border-[#e5eeff] bg-[#f8faff]">
                 <tr>
                   <TableHead>Insight</TableHead>
@@ -49,15 +56,10 @@ export default function ObservationTable({
               </thead>
 
               <tbody className="divide-y divide-[#e5eeff]">
-                {observations.map((item, index) => (
+                {observations.map((item) => (
                   <ObservationRow
-                    key={`${item.title}-${index}`}
-                    title={item.title}
-                    desc={item.description}
-                    category={item.category}
-                    impact={item.impact}
-                    action={item.action}
-                    neutral={item.tone === "neutral"}
+                    key={item.id}
+                    insight={item}
                   />
                 ))}
               </tbody>
@@ -65,9 +67,26 @@ export default function ObservationTable({
           </div>
         )}
       </div>
+
+      {/* Mobile Cards */}
+      <div className="space-y-3 md:hidden">
+        {observations.length === 0 ? (
+          <div className="rounded-2xl border border-[#e5eeff] bg-white shadow-sm">
+            <EmptyState />
+          </div>
+        ) : (
+          observations.map((item) => (
+            <ObservationMobileCard
+              key={item.id}
+              insight={item}
+            />
+          ))
+        )}
+      </div>
     </section>
   );
 }
+
 
 function TableHead({
   children,
@@ -81,11 +100,14 @@ function TableHead({
   );
 }
 
+
 function EmptyState() {
   return (
     <div className="flex min-h-48 flex-col items-center justify-center px-6 py-10 text-center">
       <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#eff4ff]">
-        <span className="text-lg">✨</span>
+        <span className="text-lg">
+          ✨
+        </span>
       </div>
 
       <p className="text-[13px] font-bold text-black">
@@ -93,10 +115,101 @@ function EmptyState() {
       </p>
 
       <p className="mt-1.5 max-w-sm text-[12px] leading-5 text-[#565e74]">
-        Upload more financial transactions and Aura will start detecting
-        spending patterns, unusual activity, recurring expenses, and saving
-        opportunities.
+        Upload more financial transactions and Aura will detect
+        spending patterns, budget risks, unusual activity, recurring
+        expenses, and saving opportunities.
       </p>
     </div>
+  );
+}
+
+
+function ObservationMobileCard({
+  insight,
+}: {
+  insight: InsightItem;
+}) {
+  const title =
+    insight.ai?.title ??
+    insight.title;
+
+  const description =
+    insight.ai?.description ??
+    insight.description;
+
+  return (
+    <div className="rounded-2xl border border-[#e5eeff] bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[13px] font-bold leading-5 text-black">
+            {title}
+          </p>
+
+          <p className="mt-1 text-[12px] leading-5 text-[#565e74]">
+            {description}
+          </p>
+        </div>
+
+        <SeverityBadge
+          severity={insight.severity}
+        />
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {insight.category && (
+          <span className="rounded-full border border-[#e5eeff] bg-[#eff4ff] px-2.5 py-1 text-[10px] font-bold text-black">
+            {insight.category}
+          </span>
+        )}
+
+        {insight.impact?.display && (
+          <span className="rounded-full border border-[#e5eeff] bg-white px-2.5 py-1 text-[10px] font-bold text-[#565e74]">
+            {insight.impact.display}
+          </span>
+        )}
+      </div>
+
+      {insight.action && (
+        <a
+          href={insight.action.url}
+          className="mt-4 inline-flex rounded-lg border border-[#e5eeff] bg-white px-3 py-2 text-[11px] font-bold text-black shadow-sm transition hover:bg-[#eff4ff]"
+        >
+          {insight.action.label}
+        </a>
+      )}
+    </div>
+  );
+}
+
+
+function SeverityBadge({
+  severity,
+}: {
+  severity: InsightItem["severity"];
+}) {
+  const className =
+    severity === "critical"
+      ? "bg-red-50 text-red-700"
+      : severity === "warning"
+      ? "bg-amber-50 text-amber-700"
+      : severity === "positive"
+      ? "bg-emerald-50 text-emerald-700"
+      : "bg-[#eff4ff] text-[#565e74]";
+
+  const label =
+    severity === "critical"
+      ? "Critical"
+      : severity === "warning"
+      ? "Warning"
+      : severity === "positive"
+      ? "Positive"
+      : "Info";
+
+  return (
+    <span
+      className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${className}`}
+    >
+      {label}
+    </span>
   );
 }
