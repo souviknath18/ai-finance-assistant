@@ -1,4 +1,5 @@
 import React from "react";
+
 import IconCircle from "./IconCircle";
 
 type InsightMetricCardProps = {
@@ -19,10 +20,12 @@ export default function InsightMetricCard({
   tone = "default",
 }: InsightMetricCardProps) {
   return (
-    <div className="flex flex-col rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm transition hover:border-[#d7e6ff] hover:shadow-md">
+    <div className="flex flex-col rounded-2xl border border-[#e5eeff] bg-white p-5 shadow-sm">
       {/* Header */}
       <div className="mb-5 flex items-center gap-3">
-        <IconCircle tone={tone}>{icon}</IconCircle>
+        <IconCircle tone={tone}>
+          {icon}
+        </IconCircle>
 
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#565e74]">
@@ -40,12 +43,14 @@ export default function InsightMetricCard({
         {description}
       </p>
 
-      {/* Content */}
+      {/* Divider */}
       {children && (
         <>
           <div className="my-5 h-px bg-[#e5eeff]" />
 
-          <div className="flex-1">{children}</div>
+          <div className="flex-1">
+            {children}
+          </div>
         </>
       )}
     </div>

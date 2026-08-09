@@ -92,19 +92,22 @@ class InsightSnapshot(models.Model):
                 .first()
             )
 
-            if last_snapshot:
+            last_number = 0
+
+            if last_snapshot and last_snapshot.insight_id:
                 try:
                     last_number = int(
                         last_snapshot.insight_id.rsplit("-", 1)[-1]
                     )
                 except (ValueError, IndexError):
                     last_number = 0
-            else:
-                last_number = 0
 
             return f"INS-{today}-{last_number + 1:04d}"
 
     def mark_stale(self):
+        if self.is_stale:
+            return
+
         self.is_stale = True
 
         self.save(
@@ -144,7 +147,7 @@ class InsightSnapshot(models.Model):
 
     def mark_failed(self, error_message=""):
         self.status = self.Status.FAILED
-        self.error_message = str(error_message)
+        self.error_message = str(error_message)[:2000]
 
         self.save(
             update_fields=[
@@ -152,6 +155,20 @@ class InsightSnapshot(models.Model):
                 "error_message",
                 "updated_at",
             ]
+        )
+
+    @property
+    def is_ready(self):
+        return (
+            self.status == self.Status.READY
+            and bool(self.data)
+        )
+
+    @property
+    def needs_regeneration(self):
+        return (
+            self.is_stale
+            or not self.is_ready
         )
 
     def __str__(self):
@@ -185,12 +202,22 @@ class InsightSnapshot(models.Model):
                 fields=[
                     "user",
                     "is_stale",
-                ]
+                ],
+                name="insight_user_stale_idx",
             ),
             models.Index(
                 fields=[
                     "user",
                     "status",
-                ]
+                ],
+                name="insight_user_status_idx",
+            ),
+            models.Index(
+                fields=[
+                    "user",
+                    "period_start",
+                    "period_end",
+                ],
+                name="insight_user_period_idx",
             ),
         ]

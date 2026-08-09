@@ -1,7 +1,7 @@
 type MiniBarItem = {
-  month?: string;
+  month: string;
   amount: string | number;
-  amount_display?: string;
+  amount_display: string;
 };
 
 type MiniBarsProps = {
@@ -13,78 +13,75 @@ export default function MiniBars({
 }: MiniBarsProps) {
   const recentItems = items.slice(-6);
 
-  const values = recentItems.map((item) => {
-    const value = Number(item.amount);
-    return Number.isFinite(value) ? value : 0;
-  });
-
-  const maxValue = Math.max(...values, 1);
-
   if (recentItems.length === 0) {
     return (
-      <div className="flex h-28 items-center justify-center rounded-xl bg-[#f8faff]">
-        <p className="text-[12px] font-medium text-[#565e74]">
-          No spending trend data yet.
+      <div className="flex h-32 items-center justify-center rounded-xl border border-[#e5eeff] bg-[#f8faff]">
+        <p className="text-[12px] text-[#8a92a5]">
+          No monthly spending data available.
         </p>
       </div>
     );
   }
 
+  const values = recentItems.map((item) =>
+    Number(item.amount)
+  );
+
+  const maxValue = Math.max(...values, 1);
+
   return (
     <div>
-      {/* Chart */}
+      {/* Bars */}
       <div className="flex h-28 items-end gap-2">
         {recentItems.map((item, index) => {
-          const value = values[index];
+          const value = Number(item.amount);
 
           const height = Math.max(
             (value / maxValue) * 100,
-            value > 0 ? 12 : 4
+            value > 0 ? 10 : 4
           );
 
-          const isLatest = index === recentItems.length - 1;
+          const isLatest =
+            index === recentItems.length - 1;
 
           return (
             <div
-              key={`${item.month ?? "month"}-${index}`}
-              className="group flex h-full flex-1 flex-col justify-end"
+              key={`${item.month}-${index}`}
+              className="group flex flex-1 flex-col justify-end"
             >
-              <div className="relative flex h-full items-end">
-                {/* Tooltip */}
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-black px-2.5 py-1.5 text-[10px] font-semibold text-white shadow-sm group-hover:block">
-                  {item.amount_display ??
-                    formatCurrency(value)}
-                </div>
-
-                {/* Bar */}
-                <div
-                  className={`w-full rounded-t-md transition-all ${
-                    isLatest
-                      ? "bg-black"
-                      : "bg-[#cbd7ea] group-hover:bg-[#aebbd0]"
-                  }`}
-                  style={{
-                    height: `${height}%`,
-                  }}
-                />
+              {/* Tooltip */}
+              <div className="pointer-events-none mb-2 hidden rounded-lg bg-black px-2 py-1 text-center text-[10px] font-semibold text-white group-hover:block">
+                {item.amount_display}
               </div>
+
+              {/* Bar */}
+              <div
+                className={`w-full rounded-t-md transition-all duration-300 ${
+                  isLatest
+                    ? "bg-black"
+                    : "bg-[#c8d8ef] hover:bg-[#9fb7d7]"
+                }`}
+                style={{
+                  height: `${height}%`,
+                }}
+              />
             </div>
           );
         })}
       </div>
 
-      {/* Month labels */}
-      <div className="mt-2 flex gap-2">
+      {/* Labels */}
+      <div className="mt-3 flex gap-2">
         {recentItems.map((item, index) => (
           <div
-            key={`${item.month ?? "label"}-${index}`}
+            key={`${item.month}-label-${index}`}
             className={`flex-1 text-center text-[10px] font-semibold ${
               index === recentItems.length - 1
                 ? "text-black"
                 : "text-[#8a92a5]"
             }`}
           >
-            {formatMonth(item.month, index)}
+            {formatMonth(item.month)}
           </div>
         ))}
       </div>
@@ -92,29 +89,18 @@ export default function MiniBars({
   );
 }
 
-function formatMonth(
-  month: string | undefined,
-  index: number
-) {
+function formatMonth(month: string) {
   if (!month) {
-    return `${index + 1}`;
+    return "--";
   }
 
-  const parsedDate = new Date(month);
+  const parsed = new Date(month);
 
-  if (!Number.isNaN(parsedDate.getTime())) {
-    return parsedDate.toLocaleDateString("en-US", {
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString("en-US", {
       month: "short",
     });
   }
 
-  return month.slice(0, 3);
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return month.substring(0, 3);
 }

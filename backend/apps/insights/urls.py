@@ -1,12 +1,41 @@
 from django.urls import path
 
 from apps.insights.views import (
-    InsightsSummaryView,
+    InsightsDashboardView,
     RegenerateInsightsView,
+    InsightStatusView,
 )
 
+app_name = "insights"
 
 urlpatterns = [
-    path("", InsightsSummaryView.as_view(), name="insights-summary"),
-    path("regenerate/", RegenerateInsightsView.as_view(), name="insights-regenerate"),
+    # ------------------------------------------------------------------
+    # Dashboard
+    # GET /api/insights/
+    # ------------------------------------------------------------------
+    path(
+        "",
+        InsightsDashboardView.as_view(),
+        name="dashboard",
+    ),
+
+    # ------------------------------------------------------------------
+    # Manual regeneration
+    # POST /api/insights/regenerate/
+    # ------------------------------------------------------------------
+    path(
+        "regenerate/",
+        RegenerateInsightsView.as_view(),
+        name="regenerate",
+    ),
+
+    # ------------------------------------------------------------------
+    # Snapshot status
+    # GET /api/insights/status/
+    # ------------------------------------------------------------------
+    path(
+        "status/",
+        InsightStatusView.as_view(),
+        name="status",
+    ),
 ]
