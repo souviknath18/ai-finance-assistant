@@ -1,97 +1,219 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import BudgetHeader from "./BudgetsHeader";
 import AIRecommendationCard from "./AIRecommendationCard";
 import BudgetGrid from "./BudgetGrid";
-import QuickEditSection from "./QuickEditSection";
+import BudgetIntelligenceSection from "./BudgetIntelligenceSection";
 import CreateBudgetModal from "./CreateBudgetModal";
-import { getBudgetDashboard } from "@/lib/api/budgetApi";
-import { BudgetDashboard } from "@/types/budget";
+
 import ConfirmModal from "../ui/ConfirmModal";
-import { deleteBudget } from "@/lib/api/budgetApi";
 import PageLoader from "@/components/ui/PageLoader";
+import ErrorScreen from "@/components/ui/ErrorScreen";
+
+import {
+  deleteBudget,
+  getBudgetDashboard,
+} from "@/lib/api/budgetApi";
+
+import { BudgetDashboard } from "@/types/budget";
 
 export default function BudgetsPage() {
-  const [data, setData] = useState<BudgetDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const router = useRouter();
+
+  const [data, setData] =
+    useState<BudgetDashboard | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [createModalOpen, setCreateModalOpen] =
+    useState(false);
+
+  const [deleteOpen, setDeleteOpen] =
+    useState(false);
+
+  const [selectedBudgetId, setSelectedBudgetId] =
+    useState<string | null>(null);
+
+  const [deleteLoading, setDeleteLoading] =
+    useState(false);
 
   const loadBudgets = async () => {
-    setLoading(true);
-
     try {
-      const result = await getBudgetDashboard();
+      setError(null);
+      setLoading(true);
+
+      const result =
+        await getBudgetDashboard();
+
       setData(result);
+    } catch (err) {
+      console.error(
+        "Failed to load budgets:",
+        err
+      );
+
+      setData(null);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn't load your budgets."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteBudget = async () => {
-    if (!selectedBudgetId) return;
+  const handleDeleteBudget =
+    async () => {
+      if (!selectedBudgetId) {
+        return;
+      }
 
-    try {
-      setDeleteLoading(true);
+      try {
+        setDeleteLoading(true);
 
-      await deleteBudget(selectedBudgetId);
+        await deleteBudget(
+          selectedBudgetId
+        );
 
-      await loadBudgets();
+        await loadBudgets();
 
-      setDeleteOpen(false);
-      setSelectedBudgetId(null);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
+        setDeleteOpen(false);
+        setSelectedBudgetId(null);
+      } catch (err) {
+        console.error(
+          "Failed to delete budget:",
+          err
+        );
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "We couldn't delete this budget."
+        );
+      } finally {
+        setDeleteLoading(false);
+      }
+    };
 
   useEffect(() => {
     loadBudgets();
   }, []);
 
   if (loading) {
-    return <PageLoader message="Loading budgets..." />;
+    return <PageLoader />;
   }
 
-  if (!data) {
+  if (error && !data) {
     return (
-      <div className="text-[13px] font-semibold text-red-600">
-        Failed to load budgets.
-      </div>
+      <ErrorScreen
+        title="Unable to load budgets"
+        message={error}
+        retryText="Try Again"
+        backText="Back to Dashboard"
+        isRetrying={loading}
+        onRetryAction={loadBudgets}
+        onBackAction={() =>
+          router.push("/dashboard")
+        }
+      />
     );
   }
 
+  if (!data) {
+    return null;
+  }
+
   return (
-    <>
-      <BudgetHeader onCreateAction={() => setCreateModalOpen(true)} />
+    <main className="min-h-screen">
+      {/* ------------------------------------------------------------- */}
+      {/* Page Header */}
+      {/* ------------------------------------------------------------- */}
 
-      <AIRecommendationCard
-        title={data.recommendation.title}
-        description={data.recommendation.description}
+      <BudgetHeader
+        onCreateAction={() =>
+          setCreateModalOpen(true)
+        }
       />
 
-      <BudgetGrid
-        budgets={data.budgets}
-        onRefreshAction={loadBudgets}
-        onDeleteRequestAction={(budgetId) => {
-          setSelectedBudgetId(budgetId);
-          setDeleteOpen(true);
-        }}
-      />
+      {/* ------------------------------------------------------------- */}
+      {/* Non-blocking error */}
+      {/* ------------------------------------------------------------- */}
 
-      <QuickEditSection />
+      {error && data && (
+        <div className="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3">
+          <p className="text-[12px] font-medium text-red-700">
+            {error}
+          </p>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* Aura Recommendation */}
+      {/* ------------------------------------------------------------- */}
+
+      <section className="mb-6">
+        <AIRecommendationCard
+          title={
+            data.recommendation.title
+          }
+          description={
+            data.recommendation.description
+          }
+        />
+      </section>
+
+      {/* ------------------------------------------------------------- */}
+      {/* Budget Cards */}
+      {/* ------------------------------------------------------------- */}
+
+      <section className="mb-8">
+        <BudgetGrid
+          budgets={data.budgets}
+          onRefreshAction={loadBudgets}
+          onDeleteRequestAction={(
+            budgetId
+          ) => {
+            setSelectedBudgetId(
+              budgetId
+            );
+
+            setDeleteOpen(true);
+          }}
+        />
+      </section>
+
+      {/* ------------------------------------------------------------- */}
+      {/* Aura Budget Intelligence */}
+      {/* ------------------------------------------------------------- */}
+
+      <section className="mb-8">
+        <BudgetIntelligenceSection />
+      </section>
+
+      {/* ------------------------------------------------------------- */}
+      {/* Create Budget */}
+      {/* ------------------------------------------------------------- */}
 
       <CreateBudgetModal
         open={createModalOpen}
-        onCloseAction={() => setCreateModalOpen(false)}
+        onCloseAction={() =>
+          setCreateModalOpen(false)
+        }
         onSuccessAction={loadBudgets}
       />
+
+      {/* ------------------------------------------------------------- */}
+      {/* Delete confirmation */}
+      {/* ------------------------------------------------------------- */}
 
       <ConfirmModal
         open={deleteOpen}
@@ -103,8 +225,10 @@ export default function BudgetsPage() {
           setDeleteOpen(false);
           setSelectedBudgetId(null);
         }}
-        onConfirmAction={handleDeleteBudget}
+        onConfirmAction={
+          handleDeleteBudget
+        }
       />
-    </>
+    </main>
   );
 }

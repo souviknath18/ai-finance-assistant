@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar } from "lucide-react";
+import DateRangeFilter from "../ui/DateRangeFilter";
 
 export type InsightPeriod =
   | "this_month"
@@ -93,7 +94,7 @@ export default function PeriodSelector({
                 onClick={() =>
                   onChange(option.value)
                 }
-                className={`h-9 rounded-xl border px-4 text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform] duration-200 ${
+                className={`h-9 rounded-xl border px-4 text-[11px] font-bold transition-[background-color,border-color,color,box-shadow] duration-200 ${
                   active
                     ? "border-black bg-black text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)]"
                     : "border-[#e6edf9] bg-white text-[#565e74] hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)]"
@@ -108,91 +109,93 @@ export default function PeriodSelector({
 
       {/* Custom date range */}
       {value === "custom" &&
-        onCustomDateChange && (
-          <div className="border-t border-[#edf2fb] bg-[#fbfcff] p-5">
-            <div className="mb-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
-                Custom Date Range
-              </p>
+  onCustomDateChange && (
+    <div className="border-t border-[#edf2fb] bg-[#fbfcff] p-5">
+      {/* Heading */}
+      <div className="mb-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+          Custom Date Range
+        </p>
 
-              <p className="mt-1 text-[11px] text-[#565e74]">
-                Select the start and end date for Aura&apos;s analysis.
-              </p>
-            </div>
+        <p className="mt-1 text-[11px] text-[#565e74]">
+          Select the start and end date for Aura&apos;s analysis.
+        </p>
+      </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Start */}
-              <div>
-                <label
-                  htmlFor="insight-start-date"
-                  className="mb-2 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]"
-                >
-                  Start Date
-                </label>
+      {/* Compact date inputs */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="w-full sm:w-[260px]">
+          <DateRangeFilter
+            label="Start Date"
+            name="startDate"
+            value={startDate ?? ""}
+            onChangeAction={(name, dateValue) => {
+              if (name !== "startDate") {
+                return;
+              }
 
-                <div className="relative">
-                  <input
-                    id="insight-start-date"
-                    type="date"
-                    value={startDate ?? ""}
-                    onChange={(e) =>
-                      onCustomDateChange(
-                        e.target.value,
-                        endDate ?? ""
-                      )
-                    }
-                    className="h-11 w-full rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-medium text-black outline-none transition-[border-color,box-shadow] duration-200 hover:border-[#d8e2f0] focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50"
-                  />
-                </div>
-              </div>
+              onCustomDateChange(
+                dateValue,
+                endDate ?? ""
+              );
+            }}
+          />
+        </div>
 
-              {/* End */}
-              <div>
-                <label
-                  htmlFor="insight-end-date"
-                  className="mb-2 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]"
-                >
-                  End Date
-                </label>
+        <div className="w-full sm:w-[260px]">
+          <DateRangeFilter
+            label="End Date"
+            name="endDate"
+            value={endDate ?? ""}
+            onChangeAction={(name, dateValue) => {
+              if (name !== "endDate") {
+                return;
+              }
 
-                <div className="relative">
-                  <input
-                    id="insight-end-date"
-                    type="date"
-                    value={endDate ?? ""}
-                    min={startDate || undefined}
-                    onChange={(e) =>
-                      onCustomDateChange(
-                        startDate ?? "",
-                        e.target.value
-                      )
-                    }
-                    className="h-11 w-full rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-medium text-black outline-none transition-[border-color,box-shadow] duration-200 hover:border-[#d8e2f0] focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50"
-                  />
-                </div>
-              </div>
-            </div>
+              onCustomDateChange(
+                startDate ?? "",
+                dateValue
+              );
+            }}
+          />
+        </div>
+      </div>
 
-            {/* Selected range summary */}
-            {startDate && endDate && (
-              <div className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3.5 py-2.5">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-
-                <p className="text-[11px] font-medium text-emerald-700">
-                  Aura will analyze transactions from{" "}
-                  <span className="font-bold">
-                    {formatDate(startDate)}
-                  </span>{" "}
-                  to{" "}
-                  <span className="font-bold">
-                    {formatDate(endDate)}
-                  </span>
-                  .
-                </p>
-              </div>
-            )}
+      {/* Invalid range */}
+      {startDate &&
+        endDate &&
+        new Date(`${endDate}T00:00:00`) <
+          new Date(`${startDate}T00:00:00`) && (
+          <div className="mt-4 w-fit rounded-xl border border-red-100 bg-red-50 px-3.5 py-2.5">
+            <p className="text-[11px] font-medium text-red-700">
+              End date cannot be earlier than start date.
+            </p>
           </div>
         )}
+
+      {/* Selected range */}
+      {startDate &&
+        endDate &&
+        new Date(`${endDate}T00:00:00`) >=
+          new Date(`${startDate}T00:00:00`) && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3.5 py-2.5">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+
+            <p className="text-[11px] font-medium text-emerald-700">
+              Aura will analyze transactions from{" "}
+              <span className="font-bold">
+                {formatDate(startDate)}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold">
+                {formatDate(endDate)}
+              </span>
+              .
+            </p>
+          </div>
+        )}
+    </div>
+  )}
     </div>
   );
 }
@@ -204,7 +207,9 @@ function formatDate(
     `${value}T00:00:00`
   );
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(date.getTime())
+  ) {
     return value;
   }
 

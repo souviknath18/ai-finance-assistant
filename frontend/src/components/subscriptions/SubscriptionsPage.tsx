@@ -1,17 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
 import SubscriptionsHeader from "./SubscriptionsHeader";
 import SummaryMetrics from "./SummaryMetrics";
 import ActiveSubscriptions from "./ActiveSubscriptions";
 import RecommendationsPanel from "./RecommendationsPanel";
 import AddSubscriptionModal from "./AddSubscriptionModal";
-import { getDetectedSubscriptions } from "@/lib/api/subscriptionApi";
-import { SubscriptionDashboardResponse } from "@/types/subscription";
 import SubscriptionFilterModal, {
   SubscriptionFilters,
 } from "./SubscriptionFilterModal";
+
 import PageLoader from "@/components/ui/PageLoader";
+import ErrorScreen from "@/components/ui/ErrorScreen";
+
+import { getDetectedSubscriptions } from "@/lib/api/subscriptionApi";
+
+import { SubscriptionDashboardResponse } from "@/types/subscription";
 
 const emptyDashboard: SubscriptionDashboardResponse = {
   subscriptions: [],
@@ -28,107 +37,214 @@ const defaultFilters: SubscriptionFilters = {
 };
 
 export default function SubscriptionsPage() {
-  const [dashboard, setDashboard] =
-    useState<SubscriptionDashboardResponse>(emptyDashboard);
+  const [
+    dashboard,
+    setDashboard,
+  ] =
+    useState<SubscriptionDashboardResponse>(
+      emptyDashboard
+    );
 
-  const [loading, setLoading] = useState(true);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [filters, setFilters] = useState<SubscriptionFilters>(defaultFilters);
+  const [loading, setLoading] =
+    useState(true);
 
-  const loadSubscriptions = async () => {
-    try {
-      const data = await getDetectedSubscriptions();
-      setDashboard(data);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [
+    addModalOpen,
+    setAddModalOpen,
+  ] = useState(false);
+
+  const [
+    filterModalOpen,
+    setFilterModalOpen,
+  ] = useState(false);
+
+  const [filters, setFilters] =
+    useState<SubscriptionFilters>(
+      defaultFilters
+    );
+
+  const loadSubscriptions =
+    useCallback(async () => {
+      try {
+        setError(null);
+
+        const data =
+          await getDetectedSubscriptions();
+
+        setDashboard(data);
+      } catch (error) {
+        console.error(
+          "Failed to load subscriptions:",
+          error
+        );
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load subscriptions."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
   useEffect(() => {
     loadSubscriptions();
-  }, []);
+  }, [loadSubscriptions]);
 
-  const filteredSubscriptions = dashboard.subscriptions.filter((subscription) => {
-    const amount = Number(subscription.average_amount);
+  const filteredSubscriptions =
+    dashboard.subscriptions.filter(
+      (subscription) => {
+        const amount = Number(
+          subscription.average_amount
+        );
 
-    const categoryMatch =
-      filters.category === "All" ||
-      subscription.category?.toLowerCase() === filters.category.toLowerCase();
+        const categoryMatch =
+          filters.category === "All" ||
+          subscription.category?.toLowerCase() ===
+            filters.category.toLowerCase();
 
-    const sourceMatch =
-      filters.source === "all" || subscription.source === filters.source;
+        const sourceMatch =
+          filters.source === "all" ||
+          subscription.source ===
+            filters.source;
 
-    const preferenceMatch =
-      filters.preference_status === "all" ||
-      subscription.preference_status === filters.preference_status ||
-      (filters.preference_status === "cancel_candidate" &&
-        subscription.preference_status === "ignored");
+        const preferenceMatch =
+          filters.preference_status ===
+            "all" ||
+          subscription.preference_status ===
+            filters.preference_status ||
+          (filters.preference_status ===
+            "cancel_candidate" &&
+            subscription.preference_status ===
+              "ignored");
 
-    const billingMatch =
-      filters.billing_cycle === "all" ||
-      subscription.billing_cycle === filters.billing_cycle;
+        const billingMatch =
+          filters.billing_cycle ===
+            "all" ||
+          subscription.billing_cycle ===
+            filters.billing_cycle;
 
-    const amountMatch = amount <= filters.max_amount;
+        const amountMatch =
+          amount <=
+          filters.max_amount;
 
-    return (
-      categoryMatch &&
-      sourceMatch &&
-      preferenceMatch &&
-      billingMatch &&
-      amountMatch
+        return (
+          categoryMatch &&
+          sourceMatch &&
+          preferenceMatch &&
+          billingMatch &&
+          amountMatch
+        );
+      }
     );
-  });
 
   if (loading) {
-    return <PageLoader message="Loading subscriptions..." />;
+    return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <ErrorScreen
+        title="Unable to load subscriptions"
+        message={error}
+        retryText="Try Again"
+        onRetryAction={() => {
+          setLoading(true);
+          loadSubscriptions();
+        }}
+      />
+    );
   }
 
   return (
     <>
+      {/* Page Header */}
       <SubscriptionsHeader
-        count={filteredSubscriptions.length}
-        onAddManualAction={() => setAddModalOpen(true)}
-        onFilterAction={() => setFilterModalOpen(true)}
+        count={
+          filteredSubscriptions.length
+        }
+        onAddManualAction={() =>
+          setAddModalOpen(true)
+        }
+        onFilterAction={() =>
+          setFilterModalOpen(true)
+        }
       />
 
+      {/* Summary */}
       <SummaryMetrics
-        subscriptions={filteredSubscriptions}
-        duplicates={dashboard.duplicates}
+        subscriptions={
+          filteredSubscriptions
+        }
+        duplicates={
+          dashboard.duplicates
+        }
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {/* Main Content */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <ActiveSubscriptions
-          subscriptions={filteredSubscriptions}
-          loading={loading}
-          onRefreshAction={loadSubscriptions}
+          subscriptions={
+            filteredSubscriptions
+          }
+          loading={false}
+          onRefreshAction={
+            loadSubscriptions
+          }
           emptyMessage={
-            dashboard.subscriptions.length === 0
+            dashboard.subscriptions
+              .length === 0
               ? "No recurring subscriptions detected yet."
               : "No subscriptions match the selected filters."
           }
         />
 
         <RecommendationsPanel
-          subscriptions={dashboard.subscriptions}
-          duplicates={dashboard.duplicates}
-          upcomingBills={dashboard.upcoming_bills}
-          onRefreshAction={loadSubscriptions}
+          subscriptions={
+            dashboard.subscriptions
+          }
+          duplicates={
+            dashboard.duplicates
+          }
+          upcomingBills={
+            dashboard.upcoming_bills
+          }
+          onRefreshAction={
+            loadSubscriptions
+          }
         />
       </div>
 
+      {/* Add Subscription */}
       <AddSubscriptionModal
         open={addModalOpen}
-        onCloseAction={() => setAddModalOpen(false)}
-        onSuccessAction={loadSubscriptions}
+        onCloseAction={() =>
+          setAddModalOpen(false)
+        }
+        onSuccessAction={
+          loadSubscriptions
+        }
       />
 
+      {/* Filters */}
       <SubscriptionFilterModal
         open={filterModalOpen}
         filters={filters}
-        onCloseAction={() => setFilterModalOpen(false)}
-        onApplyAction={setFilters}
-        onClearAction={() => setFilters(defaultFilters)}
+        onCloseAction={() =>
+          setFilterModalOpen(false)
+        }
+        onApplyAction={
+          setFilters
+        }
+        onClearAction={() =>
+          setFilters(
+            defaultFilters
+          )
+        }
       />
     </>
   );

@@ -25,31 +25,44 @@ export default function SubscriptionCard({
 }: SubscriptionCardProps) {
   const toneClass =
     tone === "red"
-      ? "bg-red-50 text-red-600"
+      ? "border-red-100 bg-red-50 text-red-600"
       : tone === "green"
-      ? "bg-emerald-100 text-emerald-700"
-      : "bg-[#dce9ff] text-black";
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+      : "border-[#e6edf9] bg-[#f3f6fc] text-black";
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-[#dce9ff] bg-white p-5 shadow-sm transition hover:shadow-md md:flex-row md:items-center">
+    <div className="flex flex-col gap-4 rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow] duration-200 hover:border-[#dbe5f5] hover:shadow-[0_8px_26px_rgba(15,23,42,0.07)] md:flex-row md:items-center">
+      {/* Service icon */}
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClass}`}
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border text-[14px] font-bold ${toneClass}`}
       >
-        <span className="text-base font-black">{name.charAt(0)}</span>
+        {name.charAt(0).toUpperCase()}
       </div>
 
-      <div className="flex-1">
-        <div className="flex justify-between gap-4">
-          <div>
-            <h3 className="text-base font-bold text-black">{name}</h3>
-            <p className="text-[13px] text-[#565e74]">{detail}</p>
+      {/* Subscription information */}
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h3 className="truncate text-[15px] font-bold text-black">
+              {name}
+            </h3>
+
+            <p className="mt-1 text-[12px] leading-5 text-[#565e74]">
+              {detail}
+            </p>
           </div>
 
-          <div className="text-right">
-            <p className="text-base font-bold text-black">{amount}</p>
+          {/* Amount */}
+          <div className="shrink-0 sm:text-right">
+            <p className="text-[16px] font-bold tracking-tight text-black">
+              {amount}
+            </p>
+
             <p
-              className={`text-[11px] font-bold ${
-                next.includes("Est") ? "text-emerald-700" : "text-[#7c839b]"
+              className={`mt-1 text-[10px] font-bold ${
+                next.includes("Est")
+                  ? "text-emerald-700"
+                  : "text-[#7c839b]"
               }`}
             >
               {next}
@@ -58,20 +71,23 @@ export default function SubscriptionCard({
         </div>
       </div>
 
-      <div className="flex gap-2 md:border-l md:border-[#c6c6cd] md:pl-5">
+      {/* Actions */}
+      <div className="flex shrink-0 items-center gap-2 border-t border-[#edf2fb] pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
         <button
+          type="button"
           onClick={onSecondaryAction}
-          className="rounded-xl border border-[#c6c6cd] px-4 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
+          className="h-10 rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-bold text-black transition-[background-color,border-color,box-shadow] duration-200 hover:border-[#dbe5f5] hover:bg-[#f8faff] hover:shadow-[0_4px_12px_rgba(15,23,42,0.04)]"
         >
           {secondaryAction}
         </button>
 
         <button
+          type="button"
           onClick={onPrimaryAction}
-          className={`rounded-xl px-4 py-2.5 text-[13px] font-bold transition ${
+          className={`h-10 rounded-xl px-4 text-[12px] font-bold transition-[background-color,border-color,opacity,box-shadow] duration-200 ${
             danger
-              ? "border border-red-600 text-red-600 hover:bg-red-50"
-              : "bg-black text-white hover:opacity-90"
+              ? "border border-red-200 bg-white text-red-600 hover:border-red-300 hover:bg-red-50"
+              : "border border-black bg-black text-white hover:opacity-90 hover:shadow-[0_4px_12px_rgba(15,23,42,0.12)]"
           }`}
         >
           {primaryAction}

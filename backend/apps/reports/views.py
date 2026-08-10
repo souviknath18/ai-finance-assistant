@@ -1,6 +1,6 @@
 import json
 from io import BytesIO
-
+from datetime import date
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import FileResponse
 
@@ -17,6 +17,11 @@ from .services import get_report_dashboard
 from apps.notifications.services import create_notification_once
 from ai_engine.reports.report_ai_writer import (
     generate_ai_report_summary,
+)
+
+from .services import (
+    build_report_dashboard,
+    resolve_report_period,
 )
 
 
@@ -70,55 +75,208 @@ class ReportDashboardView(APIView):
 
 
 class GenerateReportView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated,
+    ]
 
     def post(self, request):
-        interval = request.data.get("interval", "monthly")
+        interval = request.data.get(
+            "interval",
+            "monthly",
+        )
 
-        report_data = get_report_dashboard(request.user)
+        start_date_raw = request.data.get(
+            "start_date"
+        )
+
+        end_date_raw = request.data.get(
+            "end_date"
+        )
+
+        start_date = None
+        end_date = None
+
+        # ---------------------------------
+        # Parse custom dates
+        # ---------------------------------
+
+        if interval == "custom":
+            if (
+                not start_date_raw
+                or not end_date_raw
+            ):
+                return Response(
+                    {
+                        "detail": (
+                            "start_date and end_date "
+                            "are required for a custom report."
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            try:
+                start_date = (
+                    date.fromisoformat(
+                        start_date_raw
+                    )
+                )
+
+                end_date = (
+                    date.fromisoformat(
+                        end_date_raw
+                    )
+                )
+
+            except ValueError:
+                return Response(
+                    {
+                        "detail": (
+                            "Dates must use "
+                            "YYYY-MM-DD format."
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # ---------------------------------
+        # Resolve reporting period
+        # ---------------------------------
 
         try:
-            ai_summary = generate_ai_report_summary(report_data)
+            (
+                resolved_start,
+                resolved_end,
+            ) = resolve_report_period(
+                interval=interval,
+                start_date=start_date,
+                end_date=end_date,
+            )
 
-        except Exception as error:
-            print("AI report generation failed:", error)
+        except ValueError as error:
+            return Response(
+                {
+                    "detail": str(error)
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            ai_summary = report_data["ai_insight"]["summary"]
+        # ---------------------------------
+        # Build real report for this range
+        # ---------------------------------
 
-        report_data["ai_insight"]["summary"] = ai_summary
-
-        serialized_report_data = json.loads(
-            json.dumps(
-                report_data,
-                cls=DjangoJSONEncoder,
+        report_data = (
+            build_report_dashboard(
+                user=request.user,
+                start_date=resolved_start,
+                end_date=resolved_end,
+                interval=interval,
             )
         )
 
-        report = GeneratedReport.objects.create(
-            user=request.user,
-            title=report_data["period"]["title"],
-            interval=interval,
-            period_range=report_data["period"]["range"],
-            report_data=serialized_report_data,
-            ai_summary=ai_summary,
+        # ---------------------------------
+        # AI summary
+        # ---------------------------------
+
+        try:
+            ai_summary = (
+                generate_ai_report_summary(
+                    report_data
+                )
+            )
+
+        except Exception as error:
+            print(
+                "AI report generation failed:",
+                error,
+            )
+
+            ai_summary = (
+                report_data[
+                    "ai_insight"
+                ]["summary"]
+            )
+
+        report_data[
+            "ai_insight"
+        ]["summary"] = ai_summary
+
+        serialized_report_data = (
+            json.loads(
+                json.dumps(
+                    report_data,
+                    cls=DjangoJSONEncoder,
+                )
+            )
         )
+
+        # ---------------------------------
+        # Save generated report
+        # ---------------------------------
+
+        report = (
+            GeneratedReport.objects.create(
+                user=request.user,
+
+                title=report_data[
+                    "period"
+                ]["title"],
+
+                interval=interval,
+
+                period_range=report_data[
+                    "period"
+                ]["range"],
+
+                report_data=(
+                    serialized_report_data
+                ),
+
+                ai_summary=ai_summary,
+            )
+        )
+
+        # ---------------------------------
+        # Notification
+        # ---------------------------------
 
         create_notification_once(
             user=request.user,
-            title="Financial Report Ready",
-            description=f"Your {interval} financial report for {report.period_range} is ready.",
+
+            title=(
+                "Financial Report Ready"
+            ),
+
+            description=(
+                f"Your {interval} financial "
+                f"report for "
+                f"{report.period_range} "
+                f"is ready."
+            ),
+
             notification_type="report",
             tone="muted",
-            action_label="Download PDF",
-            action_url=f"/reports",
+
+            action_label=(
+                "Download PDF"
+            ),
+
+            action_url=(
+                f"/reports/{report.report_id}"
+            ),
         )
 
         return Response(
             {
-                "report_id": report.report_id,
-                "report": report_data,
+                "report_id":
+                    report.report_id,
+
+                "report":
+                    report_data,
             },
-            status=status.HTTP_201_CREATED,
+            status=(
+                status.HTTP_201_CREATED
+            ),
         )
 
 

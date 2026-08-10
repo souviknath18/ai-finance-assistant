@@ -17,7 +17,7 @@ export default function FileStatsGrid({
     stats?.success_rate ?? 0;
 
   return (
-    <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <FileStatCard
         label="Total Uploads"
         value={

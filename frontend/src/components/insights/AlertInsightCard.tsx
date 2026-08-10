@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   AlertTriangle,
   CheckCircle2,
@@ -8,7 +9,6 @@ import {
 
 import { InsightSeverity } from "@/types/insights";
 
-
 type AlertInsightCardProps = {
   icon?: React.ReactNode;
   tag?: string;
@@ -17,7 +17,6 @@ type AlertInsightCardProps = {
   severity: InsightSeverity;
 };
 
-
 export default function AlertInsightCard({
   icon,
   tag,
@@ -25,32 +24,61 @@ export default function AlertInsightCard({
   description,
   severity,
 }: AlertInsightCardProps) {
-  const styles = getSeverityStyles(
-    severity
-  );
+  const styles = getSeverityStyles(severity);
 
   return (
     <div
-      className={`flex flex-1 flex-col rounded-2xl border ${styles.border} border-l-4 ${styles.accent} bg-white p-5 shadow-sm`}
+      className={`
+        flex
+        h-full
+        flex-1
+        flex-col
+        rounded-3xl
+        border
+        ${styles.border}
+        border-l-4
+        ${styles.accent}
+        bg-white
+        p-5
+        shadow-[0_6px_24px_rgba(15,23,42,0.06)]
+        transition-[border-color,box-shadow]
+        duration-200
+        hover:shadow-[0_8px_26px_rgba(15,23,42,0.08)]
+      `}
     >
       {/* Header */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}
+          className={`
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-2xl
+            border
+            ${styles.icon}
+          `}
         >
-          {icon ??
-            getSeverityIcon(
-              severity
-            )}
+          {icon ?? getSeverityIcon(severity)}
         </div>
 
         <span
-          className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${styles.tag}`}
+          className={`
+            shrink-0
+            rounded-full
+            border
+            px-2.5
+            py-1
+            text-[9px]
+            font-bold
+            uppercase
+            tracking-[0.12em]
+            ${styles.tag}
+          `}
         >
-          {tag ??
-            getSeverityLabel(
-              severity
-            )}
+          {tag ?? getSeverityLabel(severity)}
         </span>
       </div>
 
@@ -60,7 +88,7 @@ export default function AlertInsightCard({
           {title}
         </h3>
 
-        <p className="mt-1.5 text-[13px] leading-5 text-[#565e74]">
+        <p className="mt-1.5 text-[12px] leading-5 text-[#565e74]">
           {description}
         </p>
       </div>
@@ -68,16 +96,17 @@ export default function AlertInsightCard({
   );
 }
 
-
 function getSeverityStyles(
   severity: InsightSeverity
 ) {
   if (severity === "critical") {
     return {
       border: "border-red-100",
-      accent: "border-l-red-700",
-      icon: "bg-red-50 text-red-700",
-      tag: "bg-red-50 text-red-700",
+      accent: "border-l-red-600",
+      icon:
+        "border-red-100 bg-red-50 text-red-700",
+      tag:
+        "border-red-100 bg-red-50 text-red-700",
     };
   }
 
@@ -85,53 +114,51 @@ function getSeverityStyles(
     return {
       border: "border-amber-100",
       accent: "border-l-amber-500",
-      icon: "bg-amber-50 text-amber-700",
-      tag: "bg-amber-50 text-amber-700",
+      icon:
+        "border-amber-100 bg-amber-50 text-amber-700",
+      tag:
+        "border-amber-100 bg-amber-50 text-amber-700",
     };
   }
 
   if (severity === "positive") {
     return {
       border: "border-emerald-100",
-      accent: "border-l-emerald-700",
-      icon: "bg-emerald-50 text-emerald-700",
-      tag: "bg-emerald-50 text-emerald-700",
+      accent: "border-l-emerald-600",
+      icon:
+        "border-emerald-100 bg-emerald-50 text-emerald-700",
+      tag:
+        "border-emerald-100 bg-emerald-50 text-emerald-700",
     };
   }
 
   return {
-    border: "border-[#e5eeff]",
-    accent: "border-l-[#9fb7d7]",
-    icon: "bg-[#eff4ff] text-[#565e74]",
-    tag: "bg-[#eff4ff] text-[#565e74]",
+    border: "border-[#e6edf9]",
+    accent: "border-l-emerald-500",
+    icon:
+      "border-emerald-100 bg-emerald-50 text-emerald-700",
+    tag:
+      "border-[#e8eefb] bg-[#fbfcff] text-[#565e74]",
   };
 }
-
 
 function getSeverityIcon(
   severity: InsightSeverity
 ) {
   if (severity === "critical") {
-    return (
-      <ShieldAlert size={18} />
-    );
+    return <ShieldAlert size={17} />;
   }
 
   if (severity === "warning") {
-    return (
-      <AlertTriangle size={18} />
-    );
+    return <AlertTriangle size={17} />;
   }
 
   if (severity === "positive") {
-    return (
-      <CheckCircle2 size={18} />
-    );
+    return <CheckCircle2 size={17} />;
   }
 
-  return <Info size={18} />;
+  return <Info size={17} />;
 }
-
 
 function getSeverityLabel(
   severity: InsightSeverity

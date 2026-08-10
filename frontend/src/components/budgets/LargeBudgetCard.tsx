@@ -4,95 +4,265 @@ import { BudgetItem } from "@/types/budget";
 type LargeBudgetCardProps = {
   budget: BudgetItem;
   icon: React.ReactNode;
+  onEditAction?: (budget: BudgetItem) => void;
 };
 
 export default function LargeBudgetCard({
   budget,
   icon,
+  onEditAction,
 }: LargeBudgetCardProps) {
   const isCritical =
-    budget.status === "critical" || budget.status === "exceeded";
+    budget.status === "critical" ||
+    budget.status === "exceeded";
+
+  const isWarning =
+    budget.status === "warning";
+
+  const safeProgress = Math.min(
+    Math.max(budget.usage_percent, 0),
+    100
+  );
+
+  const statusStyles =
+    getStatusStyles(budget.status);
 
   return (
     <div
-      className={`flex flex-col rounded-2xl border bg-white p-5 shadow-sm md:col-span-8 ${
+      className={`relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow] duration-200 md:col-span-8 ${
         isCritical
-          ? "border-red-100 shadow-[0_0_20px_rgba(239,68,68,0.08)]"
-          : "border-[#e5eeff]"
+          ? "border-red-100 hover:border-red-200 hover:shadow-[0_8px_26px_rgba(239,68,68,0.07)]"
+          : "border-[#e6edf9] hover:border-[#dbe5f5] hover:shadow-[0_8px_26px_rgba(15,23,42,0.08)]"
       }`}
     >
-      <div className="mb-6 flex items-start justify-between">
-        <div className="flex items-center gap-3">
+      {/* Soft status background */}
+      <div
+        className={`pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full blur-3xl ${
+          isCritical
+            ? "bg-red-50"
+            : isWarning
+            ? "bg-amber-50"
+            : "bg-emerald-50"
+        }`}
+      />
+
+      {/* Header */}
+      <div className="relative z-10 flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-start gap-3">
+          {/* Icon */}
           <div
-            className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-              isCritical ? "bg-red-50 text-red-600" : "bg-[#e5eeff] text-black"
-            }`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${statusStyles.icon}`}
           >
             {icon}
           </div>
 
-          <div>
-            <h3 className="text-xl font-bold text-black">
-              {budget.category}
-            </h3>
+          {/* Details */}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-[18px] font-bold tracking-tight text-black sm:text-xl">
+                {budget.category}
+              </h3>
 
-            <div className="mt-1.5 flex items-center gap-2">
               <span
-                className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                  isCritical
-                    ? "bg-red-50 text-red-600"
-                    : budget.status === "warning"
-                    ? "bg-yellow-50 text-yellow-700"
-                    : "bg-emerald-50 text-emerald-700"
-                }`}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] ${statusStyles.badge}`}
               >
-                {budget.status}
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${statusStyles.dot}`}
+                />
+
+                {formatStatus(
+                  budget.status
+                )}
               </span>
             </div>
 
-            <p className="mt-1.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
-              Active {budget.period === "weekly" ? "Weekly" : "Monthly"} Budget
+            <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+              Active{" "}
+              {budget.period === "weekly"
+                ? "Weekly"
+                : "Monthly"}{" "}
+              Budget
             </p>
           </div>
         </div>
 
-        <button className="rounded-full p-1.5 text-[#565e74] transition hover:bg-[#e5eeff] hover:text-black">
-          <Edit size={16} />
+        {/* Edit */}
+        <button
+          type="button"
+          onClick={() =>
+            onEditAction?.(budget)
+          }
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e6edf9] bg-white text-[#565e74] transition-[background-color,border-color,color,box-shadow] duration-200 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)]"
+          aria-label={`Edit ${budget.category} budget`}
+        >
+          <Edit size={15} />
         </button>
       </div>
 
-      <div className="mt-auto">
-        <div className="mb-2.5 flex items-end justify-between gap-4">
+      {/* Main usage */}
+      <div className="relative z-10 mt-auto pt-8">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span className="text-2xl font-bold text-black">
-              {budget.spent_display}
-            </span>
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+              Budget Usage
+            </p>
 
-            <span className="ml-2 text-[13px] text-[#565e74]">
-              of {budget.limit_display} spent
-            </span>
+            <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span
+                className={`text-2xl font-bold tracking-tight ${
+                  isCritical
+                    ? "text-red-600"
+                    : "text-black"
+                }`}
+              >
+                {budget.spent_display}
+              </span>
+
+              <span className="text-[12px] font-medium text-[#565e74]">
+                of {budget.limit_display} spent
+              </span>
+            </div>
           </div>
 
-          <span
-            className={`text-[11px] font-bold uppercase tracking-wide ${
-              isCritical ? "text-red-600" : "text-[#565e74]"
-            }`}
-          >
-            {Math.round(budget.raw_usage_percent)}% used
-          </span>
+          <div className="shrink-0 sm:text-right">
+            <p
+              className={`text-[16px] font-bold ${statusStyles.percent}`}
+            >
+              {Math.round(
+                budget.raw_usage_percent
+              )}
+              %
+            </p>
+
+            <p className="mt-0.5 text-[9px] font-bold uppercase tracking-wide text-[#7c839b]">
+              Used
+            </p>
+          </div>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-[#e5eeff]">
+        {/* Progress bar */}
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#edf2fb]">
           <div
-            className={`h-full rounded-full ${
-              budget.status === "critical" || budget.status === "exceeded"
-                ? "bg-red-600"
-                : "bg-emerald-700"
-            }`}
-            style={{ width: `${budget.usage_percent}%` }}
+            className={`h-full rounded-full transition-[width] duration-700 ease-out ${statusStyles.progress}`}
+            style={{
+              width: `${safeProgress}%`,
+            }}
           />
+        </div>
+
+        {/* Bottom summary */}
+        <div className="mt-4 flex flex-col gap-3 border-t border-[#edf2fb] pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+              Remaining
+            </p>
+
+            <p
+              className={`mt-1 text-[13px] font-bold ${
+                isCritical
+                  ? "text-red-600"
+                  : "text-black"
+              }`}
+            >
+              {budget.remaining_display}
+            </p>
+          </div>
+
+          <div
+            className={`inline-flex w-fit items-center rounded-xl border px-3 py-2 text-[10px] font-bold ${statusStyles.summary}`}
+          >
+            {getBudgetMessage(
+              budget.status
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
+}
+
+function getStatusStyles(
+  status: BudgetItem["status"]
+) {
+  if (
+    status === "critical" ||
+    status === "exceeded"
+  ) {
+    return {
+      icon:
+        "border-red-100 bg-red-50 text-red-600",
+      badge:
+        "border-red-100 bg-red-50 text-red-600",
+      dot: "bg-red-500",
+      percent: "text-red-600",
+      progress:
+        "bg-gradient-to-r from-red-600 to-red-400",
+      summary:
+        "border-red-100 bg-red-50 text-red-600",
+    };
+  }
+
+  if (status === "warning") {
+    return {
+      icon:
+        "border-amber-100 bg-amber-50 text-amber-700",
+      badge:
+        "border-amber-100 bg-amber-50 text-amber-700",
+      dot: "bg-amber-500",
+      percent: "text-amber-700",
+      progress:
+        "bg-gradient-to-r from-amber-500 to-amber-400",
+      summary:
+        "border-amber-100 bg-amber-50 text-amber-700",
+    };
+  }
+
+  return {
+    icon:
+      "border-emerald-100 bg-emerald-50 text-emerald-700",
+    badge:
+      "border-emerald-100 bg-emerald-50 text-emerald-700",
+    dot: "bg-emerald-500",
+    percent: "text-emerald-700",
+    progress:
+      "bg-gradient-to-r from-emerald-700 to-emerald-400",
+    summary:
+      "border-emerald-100 bg-emerald-50 text-emerald-700",
+  };
+}
+
+function formatStatus(
+  status: BudgetItem["status"]
+) {
+  if (status === "exceeded") {
+    return "Exceeded";
+  }
+
+  if (status === "critical") {
+    return "Critical";
+  }
+
+  if (status === "warning") {
+    return "Watch";
+  }
+
+  return "Healthy";
+}
+
+function getBudgetMessage(
+  status: BudgetItem["status"]
+) {
+  if (status === "exceeded") {
+    return "Budget limit exceeded";
+  }
+
+  if (status === "critical") {
+    return "Spending needs attention";
+  }
+
+  if (status === "warning") {
+    return "Approaching budget limit";
+  }
+
+  return "Spending is within budget";
 }

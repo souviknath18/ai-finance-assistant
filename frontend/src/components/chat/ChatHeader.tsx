@@ -1,27 +1,30 @@
-import { Search } from "lucide-react";
-
 export default function ChatHeader() {
   return (
-    <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-black">
-          AI Chat Assistant
+        {/* 
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">
+          Aura Intelligence
+        </span>
+        */}
+
+        <h1 className="text-xl font-bold tracking-tight text-black">
+          Aura Chat
         </h1>
 
-        <p className="mt-1.5 text-[13px] leading-6 text-[#565e74]">
-          Ask Aura questions about spending, budgets, subscriptions, and
-          savings.
+        <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
+          Ask Aura questions about your spending, budgets,
+          subscriptions, savings, and transaction history.
         </p>
       </div>
 
-      <div className="hidden items-center gap-2.5 rounded-full border border-[#c6c6cd] bg-white px-3.5 py-2 lg:flex">
-        <Search size={16} className="text-[#565e74]" />
+      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
 
-        <input
-          className="w-48 border-none bg-transparent text-[13px] outline-none"
-          placeholder="Search finances..."
-        />
+        <span className="text-[10px] font-bold text-emerald-700">
+          Aura Online
+        </span>
       </div>
-    </div>
+    </section>
   );
 }
