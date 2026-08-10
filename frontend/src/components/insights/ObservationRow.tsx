@@ -1,10 +1,8 @@
 import { InsightItem } from "@/types/insights";
 
-
 type ObservationRowProps = {
   insight: InsightItem;
 };
-
 
 export default function ObservationRow({
   insight,
@@ -18,18 +16,18 @@ export default function ObservationRow({
     insight.description;
 
   return (
-    <tr className="transition hover:bg-[#fbfdff]">
+    <tr className="transition-colors duration-200 hover:bg-[#fbfcff]">
       {/* Insight */}
       <td className="px-5 py-4 align-top">
-        <div className="max-w-md">
+        <div className="max-w-[440px]">
           <div className="flex items-center gap-2">
-            <p className="text-[13px] font-bold leading-5 text-black">
-              {title}
-            </p>
-
             <SeverityDot
               severity={insight.severity}
             />
+
+            <p className="text-[13px] font-bold leading-5 text-black">
+              {title}
+            </p>
           </div>
 
           <p className="mt-1 text-[12px] leading-5 text-[#565e74]">
@@ -37,7 +35,7 @@ export default function ObservationRow({
           </p>
 
           {insight.ai?.recommendation && (
-            <p className="mt-2 text-[11px] font-medium leading-5 text-[#8a92a5]">
+            <p className="mt-2 text-[11px] font-medium leading-5 text-[#7c839b]">
               {insight.ai.recommendation}
             </p>
           )}
@@ -46,7 +44,7 @@ export default function ObservationRow({
 
       {/* Category */}
       <td className="px-5 py-4 align-top">
-        <span className="inline-flex rounded-full border border-[#e5eeff] bg-[#eff4ff] px-2.5 py-1 text-[11px] font-bold text-black">
+        <span className="inline-flex rounded-full border border-[#e8eefb] bg-[#fbfcff] px-2.5 py-1 text-[10px] font-bold text-black">
           {insight.category || "General"}
         </span>
       </td>
@@ -63,7 +61,7 @@ export default function ObservationRow({
         {insight.action ? (
           <a
             href={insight.action.url}
-            className="inline-flex rounded-lg border border-[#e5eeff] bg-white px-3 py-1.5 text-[11px] font-bold text-black shadow-sm transition hover:bg-[#eff4ff]"
+            className="inline-flex rounded-xl border border-[#e6edf9] bg-white px-3 py-1.5 text-[11px] font-bold text-black transition hover:border-emerald-200 hover:bg-emerald-50/40 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)]"
           >
             {insight.action.label}
           </a>
@@ -77,7 +75,6 @@ export default function ObservationRow({
   );
 }
 
-
 function ImpactValue({
   insight,
 }: {
@@ -88,7 +85,7 @@ function ImpactValue({
 
   if (!impact?.display) {
     return (
-      <span className="text-[13px] font-bold text-[#565e74]">
+      <span className="text-[11px] font-semibold text-[#8a92a5]">
         —
       </span>
     );
@@ -115,7 +112,6 @@ function ImpactValue({
     </span>
   );
 }
-
 
 function SeverityDot({
   severity,

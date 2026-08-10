@@ -60,90 +60,160 @@ export default function PeriodSelector({
   onCustomDateChange,
 }: PeriodSelectorProps) {
   return (
-    <div className="rounded-2xl border border-[#e5eeff] bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
+      {/* Main row */}
+      <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center lg:justify-between">
         {/* Left */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eff4ff]">
-            <Calendar
-              size={18}
-              className="text-black"
-            />
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700">
+            <Calendar size={18} />
           </div>
 
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#565e74]">
+          <div className="min-w-0">
+            <h3 className="text-[15px] font-bold text-black">
               Analysis Period
-            </p>
+            </h3>
 
-            <p className="mt-1 text-[13px] text-[#565e74]">
-              Choose which transactions Aura should
-              analyze.
+            <p className="mt-0.5 text-[12px] leading-5 text-[#565e74]">
+              Choose which transactions Aura should analyze.
             </p>
           </div>
         </div>
 
-        {/* Right */}
+        {/* Period buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          {PERIOD_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() =>
-                onChange(option.value)
-              }
-              className={`rounded-xl border px-4 py-2 text-[12px] font-bold transition ${
-                value === option.value
-                  ? "border-black bg-black text-white"
-                  : "border-[#e5eeff] bg-white text-black hover:bg-[#eff4ff]"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
+          {PERIOD_OPTIONS.map((option) => {
+            const active =
+              value === option.value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() =>
+                  onChange(option.value)
+                }
+                className={`h-9 rounded-xl border px-4 text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform] duration-200 ${
+                  active
+                    ? "border-black bg-black text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)]"
+                    : "border-[#e6edf9] bg-white text-[#565e74] hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)]"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* Custom date range */}
       {value === "custom" &&
         onCustomDateChange && (
-          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
-                Start Date
-              </label>
+          <div className="border-t border-[#edf2fb] bg-[#fbfcff] p-5">
+            <div className="mb-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
+                Custom Date Range
+              </p>
 
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) =>
-                  onCustomDateChange(
-                    e.target.value,
-                    endDate || ""
-                  )
-                }
-                className="w-full rounded-xl border border-[#e5eeff] bg-white px-4 py-2.5 text-[13px] shadow-sm outline-none transition focus:border-black"
-              />
+              <p className="mt-1 text-[11px] text-[#565e74]">
+                Select the start and end date for Aura&apos;s analysis.
+              </p>
             </div>
 
-            <div>
-              <label className="mb-2 block text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
-                End Date
-              </label>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Start */}
+              <div>
+                <label
+                  htmlFor="insight-start-date"
+                  className="mb-2 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]"
+                >
+                  Start Date
+                </label>
 
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) =>
-                  onCustomDateChange(
-                    startDate || "",
-                    e.target.value
-                  )
-                }
-                className="w-full rounded-xl border border-[#e5eeff] bg-white px-4 py-2.5 text-[13px] shadow-sm outline-none transition focus:border-black"
-              />
+                <div className="relative">
+                  <input
+                    id="insight-start-date"
+                    type="date"
+                    value={startDate ?? ""}
+                    onChange={(e) =>
+                      onCustomDateChange(
+                        e.target.value,
+                        endDate ?? ""
+                      )
+                    }
+                    className="h-11 w-full rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-medium text-black outline-none transition-[border-color,box-shadow] duration-200 hover:border-[#d8e2f0] focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50"
+                  />
+                </div>
+              </div>
+
+              {/* End */}
+              <div>
+                <label
+                  htmlFor="insight-end-date"
+                  className="mb-2 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]"
+                >
+                  End Date
+                </label>
+
+                <div className="relative">
+                  <input
+                    id="insight-end-date"
+                    type="date"
+                    value={endDate ?? ""}
+                    min={startDate || undefined}
+                    onChange={(e) =>
+                      onCustomDateChange(
+                        startDate ?? "",
+                        e.target.value
+                      )
+                    }
+                    className="h-11 w-full rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-medium text-black outline-none transition-[border-color,box-shadow] duration-200 hover:border-[#d8e2f0] focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50"
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* Selected range summary */}
+            {startDate && endDate && (
+              <div className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3.5 py-2.5">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+
+                <p className="text-[11px] font-medium text-emerald-700">
+                  Aura will analyze transactions from{" "}
+                  <span className="font-bold">
+                    {formatDate(startDate)}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-bold">
+                    {formatDate(endDate)}
+                  </span>
+                  .
+                </p>
+              </div>
+            )}
           </div>
         )}
     </div>
+  );
+}
+
+function formatDate(
+  value: string
+) {
+  const date = new Date(
+    `${value}T00:00:00`
+  );
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString(
+    "en-IN",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }
   );
 }
