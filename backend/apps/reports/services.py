@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth, Abs
+from datetime import timedelta
 from django.utils import timezone
 
 from apps.transactions.models import Transaction
@@ -33,8 +34,81 @@ def get_current_period_range():
     return start, today
 
 
-def build_report_dashboard(user):
-    start_date, end_date = get_current_period_range()
+def resolve_report_period(
+    interval="monthly",
+    start_date=None,
+    end_date=None,
+):
+    today = timezone.localdate()
+
+    if interval == "custom":
+        if not start_date or not end_date:
+            raise ValueError(
+                "start_date and end_date are required for a custom report."
+            )
+
+        if start_date > end_date:
+            raise ValueError(
+                "start_date cannot be after end_date."
+            )
+
+        return start_date, end_date
+
+    if interval == "monthly":
+        return (
+            today.replace(day=1),
+            today,
+        )
+
+    if interval == "quarterly":
+        quarter_start_month = (
+            ((today.month - 1) // 3) * 3
+        ) + 1
+
+        start = today.replace(
+            month=quarter_start_month,
+            day=1,
+        )
+
+        return start, today
+
+    if interval == "annual":
+        return (
+            today.replace(
+                month=1,
+                day=1,
+            ),
+            today,
+        )
+
+    raise ValueError(
+        f"Unsupported report interval: {interval}"
+    )
+
+
+def get_report_title(interval):
+    if interval == "quarterly":
+        return "Quarterly Financial Performance"
+
+    if interval == "annual":
+        return "Annual Financial Performance"
+
+    if interval == "custom":
+        return "Custom Financial Performance"
+
+    return "Monthly Financial Performance"
+
+
+def build_report_dashboard(
+    user,
+    start_date=None,
+    end_date=None,
+    interval="monthly",
+):
+    if not start_date or not end_date:
+        start_date, end_date = resolve_report_period(
+            interval=interval,
+        )
 
     income = (
         Transaction.objects.filter(
@@ -63,6 +137,7 @@ def build_report_dashboard(user):
     monthly = (
         Transaction.objects.filter(
             user=user,
+            date__gte=start_date,
             date__lte=end_date,
         )
         .annotate(month=TruncMonth("date"))
@@ -77,22 +152,27 @@ def build_report_dashboard(user):
         if not item["month"]:
             continue
 
-        month_key = item["month"].strftime("%b")
+        month_key = item["month"].strftime("%Y-%m")
+        month_label = item["month"].strftime("%b %Y")
 
         if month_key not in chart_map:
             chart_map[month_key] = {
-                "month": month_key,
+                "month": month_label,
                 "income": 0,
                 "expense": 0,
             }
 
         if item["transaction_type"] == "income":
-            chart_map[month_key]["income"] = float(abs(item["total"] or 0))
+            chart_map[month_key]["income"] = float(
+                abs(item["total"] or 0)
+            )
 
         if item["transaction_type"] == "expense":
-            chart_map[month_key]["expense"] = float(abs(item["total"] or 0))
+            chart_map[month_key]["expense"] = float(
+                abs(item["total"] or 0)
+            )
 
-    chart = list(chart_map.values())[-4:]
+    chart = list(chart_map.values())
 
     categories = (
         Transaction.objects.filter(
@@ -131,16 +211,31 @@ def build_report_dashboard(user):
     subscriptions = detect_subscriptions(user)
     recurring = subscriptions["subscriptions"][:3]
 
-    anomalies = detect_anomalies(user)
-    health = calculate_financial_health(user)
+    anomalies = detect_anomalies(
+                    user,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+    health = calculate_financial_health(
+                    user,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
 
     biggest_expense = anomalies.get("biggest_expense")
 
     return {
         "period": {
-            "title": "Monthly Financial Performance",
-            "range": f"{start_date.strftime('%b %d')} - {end_date.strftime('%b %d, %Y')}",
-            "status": "Optimized" if health["score"] >= 70 else "Needs Review",
+            "title": get_report_title(interval),
+            "range": (
+                f"{start_date.strftime('%b %d, %Y')} - "
+                f"{end_date.strftime('%b %d, %Y')}"
+            ),
+            "status": (
+                "Optimized"
+                if health["score"] >= 70
+                else "Needs Review"
+            ),
         },
         "performance": {
             "income": money(income),

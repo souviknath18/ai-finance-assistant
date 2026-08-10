@@ -1,4 +1,5 @@
-import { Bolt, Sparkles } from "lucide-react";
+import { Bolt } from "lucide-react";
+
 import {
   DetectedSubscription,
   DuplicateSubscriptionGroup,
@@ -14,47 +15,65 @@ export default function AIOptimizationCard({
   duplicates,
 }: AIOptimizationCardProps) {
   const duplicateCount = duplicates.reduce(
-    (total, item) => total + item.count,
+    (total, item) =>
+      total + item.count,
     0
   );
 
   const estimatedSavings = duplicates.length
     ? subscriptions
-        .filter((sub) =>
+        .filter((subscription) =>
           duplicates.some((group) =>
             group.services.some(
               (service) =>
-                service.toLowerCase() === sub.merchant.toLowerCase()
+                service.toLowerCase() ===
+                subscription.merchant.toLowerCase()
             )
           )
         )
-        .reduce((total, item) => total + Number(item.average_amount), 0)
+        .reduce(
+          (total, item) =>
+            total +
+            Number(
+              item.average_amount
+            ),
+          0
+        )
     : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-100 bg-white p-5 shadow-sm md:col-span-2">
-      <Sparkles size={56} className="absolute right-4 top-4 text-emerald-100" />
+    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow] duration-200 hover:border-[#dbe5f5] hover:shadow-[0_8px_26px_rgba(15,23,42,0.07)]">
+      {/* Soft decoration */}
+      <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-emerald-50 blur-3xl" />
 
-      <div className="relative z-10">
-        <div className="mb-2 flex items-center gap-2 text-emerald-700">
-          <Bolt size={16} />
+      <div className="relative z-10 flex h-full flex-col">
+        <div className="flex items-center gap-2 text-emerald-700">
+          <Bolt size={15} />
 
-          <span className="text-[11px] font-bold uppercase tracking-wider">
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em]">
             AI Optimization Opportunity
           </span>
         </div>
 
-        <h3 className="mb-1.5 text-xl font-bold text-black">
-          Save ₹{estimatedSavings.toLocaleString("en-IN", {
-            minimumFractionDigits: 2,
-          })}
+        <h3 className="mt-2 text-2xl font-bold tracking-tight text-black">
+          Save ₹
+          {estimatedSavings.toLocaleString(
+            "en-IN",
+            {
+              minimumFractionDigits: 2,
+            }
+          )}
           /mo
         </h3>
 
-        <p className="text-[13px] leading-5 text-[#565e74]">
+        <p className="mt-auto pt-3 text-[12px] leading-5 text-[#565e74]">
           {duplicates.length > 0
-            ? `We found ${duplicates.length} duplicate service group${
-                duplicates.length > 1 ? "s" : ""
+            ? `We found ${
+                duplicates.length
+              } duplicate service group${
+                duplicates.length > 1
+                  ? "s"
+                  : ""
               } across ${duplicateCount} recurring services.`
             : "No duplicate subscription groups detected right now."}
         </p>

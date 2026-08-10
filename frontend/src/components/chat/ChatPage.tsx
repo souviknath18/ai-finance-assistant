@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import ChatHeader from "./ChatHeader";
-import ChatInsightGrid from "./ChatInsightGrid";
+// import ChatInsightGrid from "./ChatInsightGrid";
 import SuggestedQueries from "./SuggestedQueries";
 import AIMessage from "./AIMessage";
 import UserMessage from "./UserMessage";
@@ -70,8 +70,8 @@ export default function ChatPage() {
 
       <ChatHeader />
 
-      <div className="flex-1 space-y-6">
-        <ChatInsightGrid />
+      <div className="mx-auto w-full max-w-5xl flex-1 space-y-6">
+        {/* <ChatInsightGrid /> */}
 
         {messages.map((message) =>
           message.role === "ai" ? (

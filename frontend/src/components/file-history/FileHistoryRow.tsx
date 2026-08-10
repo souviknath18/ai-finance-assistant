@@ -60,45 +60,54 @@ export default function FileHistoryRow({
     : "Pending";
 
   const itemLabel =
-    file.extracted_transactions_count === 1
+    file.extracted_transactions_count ===
+    1
       ? "Item"
       : "Items";
 
-  const extractionText = isPending
-    ? file.processing_step ||
-      "Waiting for processing"
-    : `${file.extracted_transactions_count} ${itemLabel}`;
+  const extractionText =
+    isPending
+      ? file.processing_step ||
+        "Waiting for processing"
+      : `${file.extracted_transactions_count} ${itemLabel}`;
 
   const fileSize =
-    typeof file.file_size_mb === "number"
-      ? `${file.file_size_mb.toFixed(2)} MB`
+    typeof file.file_size_mb ===
+    "number"
+      ? `${file.file_size_mb.toFixed(
+          2
+        )} MB`
       : "Size unavailable";
 
-  const processingProgress = Math.min(
-    Math.max(
-      file.processing_progress || 0,
-      0
-    ),
-    100
-  );
+  const processingProgress =
+    Math.min(
+      Math.max(
+        file.processing_progress ||
+          0,
+        0
+      ),
+      100
+    );
 
-  const handleRetryClick = async () => {
-    if (!isFailed || retrying) {
-      return;
-    }
+  const handleRetryClick =
+    async () => {
+      if (
+        !isFailed ||
+        retrying
+      ) {
+        return;
+      }
 
-    await onRetryAction(file);
-  };
+      await onRetryAction(file);
+    };
 
   return (
-    <tr className="transition hover:bg-[#eff4ff]/60">
+    <tr className="transition-[background-color] duration-200 hover:bg-[#fbfcff]">
+      {/* File */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eff4ff]">
-            <FileIcon
-              size={18}
-              className="text-black"
-            />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#e6edf9] bg-[#f8f9ff] text-[#565e74]">
+            <FileIcon size={17} />
           </div>
 
           <div className="min-w-0">
@@ -108,28 +117,32 @@ export default function FileHistoryRow({
                 file.original_filename
               }
             >
-              {file.original_filename}
+              {
+                file.original_filename
+              }
             </p>
 
-            <p className="mt-0.5 text-[11px] font-semibold text-[#565e74]">
+            <p className="mt-0.5 text-[11px] font-medium text-[#565e74]">
               {fileSize}
             </p>
 
-            <p className="mt-0.5 text-[10px] font-semibold text-[#7c839b]">
+            <p className="mt-0.5 text-[9px] font-medium text-[#8a92a5]">
               {file.upload_id}
             </p>
           </div>
         </div>
       </td>
 
+      {/* Type */}
       <td className="px-5 py-4">
-        <span className="rounded-full bg-[#e5eeff] px-2.5 py-1 text-[11px] font-bold uppercase text-[#565e74]">
+        <span className="inline-flex rounded-full border border-[#e6edf9] bg-[#fbfcff] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#565e74]">
           {file.file_type}
         </span>
       </td>
 
+      {/* Date */}
       <td className="px-5 py-4">
-        <p className="text-[13px] text-black">
+        <p className="text-[12px] font-medium text-black">
           {uploadDate.toLocaleDateString(
             "en-IN",
             {
@@ -140,7 +153,7 @@ export default function FileHistoryRow({
           )}
         </p>
 
-        <p className="text-[11px] font-semibold text-[#565e74]">
+        <p className="mt-0.5 text-[10px] font-medium text-[#7c839b]">
           {uploadDate.toLocaleTimeString(
             "en-IN",
             {
@@ -151,55 +164,37 @@ export default function FileHistoryRow({
         </p>
       </td>
 
+      {/* Status */}
       <td className="px-5 py-4">
-        <div
-          className={`flex items-center gap-2 text-[13px] font-bold ${
-            isSuccess
-              ? "text-emerald-700"
-              : isPending
-              ? "text-[#7c839b]"
-              : "text-red-600"
-          }`}
-        >
-          {isSuccess && (
-            <CheckCircle2 size={15} />
-          )}
-
-          {isPending && (
-            <LoaderCircle
-              size={15}
-              className="animate-spin"
-            />
-          )}
-
-          {isFailed && (
-            <XCircle size={15} />
-          )}
-
-          {statusLabel}
-        </div>
+        <StatusBadge
+          isSuccess={isSuccess}
+          isPending={isPending}
+          isFailed={isFailed}
+          statusLabel={statusLabel}
+        />
 
         {isPending && (
           <div className="mt-2 w-32">
-            <div className="h-1.5 overflow-hidden rounded-full bg-[#e5eeff]">
+            <div className="h-1.5 overflow-hidden rounded-full bg-[#edf2fb]">
               <div
-                className="h-full rounded-full bg-black transition-all duration-500"
+                className="h-full rounded-full bg-emerald-700 transition-[width] duration-500"
                 style={{
                   width: `${processingProgress}%`,
                 }}
               />
             </div>
 
-            <p className="mt-1 text-[10px] font-semibold text-[#7c839b]">
+            <p className="mt-1 text-[9px] font-medium text-[#7c839b]">
               {processingProgress}%
             </p>
           </div>
         )}
       </td>
 
+      {/* Extraction */}
       <td className="px-5 py-4">
         <p
-          className={`max-w-[220px] text-[13px] font-bold ${
+          className={`max-w-[220px] text-[12px] font-bold ${
             isFailed
               ? "text-red-600"
               : isPending
@@ -213,14 +208,19 @@ export default function FileHistoryRow({
         {isFailed &&
           file.error_message && (
             <p
-              className="mt-1 max-w-[230px] truncate text-[11px] font-medium text-red-500"
-              title={file.error_message}
+              className="mt-1 max-w-[230px] truncate text-[10px] font-medium text-red-500"
+              title={
+                file.error_message
+              }
             >
-              {file.error_message}
+              {
+                file.error_message
+              }
             </p>
           )}
       </td>
 
+      {/* Actions */}
       <td className="px-5 py-4">
         <div className="flex justify-end gap-2">
           {isFailed && (
@@ -230,16 +230,11 @@ export default function FileHistoryRow({
               onClick={
                 handleRetryClick
               }
-              title={
-                retrying
-                  ? "Retrying processing"
-                  : "Retry processing"
-              }
               aria-label={`Retry processing ${file.original_filename}`}
-              className="rounded-lg p-1.5 text-[#565e74] transition hover:bg-[#e5eeff] hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#e6edf9] bg-white text-[#565e74] transition-[background-color,border-color,color] hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RefreshCcw
-                size={16}
+                size={14}
                 className={
                   retrying
                     ? "animate-spin"
@@ -255,14 +250,54 @@ export default function FileHistoryRow({
             onClick={() =>
               onDeleteAction(file)
             }
-            title="Delete file"
             aria-label={`Delete ${file.original_filename}`}
-            className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-red-100 bg-white text-red-600 transition-[background-color,border-color] hover:border-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </button>
         </div>
       </td>
     </tr>
+  );
+}
+
+function StatusBadge({
+  isSuccess,
+  isPending,
+  isFailed,
+  statusLabel,
+}: {
+  isSuccess: boolean;
+  isPending: boolean;
+  isFailed: boolean;
+  statusLabel: string;
+}) {
+  const styles = isSuccess
+    ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+    : isFailed
+    ? "border-red-100 bg-red-50 text-red-600"
+    : "border-[#e6edf9] bg-[#f3f6fc] text-[#565e74]";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-bold ${styles}`}
+    >
+      {isSuccess && (
+        <CheckCircle2 size={12} />
+      )}
+
+      {isPending && (
+        <LoaderCircle
+          size={12}
+          className="animate-spin"
+        />
+      )}
+
+      {isFailed && (
+        <XCircle size={12} />
+      )}
+
+      {statusLabel}
+    </span>
   );
 }

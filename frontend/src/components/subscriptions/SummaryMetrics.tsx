@@ -1,6 +1,7 @@
 import { TrendingDown } from "lucide-react";
 import MetricCard from "./MetricCard";
 import AIOptimizationCard from "./AIOptimizationCard";
+
 import {
   DetectedSubscription,
   DuplicateSubscriptionGroup,
@@ -16,14 +17,15 @@ export default function SummaryMetrics({
   duplicates,
 }: SummaryMetricsProps) {
   const monthlySpend = subscriptions.reduce(
-    (total, item) => total + Number(item.average_amount),
+    (total, item) =>
+      total + Number(item.average_amount),
     0
   );
 
   const yearlyForecast = monthlySpend * 12;
 
   return (
-    <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
       <MetricCard
         label="Monthly Spend"
         value={`₹${monthlySpend.toLocaleString("en-IN", {

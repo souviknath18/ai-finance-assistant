@@ -41,8 +41,8 @@ export default function FileHistoryTabs({
   onStatusFilterChangeAction,
 }: Props) {
   return (
-    <div className="overflow-x-auto border-b border-[#dce9ff] bg-[#f8f9ff] px-5 py-3.5">
-      <div className="flex min-w-max gap-5">
+    <div className="border-b border-[#edf2fb] px-5 pt-4">
+      <div className="flex flex-wrap gap-1">
         {tabs.map((tab) => {
           const isActive =
             statusFilter === tab.value;
@@ -56,10 +56,10 @@ export default function FileHistoryTabs({
                   tab.value
                 )
               }
-              className={`border-b-2 pb-1 text-[11px] font-bold uppercase tracking-wide transition ${
+              className={`rounded-t-xl border-b-2 px-3 py-2 text-[10px] font-bold uppercase tracking-wide transition-[background-color,border-color,color] duration-200 ${
                 isActive
-                  ? "border-black text-black"
-                  : "border-transparent text-[#565e74] hover:text-black"
+                  ? "border-emerald-700 bg-emerald-50/60 text-emerald-700"
+                  : "border-transparent text-[#7c839b] hover:bg-[#fbfcff] hover:text-black"
               }`}
             >
               {tab.label}

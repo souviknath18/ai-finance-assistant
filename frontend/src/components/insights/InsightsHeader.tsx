@@ -20,14 +20,14 @@ export default function InsightsHeader({
   onRefresh,
 }: InsightsHeaderProps) {
   return (
-    <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       {/* Left */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-black">
+        <h1 className="text-xl font-bold tracking-tight text-black">
           Insights
         </h1>
 
-        <p className="mt-1.5 max-w-2xl text-[13px] leading-6 text-[#565e74]">
+        <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
           AI-assisted analysis of your spending, budgets,
           recurring expenses, goals, and financial health.
         </p>

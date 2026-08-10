@@ -59,7 +59,7 @@ export default function FileHistoryTable({
   onDeleteAction,
 }: Props) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
+    <div className="mb-6 overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
       <FileHistoryTabs
         statusFilter={statusFilter}
         onStatusFilterChangeAction={
@@ -75,7 +75,7 @@ export default function FileHistoryTable({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] border-collapse text-left">
             <thead>
-              <tr className="bg-[#eff4ff]/70">
+              <tr className="bg-[#fbfcff]">
                 <TableHead>
                   File Name
                 </TableHead>
@@ -102,18 +102,18 @@ export default function FileHistoryTable({
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#e5eeff]">
+            <tbody className="divide-y divide-[#edf2fb]">
               {files.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-5 py-10 text-center"
+                    className="px-5 py-12 text-center"
                   >
                     <p className="text-[13px] font-bold text-black">
                       No files found
                     </p>
 
-                    <p className="mt-1 text-[12px] font-medium text-[#565e74]">
+                    <p className="mt-1 text-[12px] text-[#565e74]">
                       Upload a financial document or select a different status.
                     </p>
                   </td>
@@ -140,19 +140,21 @@ export default function FileHistoryTable({
         </div>
       )}
 
-      <Pagination
-        total={totalCount}
-        currentPage={page}
-        totalPages={totalPages}
-        rowsPerPage={rowsPerPage}
-        itemLabel="files"
-        onPageChangeAction={
-          onPageChangeAction
-        }
-        onRowsPerPageChangeAction={
-          onRowsPerPageChangeAction
-        }
-      />
+      <div className="border-t border-[#edf2fb] bg-[#fbfcff]">
+        <Pagination
+          total={totalCount}
+          currentPage={page}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          itemLabel="files"
+          onPageChangeAction={
+            onPageChangeAction
+          }
+          onRowsPerPageChangeAction={
+            onRowsPerPageChangeAction
+          }
+        />
+      </div>
     </div>
   );
 }
@@ -166,7 +168,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
+      className={`px-5 py-3.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c839b] ${
         align === "right"
           ? "text-right"
           : "text-left"

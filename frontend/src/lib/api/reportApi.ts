@@ -15,13 +15,50 @@ export async function getReportDashboard() {
   return data as ReportDashboard;
 }
 
-export async function generateReport(interval: string) {
-  const response = await authFetch("/api/reports/generate/", {
-    method: "POST",
-    body: JSON.stringify({ interval }),
-  });
+export async function generateReport(
+  interval: string,
+  startDate?: string,
+  endDate?: string
+) {
+  const body: {
+    interval: string;
+    start_date?: string;
+    end_date?: string;
+  } = {
+    interval,
+  };
 
-  const data = await response.json();
+  if (
+    interval === "custom" &&
+    startDate &&
+    endDate
+  ) {
+    body.start_date =
+      startDate;
+
+    body.end_date =
+      endDate;
+  }
+
+  const response =
+    await authFetch(
+      "/api/reports/generate/",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify(
+          body
+        ),
+      }
+    );
+
+  const data =
+    await response.json();
 
   if (!response.ok) {
     throw data;
