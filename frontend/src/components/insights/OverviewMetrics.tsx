@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -8,11 +10,9 @@ import {
 
 import { InsightOverview } from "@/types/insights";
 
-
 type OverviewMetricsProps = {
   overview: InsightOverview;
 };
-
 
 export default function OverviewMetrics({
   overview,
@@ -24,7 +24,7 @@ export default function OverviewMetrics({
     overview.savings_rate >= 0;
 
   return (
-    <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
       <OverviewMetricCard
         icon={<Wallet size={17} />}
         label="Income"
@@ -38,11 +38,7 @@ export default function OverviewMetrics({
       />
 
       <OverviewMetricCard
-        icon={
-          <ReceiptIndianRupee
-            size={17}
-          />
-        }
+        icon={<ReceiptIndianRupee size={17} />}
         label="Expenses"
         value={overview.expenses_display}
         description={`${overview.expense_count} ${
@@ -58,11 +54,7 @@ export default function OverviewMetrics({
         label="Savings"
         value={overview.savings_display}
         description="Income minus expenses"
-        tone={
-          savingsPositive
-            ? "green"
-            : "red"
-        }
+        tone={savingsPositive ? "green" : "red"}
       />
 
       <OverviewMetricCard
@@ -74,24 +66,17 @@ export default function OverviewMetrics({
           )
         }
         label="Savings Rate"
-        value={`${overview.savings_rate.toFixed(
-          1
-        )}%`}
+        value={`${overview.savings_rate.toFixed(1)}%`}
         description={`${overview.transaction_count} ${
           overview.transaction_count === 1
             ? "transaction analyzed"
             : "transactions analyzed"
         }`}
-        tone={
-          savingsRatePositive
-            ? "green"
-            : "red"
-        }
+        tone={savingsRatePositive ? "green" : "red"}
       />
     </section>
   );
 }
-
 
 type OverviewMetricCardProps = {
   icon: React.ReactNode;
@@ -100,7 +85,6 @@ type OverviewMetricCardProps = {
   description: string;
   tone?: "default" | "green" | "red";
 };
-
 
 function OverviewMetricCard({
   icon,
@@ -111,10 +95,10 @@ function OverviewMetricCard({
 }: OverviewMetricCardProps) {
   const iconClass =
     tone === "green"
-      ? "bg-emerald-50 text-emerald-700"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
       : tone === "red"
-      ? "bg-red-50 text-red-700"
-      : "bg-[#eff4ff] text-black";
+      ? "border-red-100 bg-red-50 text-red-600"
+      : "border-emerald-100 bg-emerald-50 text-emerald-700";
 
   const valueClass =
     tone === "red"
@@ -122,22 +106,22 @@ function OverviewMetricCard({
       : "text-black";
 
   return (
-    <div className="rounded-2xl border border-[#e5eeff] bg-white p-4 shadow-sm">
+    <div className="rounded-3xl border border-[#e6edf9] bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow] duration-200 hover:border-[#dbe5f5] hover:shadow-[0_8px_26px_rgba(15,23,42,0.08)]">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#8a92a5]">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#565e74]">
             {label}
           </p>
 
           <p
-            className={`mt-2 text-xl font-bold tracking-tight ${valueClass}`}
+            className={`mt-1.5 truncate text-xl font-bold tracking-tight ${valueClass}`}
           >
             {value}
           </p>
         </div>
 
         <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${iconClass}`}
         >
           {icon}
         </div>
