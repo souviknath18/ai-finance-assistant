@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   Bell,
-  CalendarDays,
   CreditCard,
   Plus,
   Repeat,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 
 import CustomSelect from "@/components/ui/CustomSelect";
+import CustomDatePicker from "@/components/ui/CustomDatePicker";
 import { createManualSubscription } from "@/lib/api/subscriptionApi";
 
 type AddSubscriptionModalProps = {
@@ -370,53 +370,31 @@ export default function AddSubscriptionModal({
 
               {/* Date + Amount */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field
-                  label="Next Billing Date"
-                  required
-                  error={
-                    errors.next_billing_date
-                  }
-                >
-                  <div className="relative">
-                    <CalendarDays
-                      size={16}
-                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#565e74]"
-                    />
+                <div>
+                  <CustomDatePicker
+                    label="Next Billing Date"
+                    name="next_billing_date"
+                    value={form.next_billing_date}
+                    onChangeAction={(name, value) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        [name]: value,
+                      }));
 
-                    <input
-                      type="date"
-                      value={
-                        form.next_billing_date
-                      }
-                      onChange={(
-                        event
-                      ) => {
-                        setForm(
-                          (prev) => ({
-                            ...prev,
-                            next_billing_date:
-                              event.target
-                                .value,
-                          })
-                        );
+                      setErrors((prev) => ({
+                        ...prev,
+                        next_billing_date: "",
+                        api: "",
+                      }));
+                    }}
+                  />
 
-                        setErrors(
-                          (prev) => ({
-                            ...prev,
-                            next_billing_date:
-                              "",
-                            api: "",
-                          })
-                        );
-                      }}
-                      className={`h-11 w-full rounded-xl border bg-[#f8f9ff] py-2.5 pl-9 pr-3 text-[13px] text-[#0b1c30] outline-none transition ${
-                        errors.next_billing_date
-                          ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                          : "border-[#dfe9fb] hover:border-[#c9d9f3] focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
-                      }`}
-                    />
-                  </div>
-                </Field>
+                  {errors.next_billing_date && (
+                    <p className="mt-1.5 text-[11px] font-semibold text-red-600">
+                      {errors.next_billing_date}
+                    </p>
+                  )}
+                </div>
 
                 <Field
                   label="Amount"

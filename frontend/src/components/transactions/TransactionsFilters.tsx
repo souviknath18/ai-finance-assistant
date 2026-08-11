@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Search, X } from "lucide-react";
-import CustomSelect from "@/components/ui/CustomSelect";
+import {
+  Search,
+  X,
+} from "lucide-react";
+
+import CustomSelect, {
+  SelectOption,
+} from "@/components/ui/CustomSelect";
+
 import DateRangeFilter from "../ui/DateRangeFilter";
-import { SelectOption } from "@/components/ui/CustomSelect";
 
 type TransactionsFiltersProps = {
   searchQuery: string;
@@ -16,12 +22,21 @@ type TransactionsFiltersProps = {
   transactionType: string;
   statusFilter: string;
   categoryOptions: SelectOption[];
-  onSearchQueryChangeAction: (value: string) => void;
-  onSemanticSearchAction: (query?: string) => void;
-  onQuickSearchAction: (query: string) => void;
+  onSearchQueryChangeAction: (
+    value: string
+  ) => void;
+  onSemanticSearchAction: (
+    query?: string
+  ) => void;
+  onQuickSearchAction: (
+    query: string
+  ) => void;
   onClearSearchAction: () => void;
   onClearFiltersAction: () => void;
-  onFilterChangeAction: (name: string, value: string) => void;
+  onFilterChangeAction: (
+    name: string,
+    value: string
+  ) => void;
 };
 
 const quickSearches = [
@@ -50,7 +65,12 @@ export default function TransactionsFilters({
   onClearFiltersAction,
   onFilterChangeAction,
 }: TransactionsFiltersProps) {
-  const [openFilter, setOpenFilter] = useState<string | null>(null);
+  const [
+    openFilter,
+    setOpenFilter,
+  ] = useState<string | null>(
+    null
+  );
 
   const hasActiveFilters =
     Boolean(startDate) ||
@@ -60,91 +80,127 @@ export default function TransactionsFilters({
     statusFilter !== "all";
 
   return (
-    <div className="mb-5 overflow-visible rounded-2xl border border-[#dfe9fb] bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
-      {/* SEARCH SECTION */}
-      <div className="mb-4 flex flex-col gap-3 rounded-xl border border-[#e5eeff] bg-[#f8faff] p-3 md:flex-row md:items-center">
-        <div className="flex flex-1 items-center rounded-xl border border-[#dfe9fb] bg-white px-3 py-2.5 transition focus-within:border-emerald-300 focus-within:shadow-[0_0_0_3px_rgba(16,185,129,0.08)]">
-          <Search size={16} className="text-[#76777d]" />
+    <div className="mb-6 rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
+      {/* Search */}
+      <div className="mb-4">
+        <label className="ml-1 mb-1.5 block text-[11px] font-semibold text-[#565e74]">
+          Semantic Search
+        </label>
 
-          <input
-            value={searchQuery}
-            onChange={(event) =>
-              onSearchQueryChangeAction(event.target.value)
-            }
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                onSemanticSearchAction();
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
+          <div className="flex h-11 w-full min-w-0 items-center rounded-xl border border-[#dfe9fb] bg-[#f8f9ff] px-3 transition hover:border-[#c9d9f3] focus-within:border-emerald-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-100">
+            <Search
+              size={16}
+              className="shrink-0 text-[#565e74]"
+            />
+
+            <input
+              value={searchQuery}
+              onChange={(event) =>
+                onSearchQueryChangeAction(
+                  event.target.value
+                )
               }
-            }}
-            placeholder='Try "bank fees", "subscriptions", "income deposits"...'
-            className="ml-3 w-full bg-transparent text-[13px] outline-none"
-          />
-        </div>
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  onSemanticSearchAction();
+                }
+              }}
+              placeholder='Try "bank fees", "subscriptions", "income deposits"...'
+              className="ml-3 min-w-0 flex-1 bg-transparent text-[12px] text-[#0b1c30] outline-none placeholder:text-[#8a92a5]"
+            />
+          </div>
 
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => onSemanticSearchAction()}
-            disabled={!searchQuery.trim() || searching}
-            className="rounded-xl bg-black px-4 py-2.5 text-[13px] font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {searching ? "Searching..." : "Smart Search"}
-          </button>
-
-          {semanticMode && (
+          <div className="flex w-full gap-2 sm:w-auto lg:shrink-0">
             <button
               type="button"
-              onClick={onClearSearchAction}
-              className="flex items-center gap-2 rounded-xl border border-[#c6c6cd] bg-white px-3 py-2.5 text-[13px] font-bold text-black transition hover:bg-[#eff4ff]"
+              onClick={() =>
+                onSemanticSearchAction()
+              }
+              disabled={
+                !searchQuery.trim() ||
+                searching
+              }
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-black px-5 text-[12px] font-bold text-white transition-[opacity,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_6px_16px_rgba(15,23,42,0.12)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
-              <X size={15} />
-              Clear
+              {searching
+                ? "Searching..."
+                : "Smart Search"}
             </button>
-          )}
+
+            {semanticMode && (
+              <button
+                type="button"
+                onClick={
+                  onClearSearchAction
+                }
+                className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#dfe9fb] bg-white px-4 text-[12px] font-bold text-black transition hover:border-[#c9d9f3] hover:bg-[#eff4ff] sm:flex-none"
+              >
+                <X size={14} />
+                Clear
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* QUICK SEARCH CHIPS */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        {quickSearches.map((chip) => (
-          <button
-            key={chip}
-            type="button"
-            onClick={() => onQuickSearchAction(chip)}
-            disabled={searching}
-            className="rounded-full border border-[#dce9ff] bg-white px-3 py-1.5 text-[11px] font-bold text-[#565e74] transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {chip}
-          </button>
-        ))}
+      {/* Quick searches */}
+      <div className="mb-5 flex flex-wrap gap-2">
+        {quickSearches.map(
+          (chip) => (
+            <button
+              key={chip}
+              type="button"
+              onClick={() =>
+                onQuickSearchAction(
+                  chip
+                )
+              }
+              disabled={
+                searching
+              }
+              className="rounded-full border border-[#e6edf9] bg-[#fbfcff] px-3 py-1.5 text-[10px] font-bold text-[#565e74] transition-[background-color,border-color,color] duration-200 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {chip}
+            </button>
+          )
+        )}
       </div>
 
-      {/* FILTER HEADER */}
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-[12px] font-bold uppercase tracking-wide text-[#565e74]">
+      {/* Filter heading */}
+      <div className="mb-3 flex items-center justify-between gap-3 border-t border-[#edf2fb] pt-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
           Filters
         </p>
 
         {hasActiveFilters && (
           <button
             type="button"
-            onClick={onClearFiltersAction}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-bold text-red-600 transition hover:bg-red-50"
+            onClick={
+              onClearFiltersAction
+            }
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] font-bold text-red-600 transition hover:bg-red-50"
           >
-            <X size={14} />
+            <X size={13} />
             Clear Filters
           </button>
         )}
       </div>
 
-      {/* FILTERS */}
+      {/* Filters */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <DateRangeFilter
           label="Start Date"
           name="startDate"
           value={startDate}
-          onChangeAction={(name, value) =>
-            onFilterChangeAction(name, value)
+          onChangeAction={(
+            name,
+            value
+          ) =>
+            onFilterChangeAction(
+              name,
+              value
+            )
           }
         />
 
@@ -152,70 +208,152 @@ export default function TransactionsFilters({
           label="End Date"
           name="endDate"
           value={endDate}
-          onChangeAction={(name, value) =>
-            onFilterChangeAction(name, value)
+          onChangeAction={(
+            name,
+            value
+          ) =>
+            onFilterChangeAction(
+              name,
+              value
+            )
           }
         />
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
+          <label className="ml-1 text-[11px] font-semibold text-[#565e74]">
             Category
           </label>
 
           <CustomSelect
             name="category"
             value={category}
-            open={openFilter === "category"}
-            onOpenChangeAction={(open) =>
-              setOpenFilter(open ? "category" : null)
+            open={
+              openFilter ===
+              "category"
             }
-            options={categoryOptions}
-            onChangeAction={onFilterChangeAction}
+            onOpenChangeAction={(
+              open
+            ) =>
+              setOpenFilter(
+                open
+                  ? "category"
+                  : null
+              )
+            }
+            options={
+              categoryOptions
+            }
+            onChangeAction={
+              onFilterChangeAction
+            }
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
+          <label className="ml-1 text-[11px] font-semibold text-[#565e74]">
             Transaction Type
           </label>
 
           <CustomSelect
             name="transactionType"
-            value={transactionType}
-            open={openFilter === "transactionType"}
-            onOpenChangeAction={(open) =>
-              setOpenFilter(open ? "transactionType" : null)
+            value={
+              transactionType
+            }
+            open={
+              openFilter ===
+              "transactionType"
+            }
+            onOpenChangeAction={(
+              open
+            ) =>
+              setOpenFilter(
+                open
+                  ? "transactionType"
+                  : null
+              )
             }
             options={[
-              { label: "All Types", value: "all" },
-              { label: "Income", value: "income" },
-              { label: "Expense", value: "expense" },
-              { label: "Transfer", value: "transfer" },
+              {
+                label:
+                  "All Types",
+                value: "all",
+              },
+              {
+                label: "Income",
+                value: "income",
+              },
+              {
+                label: "Expense",
+                value: "expense",
+              },
+              {
+                label: "Transfer",
+                value: "transfer",
+              },
             ]}
-            onChangeAction={onFilterChangeAction}
+            onChangeAction={
+              onFilterChangeAction
+            }
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold uppercase tracking-wide text-[#565e74]">
+          <label className="ml-1 text-[11px] font-semibold text-[#565e74]">
             Status
           </label>
 
           <CustomSelect
             name="statusFilter"
-            value={statusFilter}
-            open={openFilter === "statusFilter"}
-            onOpenChangeAction={(open) =>
-              setOpenFilter(open ? "statusFilter" : null)
+            value={
+              statusFilter
+            }
+            open={
+              openFilter ===
+              "statusFilter"
+            }
+            onOpenChangeAction={(
+              open
+            ) =>
+              setOpenFilter(
+                open
+                  ? "statusFilter"
+                  : null
+              )
             }
             options={[
-              { label: "All Status", value: "all" },
-              { label: "AI Verified", value: "AI Verified" },
-              { label: "Rule Verified", value: "Rule Verified" },
-              { label: "User Verified", value: "User Verified" },
-              { label: "AI Review Needed", value: "AI Review Needed" },
+              {
+                label:
+                  "All Status",
+                value: "all",
+              },
+              {
+                label:
+                  "AI Verified",
+                value:
+                  "AI Verified",
+              },
+              {
+                label:
+                  "Rule Verified",
+                value:
+                  "Rule Verified",
+              },
+              {
+                label:
+                  "User Verified",
+                value:
+                  "User Verified",
+              },
+              {
+                label:
+                  "AI Review Needed",
+                value:
+                  "AI Review Needed",
+              },
             ]}
-            onChangeAction={onFilterChangeAction}
+            onChangeAction={
+              onFilterChangeAction
+            }
           />
         </div>
       </div>

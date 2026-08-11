@@ -1,22 +1,30 @@
 import { ShieldCheck } from "lucide-react";
+
 import ToggleSwitch from "./ToggleSwitch";
 import ActiveSessionCard from "./ActiveSessionCard";
 
 export default function SecuritySection() {
   return (
     <section>
-      <div className="mb-4 flex items-center gap-2.5">
-        <ShieldCheck size={18} className="text-black" />
-        <h2 className="text-lg font-bold text-black">Security & Access</h2>
+      <div className="mb-3 flex items-center gap-2">
+        <ShieldCheck
+          size={16}
+          className="text-emerald-700"
+        />
+
+        <h2 className="text-[15px] font-bold text-black">
+          Security & Access
+        </h2>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[#dce9ff] bg-white shadow-sm">
-        <div className="flex items-center justify-between gap-4 border-b border-[#e5eeff] p-5">
+      <div className="overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
+        <div className="flex items-center justify-between gap-4 border-b border-[#edf2fb] p-5">
           <div>
-            <h3 className="text-base font-bold text-black">
+            <h3 className="text-[13px] font-bold text-black">
               Two-Factor Authentication
             </h3>
-            <p className="mt-1 text-[13px] text-[#565e74]">
+
+            <p className="mt-1 text-[12px] leading-5 text-[#565e74]">
               Protect your account with an extra layer of security.
             </p>
           </div>
@@ -25,7 +33,7 @@ export default function SecuritySection() {
         </div>
 
         <div className="p-5">
-          <h3 className="mb-3.5 text-base font-bold text-black">
+          <h3 className="mb-3 text-[13px] font-bold text-black">
             Active Sessions
           </h3>
 

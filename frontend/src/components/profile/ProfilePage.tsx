@@ -7,15 +7,16 @@ import ProfileDangerZone from "./ProfileDangerZone";
 
 export default function ProfilePage() {
   return (
-    <div className="mx-auto max-w-6xl space-y-7">
+    <div>
       <ProfileHeader />
 
       <PersonalDetailsSection />
 
       <FinancialCoreSection />
 
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <GoalsPreferencesCard />
+
         <NotificationPreferencesCard />
       </section>
 

@@ -1,18 +1,39 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import NotificationsHeader from "./NotificationsHeader";
 import NotificationFilters from "./NotificationFilters";
 import AuraAIAlertCard from "./AuraAIAlertCard";
 import NotificationTimeline from "./NotificationTimeline";
+
 import PageLoader from "@/components/ui/PageLoader";
 
-import { AppNotification, NotificationResponse } from "@/types/notification";
-import { getNotifications } from "@/lib/api/notificationsApi";
+import {
+  AppNotification,
+  NotificationResponse,
+} from "@/types/notification";
+
+import {
+  getNotifications,
+} from "@/lib/api/notificationsApi";
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [counts, setCounts] = useState<NotificationResponse["counts"]>({
+  const [
+    notifications,
+    setNotifications,
+  ] = useState<AppNotification[]>([]);
+
+  const [
+    counts,
+    setCounts,
+  ] = useState<
+    NotificationResponse["counts"]
+  >({
     all: 0,
     budget: 0,
     goal: 0,
@@ -22,62 +43,124 @@ export default function NotificationsPage() {
     transaction: 0,
   });
 
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [
+    activeFilter,
+    setActiveFilter,
+  ] = useState("all");
 
-  const loadNotifications = async () => {
-    try {
-      setLoading(true);
+  const [
+    search,
+    setSearch,
+  ] = useState("");
 
-      const data = await getNotifications(activeFilter, search);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-      setNotifications(data.results);
-      setCounts(data.counts);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadNotifications =
+    async () => {
+      try {
+        setLoading(true);
 
+        const data =
+          await getNotifications(
+            activeFilter,
+            search
+          );
+
+        setNotifications(
+          data.results
+        );
+
+        setCounts(
+          data.counts
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  /*
+   * One effect handles both:
+   * - filter changes immediately
+   * - search changes with 400ms debounce
+   */
   useEffect(() => {
-    loadNotifications();
-  }, [activeFilter]);
+    const delay =
+      search.trim()
+        ? 400
+        : 0;
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      loadNotifications();
-    }, 400);
+    const timer =
+      window.setTimeout(
+        () => {
+          loadNotifications();
+        },
+        delay
+      );
 
-    return () => window.clearTimeout(timer);
-  }, [search]);
+    return () => {
+      window.clearTimeout(
+        timer
+      );
+    };
+  }, [
+    activeFilter,
+    search,
+  ]);
 
-  const latestAIAlert = useMemo(() => {
-    return notifications.find((item) => item.notification_type === "ai_alert");
-  }, [notifications]);
+  const latestAIAlert =
+    useMemo(() => {
+      return notifications.find(
+        (item) =>
+          item.notification_type ===
+          "ai_alert"
+      );
+    }, [notifications]);
 
   if (loading) {
-    return <PageLoader message="Loading notifications..." />;
+    return <PageLoader />;
   }
 
   return (
     <>
-      <NotificationsHeader search={search} onSearchAction={setSearch} />
+      <NotificationsHeader
+        search={search}
+        onSearchAction={
+          setSearch
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        {/* Left */}
         <aside className="space-y-4 lg:col-span-3">
           <NotificationFilters
             counts={counts}
-            activeFilter={activeFilter}
-            onFilterAction={setActiveFilter}
+            activeFilter={
+              activeFilter
+            }
+            onFilterAction={
+              setActiveFilter
+            }
           />
 
-          <AuraAIAlertCard notification={latestAIAlert} />
+          <AuraAIAlertCard
+            notification={
+              latestAIAlert
+            }
+          />
         </aside>
 
+        {/* Timeline */}
         <section className="lg:col-span-9">
           <NotificationTimeline
-            notifications={notifications}
-            onRefreshAction={loadNotifications}
+            notifications={
+              notifications
+            }
+            onRefreshAction={
+              loadNotifications
+            }
           />
         </section>
       </div>

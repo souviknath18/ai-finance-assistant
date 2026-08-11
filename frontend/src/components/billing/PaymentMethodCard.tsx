@@ -1,40 +1,49 @@
-import { CreditCard, Plus } from "lucide-react";
+import {
+  CreditCard,
+  Plus,
+} from "lucide-react";
 
 export default function PaymentMethodCard() {
   return (
-    <div className="rounded-2xl border border-[#dce9ff] bg-white p-5 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-black">
+    <div className="rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-[15px] font-bold text-black">
           Payment Method
-        </h3>
+        </h2>
 
-        <button className="text-[13px] font-bold text-emerald-700 hover:underline">
+        <button
+          type="button"
+          className="text-[11px] font-bold text-emerald-700 transition hover:opacity-70"
+        >
           Edit
         </button>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl border border-[#c6c6cd] p-3.5">
-        <div className="flex h-10 w-12 items-center justify-center rounded-xl bg-[#eff4ff] text-[#565e74]">
-          <CreditCard size={18} />
+      <div className="flex items-center gap-3 rounded-2xl border border-[#edf2fb] bg-[#fbfcff] p-3.5">
+        <div className="flex h-10 w-11 shrink-0 items-center justify-center rounded-xl border border-[#e6edf9] bg-white text-[#565e74]">
+          <CreditCard size={17} />
         </div>
 
-        <div className="flex-1">
-          <p className="text-[13px] font-bold text-black">
+        <div className="min-w-0 flex-1">
+          <p className="text-[12px] font-bold text-black">
             Visa ending in 4242
           </p>
 
-          <p className="mt-1 text-[11px] text-[#565e74]">
+          <p className="mt-0.5 text-[10px] text-[#7c839b]">
             Expires 12/26
           </p>
         </div>
 
-        <span className="rounded-full bg-[#eff4ff] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#565e74]">
+        <span className="rounded-full border border-[#e6edf9] bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-[#565e74]">
           Default
         </span>
       </div>
 
-      <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#c6c6cd] py-3 text-[13px] font-bold text-[#565e74] transition hover:bg-[#eff4ff] hover:text-black">
-        <Plus size={15} />
+      <button
+        type="button"
+        className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#c9d9f3] bg-[#fbfcff] text-[11px] font-bold text-[#565e74] transition hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+      >
+        <Plus size={14} />
         Add New Method
       </button>
     </div>

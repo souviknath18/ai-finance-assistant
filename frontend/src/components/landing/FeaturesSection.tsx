@@ -1,98 +1,96 @@
 import {
   BarChart3,
-  CalendarX,
+  CalendarDays,
   Flag,
   FolderKanban,
   MessageCircle,
+  Search,
   Tags,
 } from "lucide-react";
 
 export default function FeaturesSection() {
   return (
-    <section className="bg-[#eff4ff] px-4 py-20 sm:px-6 lg:px-8">
+    <section
+      id="features"
+      className="px-4 py-16 sm:px-6 sm:py-20 lg:px-8"
+    >
       <div className="mx-auto max-w-7xl">
-        <div className="mb-14 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-black">
-            Powerful Intelligence for Your Pocket
+        <div className="mx-auto mb-10 max-w-2xl text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">
+            Aura Intelligence
+          </p>
+
+          <h2 className="mt-2 text-[28px] font-bold tracking-tight text-black sm:text-[34px]">
+            One workspace for your financial life
           </h2>
 
-          <p className="mt-3 text-sm leading-6 text-[#565e74]">
-            Precision-engineered tools to automate your financial life.
+          <p className="mt-3 text-[13px] leading-6 text-[#565e74]">
+            Organize transactions, understand spending, discover patterns,
+            and ask questions about your finances using AI.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
-            className="md:col-span-2 lg:col-span-2"
-            icon={<Tags size={22} />}
-            iconClass="bg-[#89f5e7]/20 text-[#006a61]"
-            title="AI Expense Categorization"
-            description="Aura accurately groups every transaction into granular categories, learning your unique spending habits over time."
-          >
-            <div className="mt-6 flex flex-wrap gap-2 border-t border-[#dce9ff] pt-4">
-              <Chip>Starbucks → Dining</Chip>
-              <Chip>Uber → Transport</Chip>
-              <Chip>Netflix → Entertainment</Chip>
-            </div>
-          </FeatureCard>
+            icon={<Tags size={18} />}
+            title="AI Categorization"
+            description="Automatically classify transactions while allowing you to review and correct categories whenever needed."
+          />
 
           <FeatureCard
-            className="md:col-span-1 lg:col-span-2"
-            icon={<BarChart3 size={22} />}
-            iconClass="bg-[#dae2fd] text-black"
-            title="Spending Insights"
-            description="Visual snapshots of where your money flows. Detect anomalies and trend shifts before they impact your balance."
-          >
-            <div className="mt-5 flex h-24 items-end gap-1">
-              {["40%", "60%", "90%", "50%", "75%"].map((height, index) => (
-                <div
-                  key={`${height}-${index}`}
-                  className={`w-full rounded-t ${
-                    index === 2 ? "bg-[#006a61]" : "bg-[#89f5e7]"
-                  }`}
-                  style={{ height }}
-                />
-              ))}
-            </div>
-          </FeatureCard>
+            icon={<BarChart3 size={18} />}
+            title="Spending Intelligence"
+            description="Understand where your money goes with category breakdowns, anomalies, trends, and monthly comparisons."
+          />
+
+          <FeatureCard
+            icon={<CalendarDays size={18} />}
+            title="Subscription Detection"
+            description="Identify recurring services and review monthly subscription spending from your transaction history."
+          />
+
+          <FeatureCard
+            icon={<Flag size={18} />}
+            title="Goal Tracking"
+            description="Create financial goals and keep track of savings progress across important milestones."
+          />
+
+          <FeatureCard
+            icon={<Search size={18} />}
+            title="Semantic Search"
+            description="Search your financial history naturally instead of relying only on exact transaction names or filters."
+          />
 
           <DarkFeatureCard />
+        </div>
 
-          <FeatureCard
-            icon={<CalendarX size={22} />}
-            iconClass="bg-red-50 text-red-600"
-            title="Subscription Detection"
-            description="Find and cancel forgotten recurring charges instantly."
-          />
-
-          <FeatureCard
-            icon={<Flag size={22} />}
-            iconClass="bg-indigo-100 text-indigo-700"
-            title="Goal Tracking"
-            description="Set and monitor milestones with automated progress alerts."
-          />
-
-          <div className="rounded-3xl bg-[#006a61] p-6 text-white shadow-sm md:col-span-2 lg:col-span-4">
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-              <div>
-                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
-                  <FolderKanban size={22} />
-                </div>
-
-                <h3 className="text-2xl font-bold">
-                  Automated Monthly Reports
-                </h3>
-
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-white/90">
-                  Get a beautiful executive-style summary of your financial
-                  health delivered every month. No manual data entry required.
-                </p>
+        <div className="mt-4 rounded-3xl border border-emerald-100 bg-gradient-to-r from-emerald-50/70 via-white to-[#fbfcff] p-5 shadow-[0_6px_20px_rgba(15,23,42,0.04)] sm:p-6">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-white text-emerald-700">
+                <FolderKanban size={19} />
               </div>
 
-              <button className="whitespace-nowrap rounded-xl bg-white px-5 py-3 text-sm font-bold text-[#006a61]">
-                View Sample Report
-              </button>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-700">
+                  Financial Reporting
+                </p>
+
+                <h3 className="mt-1 text-[18px] font-bold text-black">
+                  Automated Financial Reports
+                </h3>
+
+                <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
+                  Turn your transaction history into clear financial
+                  summaries covering spending, income, savings, categories,
+                  and important trends.
+                </p>
+              </div>
             </div>
+
+            <button className="h-10 shrink-0 rounded-xl border border-[#dfe9fb] bg-white px-4 text-[11px] font-bold text-black transition hover:border-emerald-200 hover:bg-emerald-50">
+              View Sample Report
+            </button>
           </div>
         </div>
       </div>
@@ -102,74 +100,59 @@ export default function FeaturesSection() {
 
 function FeatureCard({
   icon,
-  iconClass,
   title,
   description,
-  children,
-  className = "",
 }: {
   icon: React.ReactNode;
-  iconClass: string;
   title: string;
   description: string;
-  children?: React.ReactNode;
-  className?: string;
 }) {
   return (
-    <div
-      className={`rounded-3xl border border-[#dce9ff] bg-white p-6 shadow-sm ${className}`}
-    >
-      <div
-        className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${iconClass}`}
-      >
+    <div className="rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_5px_18px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] hover:border-emerald-100 hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)]">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700">
         {icon}
       </div>
 
-      <h3 className="text-xl font-bold text-current">{title}</h3>
+      <h3 className="mt-4 text-[15px] font-bold text-black">
+        {title}
+      </h3>
 
-      <p className="mt-2 text-sm leading-6 text-current/70">
+      <p className="mt-2 text-[12px] leading-5 text-[#565e74]">
         {description}
       </p>
-
-      {children}
     </div>
   );
 }
 
 function DarkFeatureCard() {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#1b2740] bg-[#0f172a] p-6 text-white shadow-sm lg:col-span-2">
-      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white">
-        <MessageCircle size={22} />
-      </div>
+    <div className="relative overflow-hidden rounded-3xl bg-black p-5 text-white shadow-[0_10px_30px_rgba(15,23,42,0.16)]">
+      <div className="relative z-10">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10">
+          <MessageCircle size={18} />
+        </div>
 
-      <h3 className="text-xl font-bold">
-        Financial Chat Assistant
-      </h3>
+        <h3 className="mt-4 text-[15px] font-bold">
+          AI Financial Chat
+        </h3>
 
-      <p className="mt-2 text-sm leading-6 text-[#c7d2fe]">
-        Ask questions like "Can I afford a vacation?" and get real-time answers
-        based on your actual budget and projected income.
-      </p>
-
-      <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-        <p className="text-sm italic leading-6 text-[#dae2fd]">
-          “Based on your savings rate, you can afford a trip by June while
-          maintaining your emergency fund.”
+        <p className="mt-2 text-[12px] leading-5 text-[#b7c0d4]">
+          Ask Aura questions about your transactions, spending behavior,
+          recurring payments, or financial activity using natural language.
         </p>
+
+        <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3.5">
+          <p className="text-[11px] italic leading-5 text-[#d8deeb]">
+            “How much did I spend on subscriptions over the last three
+            months?”
+          </p>
+        </div>
       </div>
 
-      <div className="absolute -bottom-6 -right-6 opacity-10">
-        <MessageCircle size={120} />
-      </div>
+      <MessageCircle
+        size={120}
+        className="absolute -bottom-8 -right-8 opacity-[0.05]"
+      />
     </div>
-  );
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-full bg-[#eff4ff] px-3 py-1 text-[11px] font-bold text-[#565e74]">
-      {children}
-    </span>
   );
 }

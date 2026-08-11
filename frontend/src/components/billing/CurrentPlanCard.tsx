@@ -1,27 +1,27 @@
-import UsageMetric from "./UsageMetric";
 import Link from "next/link";
+import UsageMetric from "./UsageMetric";
 
 export default function CurrentPlanCard() {
   return (
-    <div className="rounded-2xl border border-[#dce9ff] bg-white p-5 shadow-sm">
-      <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div className="rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-800">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
             Current Plan
-          </span>
+          </p>
 
-          <h2 className="mt-3 text-2xl font-bold text-black">
+          <h2 className="mt-2 text-[22px] font-bold tracking-tight text-black">
             Aura Pro
           </h2>
 
-          <p className="mt-1.5 text-[13px] text-[#565e74]">
+          <p className="mt-1.5 text-[12px] leading-5 text-[#565e74]">
             Next billing date: Jan 24, 2025 ($29.00/mo)
           </p>
         </div>
 
         <Link
           href="/billing/upgrade"
-          className="rounded-xl bg-black px-4 py-2.5 text-center text-[13px] font-bold text-white transition hover:opacity-90"
+          className="inline-flex h-10 w-fit shrink-0 items-center justify-center rounded-xl bg-black px-5 text-[12px] font-bold text-white transition-[opacity,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_8px_20px_rgba(15,23,42,0.12)]"
         >
           Upgrade Plan
         </Link>

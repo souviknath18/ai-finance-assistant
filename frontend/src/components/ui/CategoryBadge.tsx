@@ -7,11 +7,11 @@ type CategoryBadgeProps = {
 export default function CategoryBadge({
   category,
 }: CategoryBadgeProps) {
+  const styles = getCategoryStyles(category);
+
   return (
     <span
-      className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold ${
-        getCategoryStyles(category).badge
-      }`}
+      className={`inline-flex max-w-full items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-semibold leading-none ${styles.badge}`}
     >
       {category}
     </span>

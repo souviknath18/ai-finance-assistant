@@ -8,12 +8,14 @@ export default function FloatingAuraButton() {
 
   return (
     <button
+      type="button"
       onClick={() => router.push("/chat")}
-      className="group fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-[0_18px_45px_rgba(0,0,0,0.25)] transition hover:scale-105 active:scale-95"
+      aria-label="Ask Aura"
+      className="group fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow-[0_14px_34px_rgba(15,23,42,0.22)] transition-[transform,box-shadow,opacity] duration-200 hover:scale-105 hover:shadow-[0_18px_40px_rgba(15,23,42,0.28)] active:scale-95 sm:bottom-6 sm:right-6"
     >
-      <Bot size={24} />
+      <Bot size={19} />
 
-      <span className="pointer-events-none absolute right-16 rounded-xl bg-black px-3 py-2 text-[12px] font-bold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+      <span className="pointer-events-none absolute right-[58px] top-1/2 hidden -translate-y-1/2 whitespace-nowrap rounded-xl bg-black px-3 py-2 text-[10px] font-bold text-white opacity-0 shadow-[0_8px_20px_rgba(15,23,42,0.18)] transition-opacity duration-200 group-hover:opacity-100 sm:block">
         Ask Aura
       </span>
     </button>

@@ -321,12 +321,13 @@ export default function TransactionsPage() {
         />
       )}
 
-      <div className="overflow-visible rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+      <div className="overflow-hidden rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
         <TransactionsTable
           transactions={transactions}
           loading={tableLoading}
           error={error}
           selectedIds={selectedIds}
+          rowsPerPage={rowsPerPage}
           onToggleSelectAction={toggleSelect}
           onToggleSelectAllAction={toggleSelectAllVisible}
           onDeleteAction={openSingleDeleteModal}
@@ -340,15 +341,18 @@ export default function TransactionsPage() {
               : "No transactions found for the selected filters."
           }
         />
-        
-        <Pagination
-          total={totalCount}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          rowsPerPage={rowsPerPage}
-          onPageChangeAction={setCurrentPage}
-          onRowsPerPageChangeAction={handleRowsPerPageChange}
-        />
+
+        <div className="border-t border-[#edf2fb]">
+          <Pagination
+            total={totalCount}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            rowsPerPage={rowsPerPage}
+            itemLabel="transactions"
+            onPageChangeAction={setCurrentPage}
+            onRowsPerPageChangeAction={handleRowsPerPageChange}
+          />
+        </div>
       </div>
 
       <section className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">

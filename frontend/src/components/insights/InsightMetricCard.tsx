@@ -20,17 +20,17 @@ export default function InsightMetricCard({
   const styles = getToneStyles(tone);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow] duration-200 hover:border-[#dbe5f5] hover:shadow-[0_8px_26px_rgba(15,23,42,0.08)]">
+    <section className="flex h-full flex-col overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
       {/* Header */}
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#7c839b]">
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#7c839b]">
               {title}
             </p>
 
             <h3
-              className={`mt-2 text-2xl font-bold leading-none tracking-tight ${styles.value}`}
+              className={`mt-2 text-[22px] font-bold leading-none tracking-tight ${styles.value}`}
             >
               {value}
             </h3>
@@ -60,7 +60,7 @@ export default function InsightMetricCard({
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -86,13 +86,13 @@ function getToneStyles(
       return {
         icon:
           "border-indigo-100 bg-indigo-50 text-indigo-700",
-        value: "text-black",
+        value: "text-indigo-700",
       };
 
     default:
       return {
         icon:
-          "border-emerald-100 bg-emerald-50 text-emerald-700",
+          "border-[#e6edf9] bg-[#f8faff] text-[#565e74]",
         value: "text-black",
       };
   }

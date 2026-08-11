@@ -3,20 +3,20 @@ import { ArrowLeft } from "lucide-react";
 
 export default function CheckoutHeader() {
   return (
-    <div>
+    <div className="mb-6">
       <Link
         href="/billing/upgrade"
-        className="mb-4 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-emerald-700 hover:underline"
+        className="mb-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#565e74] transition hover:text-black"
       >
-        <ArrowLeft size={15} />
+        <ArrowLeft size={14} />
         Back to Plans
       </Link>
 
-      <h1 className="text-2xl font-bold tracking-tight text-black md:text-3xl">
+      <h1 className="text-xl font-bold tracking-tight text-black">
         Upgrade to Aura Elite
       </h1>
 
-      <p className="mt-2 text-[13px] leading-6 text-[#565e74] md:text-[14px]">
+      <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
         Unlock institutional-grade AI tools, unlimited uploads, and priority
         financial intelligence.
       </p>

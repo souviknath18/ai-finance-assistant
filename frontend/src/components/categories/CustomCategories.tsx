@@ -1,15 +1,23 @@
-import { Edit, PlusCircle, Trash2 } from "lucide-react";
+import {
+  Edit,
+  PlusCircle,
+  Trash2,
+} from "lucide-react";
+
 import { Category } from "@/types/category";
 import { getCategoryIcon } from "@/lib/utils/categoryIcons";
 import { getCategoryStyles } from "@/lib/utils/categoryStyles";
 
 type CustomCategoriesProps = {
   categories: Category[];
+
   onCreateCategoryAction: () => void;
+
   onDeleteCategoryAction: (
     categoryId: string,
     categoryName: string
   ) => void;
+
   onEditCategoryAction: (
     categoryId: string
   ) => void;
@@ -22,57 +30,77 @@ export default function CustomCategories({
   onDeleteCategoryAction,
 }: CustomCategoriesProps) {
   return (
-    <section className="mt-10">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-black">
-          Custom Categories
-        </h2>
+    <section className="mb-6">
+      {/* Header */}
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-[15px] font-bold text-black">
+            Custom Categories
+          </h2>
 
-        <button
-          type="button"
-          className="text-[11px] font-bold uppercase tracking-wide text-emerald-700 hover:underline"
-        >
-          Edit All
-        </button>
-      </div>
+          <p className="mt-1 text-[11px] leading-5 text-[#565e74]">
+            Create and manage your own spending classifications.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <button
           type="button"
           onClick={onCreateCategoryAction}
-          className="group flex h-32 flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition-all duration-200 hover:border-black hover:bg-[#eff4ff] hover:shadow-[0_12px_36px_rgba(15,23,42,0.08)]"
+          className="text-[10px] font-bold uppercase tracking-wide text-emerald-700 transition hover:opacity-70"
         >
-          <PlusCircle
-            size={28}
-            className="text-[#76777d] transition group-hover:text-black"
-          />
+          Add Category
+        </button>
+      </div>
 
-          <span className="text-[13px] font-bold text-[#565e74] group-hover:text-black">
-            Add Custom
-          </span>
+      {/* Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Add Card */}
+        <button
+          type="button"
+          onClick={onCreateCategoryAction}
+          className="group flex min-h-36 flex-col items-center justify-center gap-2.5 rounded-3xl border border-dashed border-[#c9d9f3] bg-[#fbfcff] p-5 shadow-[0_6px_24px_rgba(15,23,42,0.03)] transition-[background-color,border-color,box-shadow,color] duration-200 hover:border-emerald-200 hover:bg-emerald-50/40 hover:shadow-[0_8px_26px_rgba(15,23,42,0.05)]"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#e6edf9] bg-white text-[#7c839b] transition group-hover:border-emerald-100 group-hover:text-emerald-700">
+            <PlusCircle size={17} />
+          </div>
+
+          <div className="text-center">
+            <p className="text-[12px] font-bold text-black">
+              Add Custom
+            </p>
+
+            <p className="mt-0.5 text-[10px] text-[#7c839b]">
+              Create a new category
+            </p>
+          </div>
         </button>
 
+        {/* Existing Categories */}
         {categories.map((category) => {
-          const Icon = getCategoryIcon(
-            category.name
-          );
+          const Icon =
+            getCategoryIcon(
+              category.name
+            );
 
-          const styles = getCategoryStyles(
-            category.name
-          );
+          const styles =
+            getCategoryStyles(
+              category.name
+            );
 
           return (
             <div
-              key={category.category_id}
-              className="group flex h-32 flex-col justify-between rounded-2xl border border-[#dfe9fb] bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition-[border-color,box-shadow] duration-200 hover:border-[#c7d8f7] hover:shadow-[0_12px_36px_rgba(15,23,42,0.08)]"
+              key={
+                category.category_id
+              }
+              className="group flex min-h-36 flex-col justify-between rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)] transition-[border-color,box-shadow] duration-200 hover:border-[#d5e2f3] hover:shadow-[0_8px_28px_rgba(15,23,42,0.07)]"
             >
-              <div className="flex items-start justify-between">
+              {/* Top */}
+              <div className="flex items-start justify-between gap-3">
                 <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl ${styles.badge}`}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${styles.badge}`}
                 >
-                  <Icon size={18} />
+                  <Icon size={17} />
                 </div>
-                
 
                 <div className="flex items-center gap-1">
                   <button
@@ -84,9 +112,9 @@ export default function CustomCategories({
                         category.category_id
                       )
                     }
-                    className="rounded-lg p-1.5 text-[#76777d] transition hover:bg-[#eff4ff] hover:text-black"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8a92a5] transition hover:bg-[#edf3ff] hover:text-black"
                   >
-                    <Edit size={15} />
+                    <Edit size={14} />
                   </button>
 
                   <button
@@ -99,25 +127,28 @@ export default function CustomCategories({
                         category.name
                       )
                     }
-                    className="rounded-lg p-1.5 text-[#76777d] transition hover:bg-red-50 hover:text-red-600"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8a92a5] transition hover:bg-red-50 hover:text-red-600"
                   >
-                    <Trash2 size={15} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
 
-              <div>
-                <div className="mb-1.5 flex items-center gap-2">
-                  <h3 className="truncate text-[13px] font-bold text-black">
+              {/* Bottom */}
+              <div className="mt-5">
+                <div className="mb-1.5 flex min-w-0 items-center gap-2">
+                  <h3 className="min-w-0 flex-1 truncate text-[12px] font-bold text-black">
                     {category.name}
                   </h3>
 
-                  <span className="shrink-0 rounded-full bg-[#e5eeff] px-2 py-0.5 text-[10px] font-bold uppercase text-[#565e74]">
-                    {category.category_type}
+                  <span className="shrink-0 rounded-full border border-[#e6edf9] bg-[#fbfcff] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#565e74]">
+                    {
+                      category.category_type
+                    }
                   </span>
                 </div>
 
-                <p className="line-clamp-2 text-[13px] leading-5 text-[#565e74]">
+                <p className="line-clamp-2 text-[11px] leading-5 text-[#565e74]">
                   {category.description ||
                     category.keywords ||
                     "Custom category"}

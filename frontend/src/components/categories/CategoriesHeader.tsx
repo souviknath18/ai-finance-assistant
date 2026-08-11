@@ -14,25 +14,29 @@ export default function CategoriesHeader({
 }: CategoriesHeaderProps) {
   return (
     <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      {/* Left */}
       <div>
         <h1 className="text-xl font-bold tracking-tight text-black">
           Categories
         </h1>
 
-        <p className="mt-1 text-[12px] leading-5 text-[#565e74]">
-          Manage and organize your spending classifications.
+        <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
+          Manage and organize your spending classifications for smarter
+          financial tracking.
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2.5">
+      {/* Actions */}
+      <div className="flex flex-wrap items-center gap-2.5">
         <button
           type="button"
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#dce9ff] px-4 text-[12px] font-bold text-black transition hover:bg-[#d3e4fe]"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-bold text-black transition-[background-color,border-color,box-shadow,color] duration-200 hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-700 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)]"
         >
           <GitMerge
             size={15}
             className="shrink-0"
           />
+
           Merge Categories
         </button>
 
@@ -45,6 +49,7 @@ export default function CategoriesHeader({
             size={15}
             className="shrink-0"
           />
+
           Create Category
         </button>
       </div>

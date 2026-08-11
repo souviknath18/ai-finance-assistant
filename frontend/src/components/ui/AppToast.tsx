@@ -1,4 +1,11 @@
-import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+"use client";
+
+import {
+  CheckCircle2,
+  AlertCircle,
+  Info,
+  X,
+} from "lucide-react";
 
 type AppToastProps = {
   show: boolean;
@@ -8,6 +15,32 @@ type AppToastProps = {
   onCloseAction: () => void;
 };
 
+const toastStyles = {
+  success: {
+    icon: CheckCircle2,
+    background: "bg-emerald-50",
+    border: "border-emerald-200",
+    iconContainer:
+      "border-emerald-200 bg-white text-emerald-700",
+  },
+
+  error: {
+    icon: AlertCircle,
+    background: "bg-red-50",
+    border: "border-red-200",
+    iconContainer:
+      "border-red-200 bg-white text-red-600",
+  },
+
+  info: {
+    icon: Info,
+    background: "bg-[#eff4ff]",
+    border: "border-[#d3e4fe]",
+    iconContainer:
+      "border-[#d3e4fe] bg-white text-[#565e74]",
+  },
+};
+
 export default function AppToast({
   show,
   type = "success",
@@ -15,54 +48,53 @@ export default function AppToast({
   message,
   onCloseAction,
 }: AppToastProps) {
-  if (!show) return null;
+  if (!show) {
+    return null;
+  }
 
-  const styles = {
-    success: {
-      icon: <CheckCircle2 size={18} />,
-      color: "text-emerald-700",
-      bg: "bg-emerald-50",
-      border: "border-emerald-200",
-    },
-    error: {
-      icon: <AlertCircle size={18} />,
-      color: "text-red-600",
-      bg: "bg-red-50",
-      border: "border-red-200",
-    },
-    info: {
-      icon: <Info size={18} />,
-      color: "text-[#565e74]",
-      bg: "bg-[#eff4ff]",
-      border: "border-[#d3e4fe]",
-    },
-  };
+  const current =
+    toastStyles[type];
 
-  const current = styles[type];
+  const Icon = current.icon;
 
   return (
-    <div className="fixed right-6 top-20 z-[9999] w-[calc(100%-3rem)] max-w-sm animate-[toastSlide_0.35s_ease]">
+    <div className="pointer-events-none fixed right-4 top-4 z-[9999] w-[calc(100%-2rem)] max-w-[380px] sm:right-5 sm:top-5">
       <div
-        className={`flex gap-3 rounded-2xl border ${current.border} ${current.bg} p-3.5 shadow-[0_16px_45px_rgba(15,23,42,0.14)]`}
+        role="status"
+        aria-live="polite"
+        className={`pointer-events-auto rounded-2xl border ${current.border} ${current.background} p-4 shadow-[0_12px_35px_rgba(15,23,42,0.12)]`}
       >
-        <div className={current.color}>{current.icon}</div>
+        <div className="flex items-start gap-3">
+          {/* Icon */}
+          <div
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${current.iconContainer}`}
+          >
+            <Icon size={16} />
+          </div>
 
-        <div className="flex-1">
-          <p className="text-[13px] font-bold text-black">{title}</p>
-
-          {message && (
-            <p className="mt-1 text-[13px] leading-5 text-[#565e74]">
-              {message}
+          {/* Content */}
+          <div className="min-w-0 flex-1 pt-0.5">
+            <p className="text-[12px] font-bold leading-5 text-black">
+              {title}
             </p>
-          )}
-        </div>
 
-        <button
-          onClick={onCloseAction}
-          className="text-[#565e74] hover:text-black"
-        >
-          <X size={16} />
-        </button>
+            {message && (
+              <p className="mt-1 text-[11px] leading-5 text-[#565e74]">
+                {message}
+              </p>
+            )}
+          </div>
+
+          {/* Close */}
+          <button
+            type="button"
+            aria-label="Close notification"
+            onClick={onCloseAction}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#565e74] transition hover:bg-white/70 hover:text-black"
+          >
+            <X size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );

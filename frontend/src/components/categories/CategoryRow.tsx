@@ -1,5 +1,12 @@
-import { Edit, GitMerge, Trash2 } from "lucide-react";
-import { getCategoryStyles } from "@/lib/utils/categoryStyles";
+import {
+  Edit,
+  GitMerge,
+  Trash2,
+} from "lucide-react";
+
+import {
+  getCategoryStyles,
+} from "@/lib/utils/categoryStyles";
 
 type CategoryRowProps = {
   category: {
@@ -27,51 +34,66 @@ export default function CategoryRow({
   onDeleteCategoryAction,
 }: CategoryRowProps) {
   const Icon = category.icon;
-  const styles = getCategoryStyles(category.name);
+
+  const styles = getCategoryStyles(
+    category.name
+  );
 
   const actionsDisabled =
-    category.isSystem || !category.categoryId;
+    category.isSystem ||
+    !category.categoryId;
 
   return (
-    <tr className="group transition hover:bg-[#eff4ff]">
-      <td className="px-5 py-4">
+    <tr className="group transition-colors duration-200 hover:bg-[#fbfcff]">
+      {/* Category */}
+      <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
           <div
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${styles.badge}`}
           >
-            <Icon size={18} />
+            <Icon size={16} />
           </div>
 
-          <div>
-            <span className="text-[13px] font-bold text-black">
+          <div className="min-w-0">
+            <span className="block truncate text-[12px] font-bold text-black">
               {category.name}
             </span>
 
             {category.isSystem && (
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#76777d]">
-                System category
+              <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#8a92a5]">
+                System Category
               </p>
             )}
           </div>
         </div>
       </td>
 
-      <td className="px-5 py-4 text-[13px] text-[#565e74]">
-        {category.transactions}
+      {/* Transactions */}
+      <td className="px-5 py-3.5">
+        <span className="text-[12px] font-medium text-[#565e74]">
+          {category.transactions}
+        </span>
       </td>
 
-      <td className="px-5 py-4 text-[13px] font-bold text-black">
-        {category.spending}
+      {/* Spending */}
+      <td className="px-5 py-3.5">
+        <span className="text-[12px] font-bold text-black">
+          {category.spending}
+        </span>
       </td>
 
-      <td className="px-5 py-4 text-[13px] font-bold text-emerald-700">
-        {category.income}
+      {/* Income */}
+      <td className="px-5 py-3.5">
+        <span className="text-[12px] font-bold text-emerald-700">
+          {category.income}
+        </span>
       </td>
 
-      <td className="px-5 py-4">
-        <div className="flex justify-end gap-2 opacity-70 transition group-hover:opacity-100">
+      {/* Actions */}
+      <td className="px-5 py-3.5">
+        <div className="flex items-center justify-end gap-1">
           <ActionButton
-            icon={<Edit size={15} />}
+            icon={<Edit size={14} />}
             ariaLabel={`Edit ${category.name}`}
             title={
               category.isSystem
@@ -82,7 +104,7 @@ export default function CategoryRow({
           />
 
           <ActionButton
-            icon={<GitMerge size={15} />}
+            icon={<GitMerge size={14} />}
             ariaLabel={`Merge ${category.name}`}
             title={
               category.isSystem
@@ -91,7 +113,9 @@ export default function CategoryRow({
             }
             disabled={actionsDisabled}
             onClick={() => {
-              if (!category.categoryId) return;
+              if (!category.categoryId) {
+                return;
+              }
 
               onMergeCategoryAction(
                 category.categoryId,
@@ -101,7 +125,7 @@ export default function CategoryRow({
           />
 
           <ActionButton
-            icon={<Trash2 size={15} />}
+            icon={<Trash2 size={14} />}
             ariaLabel={`Delete ${category.name}`}
             title={
               category.isSystem
@@ -111,7 +135,9 @@ export default function CategoryRow({
             danger
             disabled={actionsDisabled}
             onClick={() => {
-              if (!category.categoryId) return;
+              if (!category.categoryId) {
+                return;
+              }
 
               onDeleteCategoryAction(
                 category.categoryId,
@@ -147,11 +173,11 @@ function ActionButton({
       title={title}
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-lg p-1.5 transition ${
+      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-[background-color,color,opacity] duration-200 ${
         danger
-          ? "text-red-600 hover:bg-red-50"
-          : "text-[#565e74] hover:bg-[#dce9ff] hover:text-black"
-      } disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-inherit`}
+          ? "text-[#8a92a5] hover:bg-red-50 hover:text-red-600"
+          : "text-[#8a92a5] hover:bg-[#edf3ff] hover:text-black"
+      } disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#8a92a5]`}
     >
       {icon}
     </button>
