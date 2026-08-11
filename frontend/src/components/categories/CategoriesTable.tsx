@@ -1,6 +1,7 @@
 import CategoryRow from "./CategoryRow";
 import Pagination from "@/components/ui/Pagination";
 import CategoryTableSkeleton from "./CategoryTableSkeleton";
+
 import { CategorySummary } from "@/types/category";
 import { getCategoryIcon } from "@/lib/utils/categoryIcons";
 
@@ -51,20 +52,21 @@ export default function CategoriesTable({
   onDeleteCategoryAction,
 }: CategoriesTableProps) {
   return (
-    <div className="overflow-visible rounded-2xl border border-[#dfe9fb] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
-      <div className="flex flex-col gap-2 rounded-t-2xl border-b border-[#e5eeff] bg-[#f8f9ff] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
+      {/* Header */}
+      <div className="flex flex-col gap-3 border-b border-[#edf2fb] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-black">
+          <h2 className="text-[15px] font-bold text-black">
             Category Summary
           </h2>
 
-          <p className="mt-1 text-[12px] text-[#76777d]">
+          <p className="mt-1 text-[11px] leading-5 text-[#565e74]">
             Spending and income grouped by transaction category.
           </p>
         </div>
 
-        <span className="text-[13px] text-[#565e74]">
-          <strong className="text-black">
+        <span className="text-[11px] text-[#565e74]">
+          <strong className="font-bold text-black">
             {totalCount}
           </strong>{" "}
           categor{totalCount === 1 ? "y" : "ies"} with transactions
@@ -72,28 +74,50 @@ export default function CategoriesTable({
       </div>
 
       {loading ? (
-        <CategoryTableSkeleton rowsPerPage={rowsPerPage} />
+        <CategoryTableSkeleton
+          rowsPerPage={rowsPerPage}
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] border-collapse text-left">
             <thead>
-              <tr className="bg-[#eff4ff]">
-                <TableHead>Category</TableHead>
-                <TableHead>Transactions</TableHead>
-                <TableHead>Total Spending</TableHead>
-                <TableHead>Income</TableHead>
-                <TableHead align="right">Actions</TableHead>
+              <tr className="bg-[#fbfcff]">
+                <TableHead>
+                  Category
+                </TableHead>
+
+                <TableHead>
+                  Transactions
+                </TableHead>
+
+                <TableHead>
+                  Total Spending
+                </TableHead>
+
+                <TableHead>
+                  Income
+                </TableHead>
+
+                <TableHead align="right">
+                  Actions
+                </TableHead>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#e5eeff]">
+            <tbody className="divide-y divide-[#edf2fb]">
               {categories.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-5 py-10 text-center text-[13px] font-semibold text-[#565e74]"
+                    className="px-5 py-12 text-center"
                   >
-                    No category summary is available yet.
+                    <p className="text-[13px] font-bold text-black">
+                      No category summary
+                    </p>
+
+                    <p className="mt-1 text-[11px] leading-5 text-[#565e74]">
+                      Category totals will appear here once transactions are available.
+                    </p>
                   </td>
                 </tr>
               ) : (
@@ -106,18 +130,22 @@ export default function CategoriesTable({
                         undefined,
                       isSystem:
                         category.is_system,
-                      name: category.name,
-                      icon: getCategoryIcon(
-                        category.name
-                      ),
+                      name:
+                        category.name,
+                      icon:
+                        getCategoryIcon(
+                          category.name
+                        ),
                       transactions:
                         category.transactions,
-                      spending: formatCurrency(
-                        category.spending
-                      ),
-                      income: formatCurrency(
-                        category.income
-                      ),
+                      spending:
+                        formatCurrency(
+                          category.spending
+                        ),
+                      income:
+                        formatCurrency(
+                          category.income
+                        ),
                     }}
                     onMergeCategoryAction={
                       onMergeCategoryAction
@@ -133,15 +161,22 @@ export default function CategoriesTable({
         </div>
       )}
 
-      <Pagination
-        total={totalCount}
-        currentPage={page}
-        totalPages={totalPages}
-        rowsPerPage={rowsPerPage}
-        itemLabel="categories"
-        onPageChangeAction={onPageChangeAction}
-        onRowsPerPageChangeAction={onRowsPerPageChangeAction}
-      />
+      {/* Pagination */}
+      <div className="border-t border-[#edf2fb] bg-[#fbfcff]">
+        <Pagination
+          total={totalCount}
+          currentPage={page}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          itemLabel="categories"
+          onPageChangeAction={
+            onPageChangeAction
+          }
+          onRowsPerPageChangeAction={
+            onRowsPerPageChangeAction
+          }
+        />
+      </div>
     </div>
   );
 }
@@ -155,7 +190,7 @@ function TableHead({
 }) {
   return (
     <th
-      className={`px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#565e74] ${
+      className={`px-5 py-3.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c839b] ${
         align === "right"
           ? "text-right"
           : "text-left"

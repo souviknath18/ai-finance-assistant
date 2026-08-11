@@ -1,12 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+
 import { dismissNotification } from "@/lib/api/notificationsApi";
 
 type NotificationCardProps = {
   id: number;
   icon: React.ReactNode;
-  tone: "red" | "green" | "dark" | "purple" | "muted";
+  tone:
+    | "red"
+    | "green"
+    | "dark"
+    | "purple"
+    | "muted";
   title: string;
   time: string;
   description: string;
@@ -34,35 +40,55 @@ export default function NotificationCard({
 
   const toneMap = {
     red: {
-      border: "border-l-red-600",
+      border: "border-red-100",
+      accent: "bg-red-500",
       iconBg: "bg-red-50",
       iconText: "text-red-600",
     },
+
     green: {
-      border: "border-l-emerald-700",
-      iconBg: "bg-emerald-100",
+      border: "border-emerald-100",
+      accent: "bg-emerald-500",
+      iconBg: "bg-emerald-50",
       iconText: "text-emerald-700",
     },
+
     dark: {
-      border: "border-l-black",
-      iconBg: "bg-[#e5eeff]",
+      border: "border-[#e6edf9]",
+      accent: "bg-black",
+      iconBg: "bg-[#f3f6fc]",
       iconText: "text-black",
     },
+
     purple: {
-      border: "border-l-indigo-600",
-      iconBg: "bg-indigo-100",
+      border: "border-indigo-100",
+      accent: "bg-indigo-500",
+      iconBg: "bg-indigo-50",
       iconText: "text-indigo-700",
     },
+
     muted: {
-      border: "border-l-[#76777d]",
-      iconBg: "bg-[#e5eeff]",
+      border: "border-[#e6edf9]",
+      accent: "bg-[#8a92a5]",
+      iconBg: "bg-[#f3f6fc]",
       iconText: "text-[#565e74]",
     },
   };
 
-  const current = toneMap[tone];
+  const current =
+    toneMap[tone];
 
-  const handleAction = async (action: string) => {
+  const safeProgress =
+    progress === undefined
+      ? undefined
+      : Math.min(
+          Math.max(progress, 0),
+          100
+        );
+
+  const handleAction = async (
+    action: string
+  ) => {
     if (action === "Dismiss") {
       await dismissNotification(id);
       onRefreshAction();
@@ -76,52 +102,73 @@ export default function NotificationCard({
 
   return (
     <div
-      className={`flex gap-4 rounded-2xl border-l-4 ${current.border} bg-white p-5 shadow-sm transition hover:shadow-md`}
+      className={`relative overflow-hidden rounded-3xl border ${current.border} bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)] transition-[border-color,box-shadow] duration-200 hover:shadow-[0_8px_28px_rgba(15,23,42,0.07)]`}
     >
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${current.iconBg} ${current.iconText}`}
-      >
-        {icon}
-      </div>
+        className={`absolute bottom-0 left-0 top-0 w-1 ${current.accent}`}
+      />
 
-      <div className="flex-1">
-        <div className="mb-1.5 flex items-start justify-between gap-4">
-          <h3 className="text-base font-bold text-black">{title}</h3>
-
-          <span className="whitespace-nowrap text-[11px] font-bold text-[#565e74]">
-            {time}
-          </span>
+      <div className="flex gap-4">
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/60 ${current.iconBg} ${current.iconText}`}
+        >
+          {icon}
         </div>
 
-        <p className="mb-3.5 text-[13px] leading-5 text-[#565e74]">
-          {description}
-        </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+            <h3 className="text-[14px] font-bold text-black">
+              {title}
+            </h3>
 
-        {progress !== undefined && (
-          <div className="mb-3.5 h-1.5 w-full rounded-full bg-[#e5eeff]">
-            <div
-              className="h-1.5 rounded-full bg-black"
-              style={{ width: `${progress}%` }}
-            />
+            <span className="shrink-0 text-[10px] font-medium text-[#8a92a5]">
+              {time}
+            </span>
           </div>
-        )}
 
-        <div className="flex flex-wrap gap-3">
-          {actions.map((action) => (
-            <button
-              key={action}
-              onClick={() => handleAction(action)}
-              className={`border-b pb-px text-[11px] font-bold uppercase tracking-wide transition hover:opacity-70 ${
-                action === dangerAction
-                  ? "border-red-600 text-red-600"
-                  : action === "Dismiss"
-                  ? "border-transparent text-[#565e74] hover:text-black"
-                  : "border-black text-black"
-              }`}
-            >
-              {action}
-            </button>
-          ))}
+          <p className="mt-1.5 text-[12px] leading-5 text-[#565e74]">
+            {description}
+          </p>
+
+          {safeProgress !== undefined && (
+            <div className="mt-3.5 h-1.5 w-full overflow-hidden rounded-full bg-[#edf2fb]">
+              <div
+                className="h-full rounded-full bg-emerald-700 transition-[width] duration-500"
+                style={{
+                  width: `${safeProgress}%`,
+                }}
+              />
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            {actions.map((action) => {
+              const danger =
+                action === dangerAction;
+
+              const dismiss =
+                action === "Dismiss";
+
+              return (
+                <button
+                  key={action}
+                  type="button"
+                  onClick={() =>
+                    handleAction(action)
+                  }
+                  className={`text-[10px] font-bold uppercase tracking-wide transition hover:opacity-70 ${
+                    danger
+                      ? "text-red-600"
+                      : dismiss
+                      ? "text-[#7c839b] hover:text-black"
+                      : "text-emerald-700"
+                  }`}
+                >
+                  {action}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

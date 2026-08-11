@@ -1,11 +1,11 @@
 import {
   ArrowDownRight,
-  ArrowUpRight,
-  TrendingUp,
-  Wallet,
   ArrowDownToLine,
   ArrowUpFromLine,
+  ArrowUpRight,
   PiggyBank,
+  TrendingUp,
+  Wallet,
 } from "lucide-react";
 
 type MetricCardProps = {
@@ -25,35 +25,39 @@ export default function MetricCard({
 }: MetricCardProps) {
   const trendClass =
     type === "positive"
-      ? "bg-emerald-50 text-emerald-700"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
       : type === "negative"
-      ? "bg-red-50 text-red-600"
-      : "bg-emerald-50 text-emerald-700";
+        ? "border-red-100 bg-red-50 text-red-600"
+        : "border-[#e6edf9] bg-[#f8f9ff] text-[#565e74]";
 
   const iconBoxClass =
-  type === "positive"
-    ? "border-emerald-100 bg-emerald-50 text-emerald-700"
-    : type === "negative"
-    ? "border-red-100 bg-red-50 text-red-600"
-    : "border-emerald-100 bg-emerald-50 text-emerald-700";
+    type === "positive"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+      : type === "negative"
+        ? "border-red-100 bg-red-50 text-red-600"
+        : "border-[#e6edf9] bg-[#f8f9ff] text-[#565e74]";
 
   const TrendIcon =
     type === "positive"
       ? ArrowUpRight
       : type === "negative"
-      ? ArrowDownRight
-      : TrendingUp;
+        ? ArrowDownRight
+        : TrendingUp;
 
   const getMetricIcon = () => {
     switch (label) {
       case "Total Balance":
         return Wallet;
+
       case "Monthly Income":
         return ArrowDownToLine;
+
       case "Total Expenses":
         return ArrowUpFromLine;
+
       case "Monthly Savings":
         return PiggyBank;
+
       default:
         return Wallet;
     }
@@ -62,34 +66,40 @@ export default function MetricCard({
   const MetricIcon = getMetricIcon();
 
   return (
-    <div className="rounded-3xl border border-[#e6edf9] bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-emerald-300 hover:shadow-[0_8px_22px_rgba(15,23,42,0.08)] sm:p-5">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <div className="rounded-3xl border border-[#e6edf9] bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
+      {/* Top */}
+      <div className="mb-4 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="truncate text-[10px] font-bold uppercase tracking-wide text-[#7c839b] sm:text-[11px]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#7c839b]">
             {label}
           </p>
 
-          <h2 className="mt-2 truncate text-xl font-bold tracking-tight text-black sm:text-2xl">
+          <h2
+            title={value}
+            className="mt-2 truncate text-[21px] font-bold tracking-tight text-black sm:text-[22px]"
+          >
             {value}
           </h2>
         </div>
 
         <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 ${iconBoxClass}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${iconBoxClass}`}
         >
-          <MetricIcon size={20} />
+          <MetricIcon size={18} />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <p className="text-[12px] font-medium leading-5 text-[#565e74]">
+      {/* Bottom */}
+      <div className="flex items-end justify-between gap-3">
+        <p className="min-w-0 text-[11px] font-medium leading-4 text-[#565e74]">
           {helper}
         </p>
 
         <span
-          className={`inline-flex w-fit shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold ${trendClass}`}
+          className={`inline-flex w-fit shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-bold ${trendClass}`}
         >
-          <TrendIcon size={12} />
+          <TrendIcon size={10} />
+
           {trend}
         </span>
       </div>

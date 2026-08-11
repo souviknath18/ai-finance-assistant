@@ -1,4 +1,7 @@
+"use client";
+
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Sparkles,
   User,
@@ -10,7 +13,6 @@ import {
 } from "lucide-react";
 
 import { TransactionTableItem } from "@/types/transaction";
-import { useRouter } from "next/navigation";
 import TableSelect from "@/components/ui/TableSelect";
 import CategoryBadge from "@/components/ui/CategoryBadge";
 
@@ -19,10 +21,34 @@ type TransactionRowProps = {
   selected: boolean;
   onToggleSelectAction: (id: string) => void;
   onDeleteAction: (id: string) => void;
-  onCategoryChangeAction: (id: string, category: string) => void;
+  onCategoryChangeAction: (
+    id: string,
+    category: string
+  ) => void;
   openDropdownUp: boolean;
   onFindSimilarAction: (id: string) => void;
 };
+
+const categoryOptions = [
+  { label: "Food", value: "Food" },
+  { label: "Groceries", value: "Groceries" },
+  { label: "Transport", value: "Transport" },
+  { label: "Fuel", value: "Fuel" },
+  { label: "Shopping", value: "Shopping" },
+  { label: "Rent", value: "Rent" },
+  { label: "Utilities", value: "Utilities" },
+  { label: "Subscriptions", value: "Subscriptions" },
+  { label: "Salary", value: "Salary" },
+  { label: "Bank Fees", value: "Bank Fees" },
+  { label: "Healthcare", value: "Healthcare" },
+  { label: "Insurance", value: "Insurance" },
+  { label: "Investments", value: "Investments" },
+  { label: "Travel", value: "Travel" },
+  { label: "Entertainment", value: "Entertainment" },
+  { label: "Education", value: "Education" },
+  { label: "Income", value: "Income" },
+  { label: "Uncategorized", value: "Uncategorized" },
+];
 
 export default function TransactionRow({
   transaction,
@@ -34,182 +60,313 @@ export default function TransactionRow({
   onFindSimilarAction,
 }: TransactionRowProps) {
   const router = useRouter();
+
   const pointerStart = useRef({
     x: 0,
     y: 0,
   });
 
-  const categoryOptions = [
-    { label: "Food", value: "Food" },
-    { label: "Groceries", value: "Groceries" },
-    { label: "Transport", value: "Transport" },
-    { label: "Fuel", value: "Fuel" },
-    { label: "Shopping", value: "Shopping" },
-    { label: "Rent", value: "Rent" },
-    { label: "Utilities", value: "Utilities" },
-    { label: "Subscriptions", value: "Subscriptions" },
-    { label: "Salary", value: "Salary" },
-    { label: "Bank Fees", value: "Bank Fees" },
-    { label: "Healthcare", value: "Healthcare" },
-    { label: "Insurance", value: "Insurance" },
-    { label: "Investments", value: "Investments" },
-    { label: "Travel", value: "Travel" },
-    { label: "Entertainment", value: "Entertainment" },
-    { label: "Education", value: "Education" },
-    { label: "Income", value: "Income" },
-    { label: "Uncategorized", value: "Uncategorized" },
-  ];
+  const handlePointerDown = (
+    event: React.PointerEvent<HTMLTableRowElement>
+  ) => {
+    pointerStart.current = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  };
+
+  const handlePointerUp = (
+    event: React.PointerEvent<HTMLTableRowElement>
+  ) => {
+    const target = event.target as HTMLElement;
+
+    if (
+      target.closest("button") ||
+      target.closest("input") ||
+      target.closest("select") ||
+      target.closest("a") ||
+      target.closest("[data-ignore-row-click]")
+    ) {
+      return;
+    }
+
+    const dx = Math.abs(
+      event.clientX - pointerStart.current.x
+    );
+
+    const dy = Math.abs(
+      event.clientY - pointerStart.current.y
+    );
+
+    if (dx > 8 || dy > 8) {
+      return;
+    }
+
+    router.push(`/transactions/${transaction.id}`);
+  };
 
   return (
     <tr
-      onPointerDown={(e) => {
-        pointerStart.current = {
-          x: e.clientX,
-          y: e.clientY,
-        };
-      }}
-      onPointerUp={(e) => {
-        const target = e.target as HTMLElement;
-
-        // Ignore interactive elements
-        if (
-          target.closest("button") ||
-          target.closest("input") ||
-          target.closest("select") ||
-          target.closest("a") ||
-          target.closest("[data-ignore-row-click]")
-        ) {
-          return;
-        }
-
-        // Ignore scrolling / dragging
-        const dx = Math.abs(e.clientX - pointerStart.current.x);
-        const dy = Math.abs(e.clientY - pointerStart.current.y);
-
-        if (dx > 8 || dy > 8) {
-          return;
-        }
-
-        router.push(`/transactions/${transaction.id}`);
-      }}
-      className={`cursor-pointer transition hover:bg-[#eff4ff] ${
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      className={`group cursor-pointer transition-colors duration-150 hover:bg-[#f8faff] ${
+        selected ? "bg-emerald-50/40" : ""
+      } ${
         transaction.ai && transaction.selected
-          ? "bg-gradient-to-r from-white to-emerald-50"
+          ? "bg-gradient-to-r from-white to-emerald-50/70"
           : ""
-      } ${transaction.review ? "bg-[#eff4ff]/50" : ""}`}
+      } ${
+        transaction.review
+          ? "bg-indigo-50/30"
+          : ""
+      }`}
     >
-      <td className="p-4" data-ignore-row-click>
+      {/* SELECT */}
+      <td
+        className="w-[52px] p-4"
+        data-ignore-row-click
+      >
         <input
           type="checkbox"
+          aria-label={`Select ${transaction.title}`}
           checked={selected}
-          onChange={() => onToggleSelectAction(transaction.id)}
-          className="h-4 w-4 rounded border-[#c6c6cd]"
+          onChange={() =>
+            onToggleSelectAction(transaction.id)
+          }
+          className="h-4 w-4 cursor-pointer rounded border-[#c6c6cd] accent-emerald-700"
         />
       </td>
 
-      <td className="p-4 text-[13px] text-black">{transaction.date}</td>
+      {/* DATE */}
+      <td className="whitespace-nowrap p-4">
+        <span className="text-[13px] font-medium text-black">
+          {transaction.date}
+        </span>
+      </td>
 
+      {/* DESCRIPTION */}
       <td className="p-4">
-        <div className="flex flex-col">
+        <div className="flex max-w-[340px] flex-col">
           <span
-            className="line-clamp-2 max-w-[320px] text-[13px] font-bold text-black"
             title={transaction.title}
+            className="line-clamp-2 text-[13px] font-bold leading-5 text-black"
           >
             {transaction.title}
           </span>
 
-          <span className="text-[11px] text-[#565e74]">
-            {transaction.subtitle}
-          </span>
+          {transaction.subtitle && (
+            <span
+              title={transaction.subtitle}
+              className="mt-0.5 truncate text-[11px] text-[#76777d]"
+            >
+              {transaction.subtitle}
+            </span>
+          )}
         </div>
       </td>
 
-      <td className="p-4" data-ignore-row-click>
+      {/* CATEGORY */}
+      <td
+        className="p-4"
+        data-ignore-row-click
+      >
         {transaction.review ? (
-          <TableSelect
-            value={transaction.category}
-            options={categoryOptions}
-            openDirection={openDropdownUp ? "up" : "down"}
-            onChangeAction={(category) =>
-              onCategoryChangeAction(transaction.id, category)
-            }
-          />
+          <div className="min-w-[150px]">
+            <TableSelect
+              value={transaction.category}
+              options={categoryOptions}
+              openDirection={
+                openDropdownUp ? "up" : "down"
+              }
+              onChangeAction={(category) =>
+                onCategoryChangeAction(
+                  transaction.id,
+                  category
+                )
+              }
+            />
+          </div>
         ) : (
-          <CategoryBadge category={transaction.category} />
+          <CategoryBadge
+            category={transaction.category}
+          />
         )}
       </td>
 
-      <td
-        className={`p-4 text-right text-[13px] font-bold ${
-          transaction.type === "income"
-            ? "text-emerald-700"
-            : "text-red-600"
-        }`}
-      >
-        {transaction.amount}
-      </td>
-
-      <td className="p-4" data-ignore-row-click>
-        <div
-          className={`flex items-center gap-2 ${
-            transaction.status === "AI Verified"
+      {/* AMOUNT */}
+      <td className="whitespace-nowrap p-4 text-right">
+        <span
+          className={`text-[13px] font-bold ${
+            transaction.type === "income"
               ? "text-emerald-700"
-              : transaction.status === "Rule Verified"
-              ? "text-cyan-700"
-              : transaction.status === "User Verified"
-              ? "text-emerald-700"
-              : transaction.review
-              ? "text-indigo-700"
-              : "text-[#565e74]"
+              : "text-red-600"
           }`}
         >
-          {transaction.status === "AI Verified" ? (
-            <Sparkles size={15} />
-          ) : transaction.status === "Rule Verified" ? (
-            <CheckCircle2 size={15} />
-          ) : transaction.status === "User Verified" ? (
-            <User size={15} />
-          ) : transaction.review ? (
-            <Brain size={15} />
-          ) : (
-            <User size={15} />
-          )}
-
-          <span className="text-[11px] font-bold">
-            {transaction.status}
-          </span>
-        </div>
+          {transaction.amount}
+        </span>
       </td>
 
-      <td className="p-4" data-ignore-row-click>
-        <div className="flex justify-center gap-2.5 text-[#76777d]">
-          <button className="hover:text-black">
-            <Edit size={16} />
-          </button>
+      {/* STATUS */}
+      <td
+        className="p-4"
+        data-ignore-row-click
+      >
+        <TransactionStatus
+          status={transaction.status}
+          review={transaction.review ?? false}
+        />
+      </td>
 
-          <div className="group/tooltip relative inline-flex items-center">
-            <button
-              onClick={() => onFindSimilarAction(transaction.id)}
-              className="flex items-center text-[#565e74] transition hover:text-emerald-700"
-            >
-              <ScanSearch size={16} />
-            </button>
+      {/* ACTIONS */}
+      <td
+        className="p-4"
+        data-ignore-row-click
+      >
+        <div className="flex items-center justify-center gap-1 opacity-70 transition-opacity group-hover:opacity-100">
+          <ActionButton
+            label="Edit transaction"
+            icon={<Edit size={15} />}
+            onClick={() =>
+              router.push(
+                `/transactions/${transaction.id}`
+              )
+            }
+          />
 
-            <div className="pointer-events-none absolute bottom-[calc(100%+10px)] right-0 z-[99999] whitespace-nowrap rounded-xl border border-[#dce9ff] bg-white px-3 py-2 text-[11px] text-[#565e74] opacity-0 shadow-[0_12px_30px_rgba(15,23,42,0.16)] transition-all duration-200 group-hover/tooltip:opacity-100">
+          <div className="group/tooltip relative">
+            <ActionButton
+              label="Find similar transactions"
+              icon={<ScanSearch size={15} />}
+              onClick={() =>
+                onFindSimilarAction(transaction.id)
+              }
+              highlight
+            />
+
+            <div className="pointer-events-none absolute bottom-[calc(100%+9px)] right-0 z-[100] whitespace-nowrap rounded-lg border border-[#dce9ff] bg-white px-2.5 py-1.5 text-[10px] font-semibold text-[#565e74] opacity-0 shadow-[0_10px_30px_rgba(15,23,42,0.14)] transition-opacity group-hover/tooltip:opacity-100">
               Find similar transactions
 
               <div className="absolute right-3 top-full h-2 w-2 -translate-y-1 rotate-45 border-b border-r border-[#dce9ff] bg-white" />
             </div>
           </div>
 
-          <button
-            onClick={() => onDeleteAction(transaction.id)}
-            className="hover:text-red-600"
-          >
-            <Trash2 size={16} />
-          </button>
+          <ActionButton
+            label="Delete transaction"
+            icon={<Trash2 size={15} />}
+            danger
+            onClick={() =>
+              onDeleteAction(transaction.id)
+            }
+          />
         </div>
       </td>
     </tr>
+  );
+}
+
+function TransactionStatus({
+  status,
+  review,
+}: {
+  status: string;
+  review: boolean;
+}) {
+  if (status === "AI Verified") {
+    return (
+      <StatusBadge
+        icon={<Sparkles size={13} />}
+        label={status}
+        className="border-emerald-200 bg-emerald-50 text-emerald-700"
+      />
+    );
+  }
+
+  if (status === "Rule Verified") {
+    return (
+      <StatusBadge
+        icon={<CheckCircle2 size={13} />}
+        label={status}
+        className="border-cyan-200 bg-cyan-50 text-cyan-700"
+      />
+    );
+  }
+
+  if (status === "User Verified") {
+    return (
+      <StatusBadge
+        icon={<User size={13} />}
+        label={status}
+        className="border-blue-200 bg-blue-50 text-blue-700"
+      />
+    );
+  }
+
+  if (review) {
+    return (
+      <StatusBadge
+        icon={<Brain size={13} />}
+        label={status || "AI Review Needed"}
+        className="border-indigo-200 bg-indigo-50 text-indigo-700"
+      />
+    );
+  }
+
+  return (
+    <StatusBadge
+      icon={<User size={13} />}
+      label={status}
+      className="border-[#dce9ff] bg-[#eff4ff] text-[#565e74]"
+    />
+  );
+}
+
+function StatusBadge({
+  icon,
+  label,
+  className,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  className: string;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-bold ${className}`}
+    >
+      {icon}
+      {label}
+    </span>
+  );
+}
+
+function ActionButton({
+  icon,
+  label,
+  onClick,
+  danger = false,
+  highlight = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+  highlight?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
+        danger
+          ? "text-[#76777d] hover:bg-red-50 hover:text-red-600"
+          : highlight
+          ? "text-[#76777d] hover:bg-emerald-50 hover:text-emerald-700"
+          : "text-[#76777d] hover:bg-[#eff4ff] hover:text-black"
+      }`}
+    >
+      {icon}
+    </button>
   );
 }

@@ -1,6 +1,6 @@
 import {
-  Plus,
   Download,
+  Plus,
 } from "lucide-react";
 
 export default function TransactionsHeader() {
@@ -12,13 +12,13 @@ export default function TransactionsHeader() {
             Transactions
           </h1>
 
-          <p className="mt-1 text-[12px] leading-5 text-[#565e74]">
+          <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
             Monitor and manage your financial records with AI-enhanced
             precision.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             type="button"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-black px-5 text-[12px] font-bold text-white transition-[opacity,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_8px_20px_rgba(15,23,42,0.14)]"
@@ -27,17 +27,19 @@ export default function TransactionsHeader() {
               size={15}
               className="shrink-0"
             />
+
             Add Record
           </button>
 
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#dce9ff] px-4 text-[12px] font-bold text-black transition hover:bg-[#d3e4fe]"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#e6edf9] bg-white px-4 text-[12px] font-bold text-black transition-[background-color,border-color,box-shadow,color] duration-200 hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-700 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)]"
           >
             <Download
               size={15}
               className="shrink-0"
             />
+
             Export
           </button>
         </div>

@@ -7,13 +7,16 @@ export default function BillingToggle({
   billingCycle,
   setBillingCycle,
 }: BillingToggleProps) {
-  const isYearly = billingCycle === "yearly";
+  const isYearly =
+    billingCycle === "yearly";
 
   return (
-    <div className="mb-10 flex items-center justify-center gap-3">
+    <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
       <span
-        className={`text-[12px] font-bold uppercase tracking-wide ${
-          !isYearly ? "text-black" : "text-[#565e74]"
+        className={`text-[11px] font-bold uppercase tracking-wide ${
+          !isYearly
+            ? "text-black"
+            : "text-[#7c839b]"
         }`}
       >
         Monthly
@@ -21,27 +24,39 @@ export default function BillingToggle({
 
       <button
         type="button"
-        onClick={() => setBillingCycle(isYearly ? "monthly" : "yearly")}
-        className={`relative h-7 w-12 rounded-full transition ${
-          isYearly ? "bg-black" : "bg-[#dce9ff]"
+        onClick={() =>
+          setBillingCycle(
+            isYearly
+              ? "monthly"
+              : "yearly"
+          )
+        }
+        className={`relative h-6 w-10 shrink-0 rounded-full transition ${
+          isYearly
+            ? "bg-emerald-700"
+            : "bg-[#c6c6cd]"
         }`}
       >
         <span
-          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${
-            isYearly ? "left-6" : "left-1"
+          className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-all ${
+            isYearly
+              ? "right-1"
+              : "left-1"
           }`}
         />
       </button>
 
       <span
-        className={`text-[12px] font-bold uppercase tracking-wide ${
-          isYearly ? "text-black" : "text-[#565e74]"
+        className={`text-[11px] font-bold uppercase tracking-wide ${
+          isYearly
+            ? "text-black"
+            : "text-[#7c839b]"
         }`}
       >
         Yearly
       </span>
 
-      <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-800">
+      <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-emerald-700">
         Save 20%
       </span>
     </div>

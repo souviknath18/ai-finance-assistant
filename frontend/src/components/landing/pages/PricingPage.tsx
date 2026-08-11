@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import {
   ArrowRight,
   Check,
@@ -13,10 +14,13 @@ import LandingFooter from "../LandingFooter";
 const plans = [
   {
     name: "Free",
-    description: "Explore Aura and organize your personal finances.",
+    description:
+      "Explore Aura and organize your personal finances.",
     price: "₹0",
     period: "/month",
-    icon: <Sparkles size={20} />,
+    icon: (
+      <Sparkles size={17} />
+    ),
     highlighted: false,
     buttonText: "Get Started",
     features: [
@@ -30,10 +34,13 @@ const plans = [
   },
   {
     name: "Pro",
-    description: "For users who want complete AI-powered financial clarity.",
+    description:
+      "For users who want deeper AI-powered financial clarity.",
     price: "₹499",
     period: "/month",
-    icon: <Crown size={20} />,
+    icon: (
+      <Zap size={17} />
+    ),
     highlighted: true,
     buttonText: "Start Pro",
     features: [
@@ -49,10 +56,13 @@ const plans = [
   },
   {
     name: "Premium",
-    description: "For advanced personal finance tracking and automation.",
+    description:
+      "For advanced personal finance tracking and automation.",
     price: "₹999",
     period: "/month",
-    icon: <Zap size={20} />,
+    icon: (
+      <Crown size={17} />
+    ),
     highlighted: false,
     buttonText: "Choose Premium",
     features: [
@@ -70,120 +80,144 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
+    <main className="min-h-screen bg-[#f8faff] text-[#0b1c30]">
       <LandingNavbar />
 
       {/* Hero */}
+      <section className="relative overflow-hidden px-4 pb-14 pt-28 sm:px-6 sm:pb-16 lg:px-8 lg:pt-32">
+        <div className="pointer-events-none absolute -left-28 -top-28 h-80 w-80 rounded-full bg-emerald-200/20 blur-3xl" />
 
-      <section className="px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pt-32">
-        <div className="mx-auto max-w-5xl text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#89f5e7]/20 text-[#006a61]">
-            <Sparkles size={22} />
+        <div className="pointer-events-none absolute -right-28 top-12 h-72 w-72 rounded-full bg-blue-200/20 blur-3xl" />
+
+        <div className="relative mx-auto max-w-4xl text-center">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700 shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
+            <Sparkles size={18} />
           </div>
 
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#006a61]">
+          <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">
             Simple Pricing
           </p>
 
-          <h1 className="mt-4 text-2xl font-bold tracking-tight text-black sm:text-3xl lg:text-4xl">
-            Choose the right plan for your finances
+          <h1 className="mt-2 text-[26px] font-bold tracking-tight text-black sm:text-[32px] lg:text-[36px]">
+            Choose the plan that fits your financial journey
           </h1>
 
-          <p className="mx-auto mt-5 max-w-3xl text-[15px] leading-7 text-[#565e74]">
-            Start free and upgrade when you need more uploads, deeper AI
-            insights and complete financial automation.
+          <p className="mx-auto mt-3 max-w-2xl text-[12px] leading-5 text-[#565e74] sm:text-[13px] sm:leading-6">
+            Start free, then upgrade when you need more uploads, deeper AI
+            insights, and more advanced financial automation.
           </p>
         </div>
       </section>
 
       {/* Pricing Cards */}
-
-      <section className="bg-[#eff4ff] px-4 py-16 sm:px-6 lg:px-8">
+      <section className="px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 lg:grid-cols-3">
           {plans.map((plan) => (
             <article
               key={plan.name}
-              className={`relative flex flex-col rounded-3xl p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg ${
+              className={`relative flex h-full flex-col rounded-3xl border p-5 transition-[border-color,box-shadow] duration-200 sm:p-6 ${
                 plan.highlighted
-                  ? "border-2 border-[#006a61] bg-[#131b2e] text-white"
-                  : "border border-[#dce9ff] bg-white text-black"
+                  ? "border-emerald-300 bg-black text-white shadow-[0_16px_40px_rgba(15,23,42,0.16)]"
+                  : "border-[#e6edf9] bg-white text-black shadow-[0_6px_22px_rgba(15,23,42,0.05)] hover:border-emerald-100 hover:shadow-[0_10px_28px_rgba(15,23,42,0.07)]"
               }`}
             >
               {plan.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#89f5e7] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#004d46]">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-emerald-800 shadow-sm">
                   Most Popular
                 </span>
               )}
 
+              {/* Icon */}
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
                   plan.highlighted
-                    ? "bg-white/10 text-[#89f5e7]"
-                    : "bg-[#89f5e7]/20 text-[#006a61]"
+                    ? "border-white/10 bg-white/10 text-emerald-300"
+                    : "border-emerald-100 bg-emerald-50 text-emerald-700"
                 }`}
               >
                 {plan.icon}
               </div>
 
-              <h2 className="mt-4 text-xl font-bold">{plan.name}</h2>
+              {/* Heading */}
+              <div className="mt-4">
+                <h2 className="text-[18px] font-bold">
+                  {plan.name}
+                </h2>
 
-              <p
-                className={`mt-2 min-h-12 text-sm leading-6 ${
-                  plan.highlighted ? "text-[#a5aec4]" : "text-[#565e74]"
-                }`}
-              >
-                {plan.description}
-              </p>
+                <p
+                  className={`mt-2 min-h-[52px] text-[12px] leading-5 ${
+                    plan.highlighted
+                      ? "text-[#b7c0d4]"
+                      : "text-[#565e74]"
+                  }`}
+                >
+                  {plan.description}
+                </p>
+              </div>
 
-              <div className="mt-6 flex items-end gap-1">
-                <span className="text-3xl font-black">{plan.price}</span>
+              {/* Price */}
+              <div className="mt-5 flex items-end gap-1.5">
+                <span className="text-[32px] font-bold tracking-tight">
+                  {plan.price}
+                </span>
 
                 <span
-                  className={`pb-1 text-xs ${
-                    plan.highlighted ? "text-[#a5aec4]" : "text-[#565e74]"
+                  className={`pb-1 text-[11px] ${
+                    plan.highlighted
+                      ? "text-[#9fa9bc]"
+                      : "text-[#7c839b]"
                   }`}
                 >
                   {plan.period}
                 </span>
               </div>
 
+              {/* CTA */}
               <Link
                 href="/auth/signup"
-                className={`mt-6 inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition ${
+                className={`mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[12px] font-bold transition-[background-color,opacity,box-shadow] ${
                   plan.highlighted
-                    ? "bg-[#006a61] text-white hover:bg-[#005049]"
+                    ? "bg-emerald-600 text-white shadow-[0_6px_16px_rgba(16,185,129,0.16)] hover:bg-emerald-700"
                     : "bg-black text-white hover:opacity-90"
                 }`}
               >
                 {plan.buttonText}
-                <ArrowRight size={15} />
+                <ArrowRight size={13} />
               </Link>
 
+              {/* Divider */}
               <div
-                className={`my-6 h-px ${
-                  plan.highlighted ? "bg-white/10" : "bg-[#dce9ff]"
+                className={`my-5 h-px ${
+                  plan.highlighted
+                    ? "bg-white/10"
+                    : "bg-[#edf2fb]"
                 }`}
               />
 
+              {/* Features */}
               <ul className="space-y-3">
                 {plan.features.map((feature) => (
                   <li
                     key={feature}
-                    className={`flex items-start gap-2.5 text-sm leading-6 ${
-                      plan.highlighted ? "text-[#d7def0]" : "text-[#45464d]"
+                    className={`flex items-start gap-2.5 text-[11px] leading-5 ${
+                      plan.highlighted
+                        ? "text-[#d8deeb]"
+                        : "text-[#45464d]"
                     }`}
                   >
                     <span
-                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
                         plan.highlighted
-                          ? "bg-[#006a61] text-white"
-                          : "bg-[#89f5e7]/25 text-[#006a61]"
+                          ? "border-emerald-500/20 bg-emerald-500/15 text-emerald-300"
+                          : "border-emerald-100 bg-emerald-50 text-emerald-700"
                       }`}
                     >
-                      <Check size={12} />
+                      <Check size={11} />
                     </span>
 
-                    {feature}
+                    <span>
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -191,32 +225,41 @@ export default function PricingPage() {
           ))}
         </div>
 
-        <p className="mx-auto mt-7 max-w-2xl text-center text-[11px] leading-5 text-[#72798d]">
-          Pricing is currently shown as a preview until payment integration and
-          subscription controls are implemented.
+        <p className="mx-auto mt-7 max-w-2xl text-center text-[10px] leading-5 text-[#8a92a5]">
+          Pricing is currently shown as a preview until payment integration
+          and subscription controls are implemented.
         </p>
       </section>
 
       {/* Bottom CTA */}
+      <section className="px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[30px] bg-black px-5 py-10 text-center text-white shadow-[0_18px_50px_rgba(15,23,42,0.16)] sm:px-8 sm:py-12">
+          <div className="relative z-10">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
+              <Sparkles size={15} />
+            </div>
 
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-2xl font-bold text-black sm:text-3xl">
-            Start managing your finances intelligently
-          </h2>
+            <h2 className="mx-auto mt-4 max-w-2xl text-[22px] font-bold tracking-tight sm:text-[27px]">
+              Start managing your finances more intelligently
+            </h2>
 
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#565e74]">
-            Create your free account and experience AI-powered transaction
-            organization without entering payment information.
-          </p>
+            <p className="mx-auto mt-3 max-w-xl text-[12px] leading-6 text-[#b7c0d4]">
+              Create your free account and explore Aura&apos;s financial
+              organization tools without entering payment information.
+            </p>
 
-          <Link
-            href="/auth/signup"
-            className="mt-7 inline-flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-sm font-bold text-white transition hover:opacity-90"
-          >
-            Get Started for Free
-            <ArrowRight size={16} />
-          </Link>
+            <Link
+              href="/auth/signup"
+              className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-5 text-[12px] font-bold text-black transition hover:bg-emerald-50 sm:w-auto"
+            >
+              Get Started for Free
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
+
+          <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-blue-400/10 blur-3xl" />
         </div>
       </section>
 

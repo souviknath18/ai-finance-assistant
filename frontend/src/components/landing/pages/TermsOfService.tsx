@@ -1,3 +1,8 @@
+import {
+  FileText,
+  Scale,
+} from "lucide-react";
+
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -91,59 +96,117 @@ const sections = [
 
 export default function TermsOfServicePage() {
   return (
-    <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
+    <main className="min-h-screen bg-[#f8faff] text-[#0b1c30]">
       <LandingNavbar />
 
-      <section className="px-4 pb-14 pt-28 sm:px-6 lg:px-8 lg:pt-32">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#006a61]">
-            Legal
+      {/* Hero */}
+      <section className="relative overflow-hidden px-4 pb-14 pt-28 sm:px-6 sm:pb-16 lg:px-8 lg:pt-32">
+        <div className="pointer-events-none absolute -left-28 -top-28 h-80 w-80 rounded-full bg-emerald-200/20 blur-3xl" />
+
+        <div className="pointer-events-none absolute -right-28 top-10 h-72 w-72 rounded-full bg-blue-200/20 blur-3xl" />
+
+        <div className="relative mx-auto max-w-4xl text-center">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700 shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
+            <Scale size={18} />
+          </div>
+
+          <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">
+            Legal Terms
           </p>
 
-          <h1 className="mt-4 text-2xl font-bold tracking-tight text-black sm:text-3xl lg:text-4xl">
+          <h1 className="mt-2 text-[26px] font-bold tracking-tight text-black sm:text-[32px] lg:text-[36px]">
             Terms of Service
           </h1>
 
-          <p className="mx-auto mt-5 max-w-3xl text-[15px] leading-7 text-[#565e74]">
+          <p className="mx-auto mt-3 max-w-2xl text-[12px] leading-5 text-[#565e74] sm:text-[13px] sm:leading-6">
             These terms explain the conditions for accessing and using Aura
-            Finance.
+            Finance and outline the responsibilities associated with using the
+            platform.
           </p>
 
-          <p className="mt-4 text-xs font-semibold text-[#7c839b]">
-            Last updated: July 21, 2026
-          </p>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#e6edf9] bg-white px-3 py-1.5 shadow-[0_3px_10px_rgba(15,23,42,0.03)]">
+            <FileText
+              size={11}
+              className="text-[#7c839b]"
+            />
+
+            <span className="text-[9px] font-semibold text-[#7c839b]">
+              Last updated: July 21, 2026
+            </span>
+          </div>
         </div>
       </section>
 
-      <section className="bg-[#eff4ff] px-4 py-16 sm:px-6 lg:px-8">
-        <article className="mx-auto max-w-4xl rounded-3xl border border-[#dce9ff] bg-white p-6 shadow-sm sm:p-10">
-          <div className="rounded-2xl border border-[#b7d0f6] bg-[#f8f9ff] p-5">
-            <p className="text-sm leading-7 text-[#565e74]">
-              This page is a general terms template for your project and is not
-              legal advice. Have the final version reviewed before launching
-              paid subscriptions or accepting public users.
-            </p>
+      {/* Terms Content */}
+      <section className="border-y border-[#edf2fb] bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <article className="mx-auto max-w-4xl">
+          {/* Legal Notice */}
+          <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-amber-100 bg-white text-amber-700">
+                <FileText size={14} />
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-amber-700">
+                  Important Notice
+                </p>
+
+                <p className="mt-1 text-[11px] leading-5 text-[#565e74] sm:text-[12px]">
+                  This page is a general terms template for the Aura Finance
+                  project and is not legal advice. Have the final version
+                  reviewed by a qualified legal professional before accepting
+                  public users or launching paid subscriptions.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-8 space-y-8">
-            {sections.map((section) => (
-              <section key={section.title}>
-                <h2 className="text-xl font-bold text-black">
-                  {section.title}
-                </h2>
+          {/* Terms Sections */}
+          <div className="mt-6 overflow-hidden rounded-3xl border border-[#e6edf9] bg-[#fbfcff] shadow-[0_8px_28px_rgba(15,23,42,0.04)]">
+            {sections.map((section, index) => (
+              <section
+                key={section.title}
+                className={`p-5 sm:p-6 ${
+                  index !== sections.length - 1
+                    ? "border-b border-[#edf2fb]"
+                    : ""
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
 
-                <div className="mt-3 space-y-3">
-                  {section.content.map((paragraph) => (
-                    <p
-                      key={paragraph}
-                      className="text-sm leading-7 text-[#565e74]"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-[15px] font-bold tracking-tight text-black sm:text-[16px]">
+                      {section.title}
+                    </h2>
+
+                    <div className="mt-3 space-y-3">
+                      {section.content.map((paragraph) => (
+                        <p
+                          key={paragraph}
+                          className="text-[11px] leading-5 text-[#565e74] sm:text-[12px] sm:leading-6"
+                        >
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </section>
             ))}
+          </div>
+
+          {/* Bottom Note */}
+          <div className="mt-6 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50/60 via-white to-[#fbfcff] p-4 sm:p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-emerald-700">
+              Questions About These Terms
+            </p>
+
+            <p className="mt-1.5 text-[11px] leading-5 text-[#565e74] sm:text-[12px]">
+              If you have questions about these Terms of Service, use the Aura
+              Finance Contact page to reach the service administrator.
+            </p>
           </div>
         </article>
       </section>

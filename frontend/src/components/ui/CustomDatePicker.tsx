@@ -76,12 +76,14 @@ export default function CustomDatePicker({
   const [open, setOpen] =
     useState(false);
 
-  const [position, setPosition] =
-    useState({
-      top: 0,
-      left: 0,
-      width: 260,
-    });
+  const [
+    position,
+    setPosition,
+  ] = useState({
+    top: 0,
+    left: 0,
+    width: 260,
+  });
 
   const [
     visibleDate,
@@ -111,7 +113,9 @@ export default function CustomDatePicker({
   }, []);
 
   useEffect(() => {
-    if (!value) return;
+    if (!value) {
+      return;
+    }
 
     const [
       year,
@@ -181,25 +185,29 @@ export default function CustomDatePicker({
     }
 
     return result;
-  }, [year, month]);
+  }, [
+    year,
+    month,
+  ]);
 
-  const selectedDate = value
-    ? (() => {
-        const [
-          selectedYear,
-          selectedMonth,
-          selectedDay,
-        ] = value
-          .split("-")
-          .map(Number);
+  const selectedDate =
+    value
+      ? (() => {
+          const [
+            selectedYear,
+            selectedMonth,
+            selectedDay,
+          ] = value
+            .split("-")
+            .map(Number);
 
-        return new Date(
-          selectedYear,
-          selectedMonth - 1,
-          selectedDay
-        );
-      })()
-    : null;
+          return new Date(
+            selectedYear,
+            selectedMonth - 1,
+            selectedDay
+          );
+        })()
+      : null;
 
   const updatePosition = () => {
     if (!buttonRef.current) {
@@ -209,18 +217,108 @@ export default function CustomDatePicker({
     const rect =
       buttonRef.current.getBoundingClientRect();
 
-    setPosition({
-      top: rect.bottom + 8,
-      left: rect.left,
-      width: Math.max(
+    const viewportPadding = 12;
+    const gap = 8;
+
+    /*
+      Approximate height of the calendar.
+      The popup can vary slightly depending
+      on whether "Clear Date" is visible.
+    */
+    const calendarHeight =
+      value ? 360 : 315;
+
+    const spaceBelow =
+      window.innerHeight -
+      rect.bottom;
+
+    const spaceAbove =
+      rect.top;
+
+    const openUpward =
+      spaceBelow <
+        calendarHeight +
+          gap &&
+      spaceAbove >
+        spaceBelow;
+
+    const desiredWidth =
+      Math.max(
         rect.width,
         260
-      ),
+      );
+
+    const maxAvailableWidth =
+      Math.max(
+        window.innerWidth -
+          viewportPadding *
+            2,
+        220
+      );
+
+    const width =
+      Math.min(
+        desiredWidth,
+        maxAvailableWidth
+      );
+
+    const left =
+      Math.min(
+        Math.max(
+          rect.left,
+          viewportPadding
+        ),
+        window.innerWidth -
+          width -
+          viewportPadding
+      );
+
+    let top: number;
+
+    if (openUpward) {
+      top =
+        rect.top -
+        calendarHeight -
+        gap;
+
+      top = Math.max(
+        viewportPadding,
+        top
+      );
+    } else {
+      top =
+        rect.bottom +
+        gap;
+
+      if (
+        top +
+          calendarHeight >
+        window.innerHeight -
+          viewportPadding
+      ) {
+        top =
+          window.innerHeight -
+          calendarHeight -
+          viewportPadding;
+      }
+
+      top = Math.max(
+        viewportPadding,
+        top
+      );
+    }
+
+    setPosition({
+      top,
+      left,
+      width,
     });
   };
 
   const toggleCalendar = () => {
-    updatePosition();
+    if (!open) {
+      updatePosition();
+    }
 
     setOpen(
       (prev) => !prev
@@ -228,14 +326,16 @@ export default function CustomDatePicker({
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
     const handleScroll = () => {
       setOpen(false);
     };
 
     const handleResize = () => {
-      setOpen(false);
+      updatePosition();
     };
 
     const handleClickOutside = (
@@ -300,8 +400,10 @@ export default function CustomDatePicker({
             ref={calendarRef}
             className="fixed z-[99999] rounded-2xl border border-[#e6edf9] bg-white p-4 shadow-[0_14px_35px_rgba(15,23,42,0.14)]"
             style={{
-              top: position.top,
-              left: position.left,
+              top:
+                position.top,
+              left:
+                position.left,
               width:
                 position.width,
             }}
@@ -310,6 +412,7 @@ export default function CustomDatePicker({
             <div className="mb-3 flex items-center justify-between">
               <button
                 type="button"
+                aria-label="Previous month"
                 onClick={() =>
                   setVisibleDate(
                     new Date(
@@ -340,6 +443,7 @@ export default function CustomDatePicker({
 
               <button
                 type="button"
+                aria-label="Next month"
                 onClick={() =>
                   setVisibleDate(
                     new Date(
@@ -402,6 +506,12 @@ export default function CustomDatePicker({
                     ) ===
                       dateValue;
 
+                  const today =
+                    formatDateValue(
+                      new Date()
+                    ) ===
+                    dateValue;
+
                   return (
                     <button
                       key={
@@ -418,10 +528,12 @@ export default function CustomDatePicker({
                           false
                         );
                       }}
-                      className={`flex h-8 items-center justify-center rounded-lg text-[11px] font-medium transition ${
+                      className={`relative flex h-8 items-center justify-center rounded-lg text-[11px] font-medium transition ${
                         selected
                           ? "bg-emerald-700 font-bold text-white"
-                          : "text-[#45464d] hover:bg-emerald-50 hover:text-emerald-700"
+                          : today
+                            ? "bg-emerald-50 font-bold text-emerald-700"
+                            : "text-[#45464d] hover:bg-emerald-50 hover:text-emerald-700"
                       }`}
                     >
                       {date.getDate()}

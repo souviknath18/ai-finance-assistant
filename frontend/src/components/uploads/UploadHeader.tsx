@@ -1,6 +1,6 @@
 export default function UploadHeader() {
   return (
-    <div className="mb-6">
+    <header className="mb-6">
       <h1 className="text-xl font-bold tracking-tight text-black">
         Secure Data Upload
       </h1>
@@ -9,6 +9,6 @@ export default function UploadHeader() {
         Import your financial records for AI-powered analysis and automated
         reconciliation.
       </p>
-    </div>
+    </header>
   );
 }

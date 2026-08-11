@@ -1,30 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
+
 import {
   usePathname,
   useRouter,
 } from "next/navigation";
 
 import {
-  LayoutDashboard,
-  Upload,
-  ReceiptText,
-  Tags,
-  Lightbulb,
-  WalletCards,
-  CreditCard,
-  Target,
-  CalendarDays,
   BarChart3,
-  FolderOpen,
-  MessageCircle,
   Bell,
-  Settings,
+  CalendarDays,
+  CreditCard,
+  FolderOpen,
+  LayoutDashboard,
+  Lightbulb,
   LogOut,
-  X,
+  MessageCircle,
+  ReceiptText,
+  Settings,
   Sparkles,
+  Tags,
+  Target,
+  Upload,
+  WalletCards,
+  X,
 } from "lucide-react";
 
 type DashboardSidebarProps = {
@@ -117,7 +118,7 @@ const mobileItems = [
 ];
 
 const tooltipClassName =
-  "pointer-events-none absolute left-[calc(100%+12px)] top-1/2 z-[100] -translate-y-1/2 translate-x-0 whitespace-nowrap rounded-lg border border-[#dfe9fb] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#0b1c30] opacity-0 shadow-[0_10px_25px_rgba(15,23,42,0.08)] transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100";
+  "pointer-events-none absolute left-[calc(100%+12px)] top-1/2 z-[100] -translate-y-1/2 translate-x-0 whitespace-nowrap rounded-xl border border-[#e6edf9] bg-white px-3 py-2 text-[11px] font-semibold text-[#0b1c30] opacity-0 shadow-[0_12px_30px_rgba(15,23,42,0.12)] transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100";
 
 export default function DashboardSidebar({
   sidebarOpen,
@@ -130,24 +131,12 @@ export default function DashboardSidebar({
   const router =
     useRouter();
 
-  const [mounted, setMounted] =
-    useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const effectiveSidebarCollapsed =
-    mounted
-      ? sidebarCollapsed
-      : false;
-
   const showLabels =
     sidebarOpen ||
-    !effectiveSidebarCollapsed;
+    !sidebarCollapsed;
 
   const showCollapsedTooltip =
-    effectiveSidebarCollapsed &&
+    sidebarCollapsed &&
     !sidebarOpen;
 
   useEffect(() => {
@@ -164,6 +153,12 @@ export default function DashboardSidebar({
 
   const handleSidebarLinkClick =
     () => {
+      /*
+       * Only close the mobile sidebar.
+       *
+       * This does NOT change
+       * sidebarCollapsed.
+       */
       if (sidebarOpen) {
         setSidebarOpenAction(
           false
@@ -199,7 +194,9 @@ export default function DashboardSidebar({
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* ================================
+          MOBILE OVERLAY
+      ================================= */}
       {sidebarOpen && (
         <div
           onClick={() =>
@@ -207,13 +204,16 @@ export default function DashboardSidebar({
               false
             )
           }
-          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] md:hidden"
         />
       )}
 
+      {/* ================================
+          SIDEBAR
+      ================================= */}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-dvh w-64 flex-col overflow-visible border-r border-[#dfe9fb] bg-[#eff4ff] py-4 pl-3 pr-2 transition-all duration-300 md:z-40 ${
-          effectiveSidebarCollapsed
+        className={`fixed left-0 top-0 z-50 flex h-dvh w-64 flex-col overflow-visible bg-gradient-to-b from-[#f3f7ff] via-[#eef4ff] to-[#eaf2ff] py-3 pl-3 pr-2 transition-all duration-300 md:z-40 md:border-r md:border-[#dfe9fb] md:shadow-[8px_0_28px_rgba(15,23,42,0.04)] ${
+          sidebarCollapsed
             ? "md:w-[76px]"
             : "md:w-[248px]"
         } ${
@@ -222,8 +222,10 @@ export default function DashboardSidebar({
             : "-translate-x-full md:translate-x-0"
         }`}
       >
-        {/* Header */}
-        <div className="mb-5 flex shrink-0 items-center justify-between px-2">
+        {/* ================================
+            HEADER
+        ================================= */}
+        <div className="mb-4 flex shrink-0 items-center justify-between px-2">
           <Link
             href="/dashboard"
             onClick={
@@ -233,15 +235,20 @@ export default function DashboardSidebar({
             className={`group relative flex items-center ${
               showCollapsedTooltip
                 ? "w-full justify-center"
-                : "gap-3"
+                : "gap-2.5"
             }`}
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-black text-white">
+            {/* Logo */}
+            <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-black text-white shadow-[0_6px_16px_rgba(15,23,42,0.16)]">
+              <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-emerald-900/50" />
+
               <Sparkles
-                size={16}
+                size={15}
+                className="relative z-10"
               />
             </div>
 
+            {/* Collapsed Tooltip */}
             {showCollapsedTooltip && (
               <div
                 className={
@@ -252,19 +259,25 @@ export default function DashboardSidebar({
               </div>
             )}
 
+            {/* Brand Text */}
             {showLabels && (
-              <div>
-                <h1 className="text-[15px] font-bold tracking-tight text-black">
+              <div className="min-w-0">
+                <h1 className="truncate text-[14px] font-bold tracking-tight text-black">
                   Aura Finance
                 </h1>
 
-                <p className="text-[11px] font-semibold text-[#565e74]">
-                  Intelligent Wealth
-                </p>
+                <div className="mt-0.5 flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+
+                  <p className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-[#7c839b]">
+                    Intelligent Wealth
+                  </p>
+                </div>
               </div>
             )}
           </Link>
 
+          {/* Mobile Close */}
           <button
             type="button"
             onClick={() =>
@@ -272,17 +285,16 @@ export default function DashboardSidebar({
                 false
               )
             }
-            className="rounded-lg p-2 text-[#565e74] transition hover:bg-[#dce9ff] hover:text-black md:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#dfe9fb] bg-white text-[#565e74] shadow-[0_3px_10px_rgba(15,23,42,0.04)] transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 md:hidden"
             aria-label="Close sidebar"
           >
-            <X size={17} />
+            <X size={15} />
           </button>
         </div>
 
-        {/* ===================================================
-            MOBILE
-            Main + bottom items in ONE list
-        ==================================================== */}
+        {/* ================================
+            MOBILE NAVIGATION
+        ================================= */}
         <nav className="sidebar-scroll flex-1 space-y-[2px] overflow-y-auto overflow-x-visible pr-[2px] md:hidden">
           {mobileItems.map(
             (item) => {
@@ -308,38 +320,50 @@ export default function DashboardSidebar({
                   aria-label={
                     item.label
                   }
-                  className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 ${
+                  className={`group relative flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-[12px] font-semibold transition-all duration-200 ${
                     active
-                      ? "bg-emerald-100/80 text-emerald-800 shadow-[inset_3px_0_0_#047857]"
-                      : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
+                      ? "bg-white text-emerald-800 shadow-[0_4px_12px_rgba(15,23,42,0.05)] ring-1 ring-emerald-100"
+                      : "text-[#45464d] hover:bg-white/70 hover:text-black"
                   }`}
                 >
-                  <Icon
-                    size={17}
-                    className="shrink-0"
-                  />
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition ${
+                      active
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-[#565e74] group-hover:bg-[#f8faff] group-hover:text-black"
+                    }`}
+                  >
+                    <Icon
+                      size={15}
+                    />
+                  </div>
 
                   <span className="truncate">
                     {item.label}
                   </span>
+
+                  {active && (
+                    <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                  )}
                 </Link>
               );
             }
           )}
 
-          {/* Logout in same list */}
+          {/* Mobile Logout */}
           <button
             type="button"
             onClick={
               handleLogout
             }
             aria-label="Logout"
-            className="group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50"
+            className="group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-[12px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50"
           >
-            <LogOut
-              size={17}
-              className="shrink-0"
-            />
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition group-hover:bg-white">
+              <LogOut
+                size={15}
+              />
+            </div>
 
             <span>
               Logout
@@ -347,10 +371,9 @@ export default function DashboardSidebar({
           </button>
         </nav>
 
-        {/* ===================================================
-            DESKTOP
-            Original main navigation
-        ==================================================== */}
+        {/* ================================
+            DESKTOP NAVIGATION
+        ================================= */}
         <nav className="sidebar-scroll hidden flex-1 space-y-[2px] overflow-y-auto overflow-x-visible pr-[2px] md:block">
           {navItems.map(
             (item) => {
@@ -376,21 +399,30 @@ export default function DashboardSidebar({
                   aria-label={
                     item.label
                   }
-                  className={`group relative flex items-center rounded-xl py-2.5 text-[13px] font-semibold transition-all duration-200 ${
+                  className={`group relative flex items-center rounded-xl py-1.25 text-[12px] font-semibold transition-all duration-200 ${
                     showCollapsedTooltip
                       ? "justify-center px-2"
-                      : "gap-3 px-3"
+                      : "gap-2.5 px-2.5"
                   } ${
                     active
-                      ? "bg-emerald-100/80 text-emerald-800 shadow-[inset_3px_0_0_#047857]"
-                      : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
+                      ? "bg-white text-emerald-800 shadow-[0_4px_12px_rgba(15,23,42,0.05)] ring-1 ring-emerald-100"
+                      : "text-[#45464d] hover:bg-white/70 hover:text-black"
                   }`}
                 >
-                  <Icon
-                    size={17}
-                    className="shrink-0"
-                  />
+                  {/* Icon */}
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition ${
+                      active
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "text-[#565e74] group-hover:bg-white group-hover:text-black"
+                    }`}
+                  >
+                    <Icon
+                      size={15}
+                    />
+                  </div>
 
+                  {/* Tooltip */}
                   {showCollapsedTooltip && (
                     <div
                       className={
@@ -403,10 +435,19 @@ export default function DashboardSidebar({
                     </div>
                   )}
 
+                  {/* Label */}
                   {showLabels && (
-                    <span className="truncate">
-                      {item.label}
-                    </span>
+                    <>
+                      <span className="min-w-0 flex-1 truncate">
+                        {
+                          item.label
+                        }
+                      </span>
+
+                      {active && (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                      )}
+                    </>
                   )}
                 </Link>
               );
@@ -414,24 +455,28 @@ export default function DashboardSidebar({
           )}
         </nav>
 
-        {/* ===================================================
+        {/* ================================
             DESKTOP BOTTOM
-            Keep original design
-        ==================================================== */}
-        <div className="mt-3 hidden shrink-0 border-t border-[#dfe9fb] pt-3 md:block">
-          {/* Upgrade Plan - DESKTOP ONLY */}
+        ================================= */}
+        <div className="mt-1.5 hidden shrink-0 border-t border-[#dfe9fb] pt-1.5 md:block">
+          {/* Upgrade Plan */}
           {showLabels && (
             <Link
               href="/billing/upgrade"
               onClick={
                 handleSidebarLinkClick
               }
-              className="mb-3 flex w-full items-center justify-center rounded-lg bg-black px-4 py-2 text-[12px] font-bold text-white transition hover:opacity-90 active:scale-[0.99]"
+              className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl bg-black px-4 py-2 text-[11px] font-bold text-white shadow-[0_6px_16px_rgba(15,23,42,0.13)] transition-opacity duration-200 hover:opacity-90"
             >
+              <Sparkles
+                size={12}
+              />
+
               Upgrade Plan
             </Link>
           )}
 
+          {/* Bottom Items */}
           <div className="space-y-[2px]">
             {bottomItems.map(
               (item) => {
@@ -457,21 +502,29 @@ export default function DashboardSidebar({
                     aria-label={
                       item.label
                     }
-                    className={`group relative flex items-center rounded-xl py-2 text-[13px] font-semibold transition-all duration-200 ${
+                    className={`group relative flex items-center rounded-xl py-1.25 text-[12px] font-semibold transition-all duration-200 ${
                       showCollapsedTooltip
                         ? "justify-center px-2"
-                        : "gap-3 px-3"
+                        : "gap-2.5 px-2.5"
                     } ${
                       active
-                        ? "bg-emerald-100/80 text-emerald-800 shadow-[inset_3px_0_0_#047857]"
-                        : "text-[#45464d] hover:bg-[#dce9ff] hover:text-black"
+                        ? "bg-white text-emerald-800 shadow-[0_4px_12px_rgba(15,23,42,0.05)] ring-1 ring-emerald-100"
+                        : "text-[#45464d] hover:bg-white/70 hover:text-black"
                     }`}
                   >
-                    <Icon
-                      size={16}
-                      className="shrink-0"
-                    />
+                    <div
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition ${
+                        active
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "text-[#565e74] group-hover:bg-white group-hover:text-black"
+                      }`}
+                    >
+                      <Icon
+                        size={14}
+                      />
+                    </div>
 
+                    {/* Tooltip */}
                     {showCollapsedTooltip && (
                       <div
                         className={
@@ -484,35 +537,45 @@ export default function DashboardSidebar({
                       </div>
                     )}
 
+                    {/* Label */}
                     {showLabels && (
-                      <span className="truncate">
-                        {
-                          item.label
-                        }
-                      </span>
+                      <>
+                        <span className="min-w-0 flex-1 truncate">
+                          {
+                            item.label
+                          }
+                        </span>
+
+                        {active && (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                        )}
+                      </>
                     )}
                   </Link>
                 );
               }
             )}
 
+            {/* Logout */}
             <button
               type="button"
               onClick={
                 handleLogout
               }
               aria-label="Logout"
-              className={`group relative flex w-full items-center rounded-xl py-2 text-[13px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 ${
+              className={`group relative flex w-full items-center rounded-xl py-1.25 text-[12px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 ${
                 showCollapsedTooltip
                   ? "justify-center px-2"
-                  : "gap-3 px-3"
+                  : "gap-2.5 px-2.5"
               }`}
             >
-              <LogOut
-                size={16}
-                className="shrink-0"
-              />
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition group-hover:bg-white">
+                <LogOut
+                  size={14}
+                />
+              </div>
 
+              {/* Tooltip */}
               {showCollapsedTooltip && (
                 <div
                   className={
@@ -523,6 +586,7 @@ export default function DashboardSidebar({
                 </div>
               )}
 
+              {/* Label */}
               {showLabels && (
                 <span>
                   Logout
