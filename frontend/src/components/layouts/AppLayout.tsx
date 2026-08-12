@@ -84,7 +84,7 @@ export default function AppLayout({
         />
 
         <main
-          className="mx-auto w-full max-w-7xl px-4 pb-14 pt-[88px] sm:px-6 lg:px-8"
+          className="mx-auto w-full max-w-7xl px-4 pb-14 pt-[88px] sm:px-5 lg:px-6"
           style={
             {
               "--sidebar-offset":
