@@ -2,8 +2,12 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404
 from .models import Category
 from apps.transactions.models import Transaction
-from ai_engine.categorization.category_constants import ALLOWED_CATEGORIES
-from ai_engine.categorization.category_rules import CATEGORY_RULES
+from pipelines.document_processing.categorization.constants import (
+    ALLOWED_CATEGORIES,
+)
+from pipelines.document_processing.categorization.rules import (
+    CATEGORY_RULES,
+)
 from django.db.models import (
     Case,
     Count,

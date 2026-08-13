@@ -1,7 +1,7 @@
 from celery import shared_task
 
 from apps.transactions.models import Transaction
-from ai_engine.embeddings.vector_store import (
+from ai.embeddings.service import (
     store_transaction_vector,
 )
 

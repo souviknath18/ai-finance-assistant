@@ -2,33 +2,22 @@ import os
 import tempfile
 from django.utils import timezone
 from .models import UploadedFile
-from ai_engine.parsers.pdf_parser import extract_text_from_pdf
-from ai_engine.parsers.ai_transaction_parser import parse_transactions_with_ai
-from ai_engine.parsers.document_type_detector import detect_document_type
-from ai_engine.parsers.csv_transaction_parser import parse_csv_transactions
-from ai_engine.parsers.image_ocr_parser import extract_text_from_image
 from apps.transactions.models import Transaction
-from ai_engine.categorization.categorize_transactions import categorize_transaction
+from pipelines.document_processing.categorization.service import (
+    categorize_transaction,
+)
 from apps.subscriptions.services import sync_detected_subscriptions
-from ai_engine.insights.upload_tip_generator import generate_and_store_upload_ai_tip
+from apps.uploads.ai_tip_service import (
+    generate_and_store_upload_ai_tip,
+    get_cached_upload_ai_tip,
+)
 from apps.insights.services import regenerate_insights_snapshot, mark_insights_stale
 from django.db import transaction as db_transaction
 from apps.transactions.tasks import (
     store_transaction_vector_task,
 )
-from ai_engine.parsers.parser_router import (
-    parse_financial_document,
-)
-from ai_engine.parsers.parser_validator import (
-    should_use_ai_fallback,
-    should_use_ai_repair,
-    validate_parser_result,
-)
-from ai_engine.parsers.text_normalizer import (
-    normalize_extracted_text,
-)
-from ai_engine.extraction.invoice_enhancer import (
-    enhance_invoice_result,
+from pipelines.document_processing.pipeline import (
+    process_financial_document_file,
 )
 
 
@@ -203,6 +192,200 @@ def prepare_category_fields(category_result: dict) -> dict:
     }
 
 
+def resolve_transaction_category_fields(
+    *,
+    item: dict,
+    category_cache: dict,
+    allow_provided_category: bool = False,
+) -> dict:
+    """
+    Resolve category fields for one parsed transaction.
+
+    CSV transactions may already contain a user-provided
+    category. Other documents use Aura categorization.
+    """
+
+    provided_category = (
+        item.get("category")
+        if allow_provided_category
+        else None
+    )
+
+    if provided_category:
+        return {
+            "category": provided_category,
+            "category_source": "user",
+            "is_ai_categorized": False,
+            "ai_confidence": None,
+            "ai_reason": (
+                "Category provided in uploaded CSV."
+            ),
+            "is_reviewed": True,
+        }
+
+    category_text = (
+        item.get("description")
+        or item.get("merchant_name")
+        or "Unknown transaction"
+    )
+
+    category_result = get_cached_category_result(
+        category_cache=category_cache,
+        description=category_text,
+        transaction_type=item["transaction_type"],
+    )
+
+    return prepare_category_fields(
+        category_result
+    )
+
+
+def persist_parsed_transactions(
+    *,
+    uploaded_file,
+    parsed_transactions,
+    extracted_text,
+    parser_used,
+    parser_confidence,
+    category_cache,
+    allow_provided_category=False,
+):
+    created_count = 0
+
+    total_transactions = max(
+        len(parsed_transactions),
+        1,
+    )
+
+    for index, item in enumerate(
+        parsed_transactions,
+        start=1,
+    ):
+        current_progress = (
+            70
+            + int(
+                (
+                    index
+                    / total_transactions
+                )
+                * 20
+            )
+        )
+
+        update_processing_status(
+            uploaded_file,
+            min(current_progress, 90),
+            (
+                f"Processing transaction "
+                f"{index} of {total_transactions}"
+            ),
+        )
+
+        category_fields = (
+            resolve_transaction_category_fields(
+                item=item,
+                category_cache=category_cache,
+                allow_provided_category=(
+                    allow_provided_category
+                ),
+            )
+        )
+
+        (
+            transaction_date,
+            date_is_estimated,
+        ) = resolve_transaction_date(
+            item
+        )
+
+        transaction = Transaction.objects.create(
+            user=uploaded_file.user,
+            uploaded_file=uploaded_file,
+
+            date=transaction_date,
+            date_is_estimated=date_is_estimated,
+
+            description=(
+                item.get("description")
+                or "Unknown transaction"
+            ),
+
+            amount=item["amount"],
+
+            transaction_type=(
+                item["transaction_type"]
+            ),
+
+            merchant_name=item.get(
+                "merchant_name"
+            ),
+
+            reference_number=item.get(
+                "reference_number"
+            ),
+
+            balance_after_transaction=item.get(
+                "balance_after_transaction"
+            ),
+
+            raw_text=(
+                item.get("raw_text")
+                or extracted_text
+                or ""
+            ),
+
+            parser_confidence=(
+                parser_confidence
+            ),
+
+            parser_used=(
+                parser_used
+            ),
+
+            category=(
+                category_fields["category"]
+            ),
+
+            category_source=(
+                category_fields[
+                    "category_source"
+                ]
+            ),
+
+            is_ai_categorized=(
+                category_fields[
+                    "is_ai_categorized"
+                ]
+            ),
+
+            ai_confidence=(
+                category_fields[
+                    "ai_confidence"
+                ]
+            ),
+
+            ai_reason=(
+                category_fields[
+                    "ai_reason"
+                ]
+            ),
+
+            is_reviewed=(
+                category_fields[
+                    "is_reviewed"
+                ]
+            ),
+        )
+
+        queue_transaction_vectorization(
+            transaction
+        )
+
+        created_count += 1
+
+    return created_count
+
+
 def queue_transaction_vectorization(
     transaction: Transaction,
 ):
@@ -219,138 +402,6 @@ def queue_transaction_vectorization(
         )
     )
 
-
-def parse_extracted_document(
-    uploaded_file,
-    extracted_text: str,
-    ai_step_message: str,
-):
-    """
-    Normalize extracted text, detect the document type,
-    run the appropriate deterministic parser, validate
-    its output, and use AI only when necessary.
-    """
-
-    normalized_text = normalize_extracted_text(
-        extracted_text
-    )
-
-    uploaded_file.extracted_text = normalized_text
-
-    document_type_result = detect_document_type(
-        normalized_text
-    )
-
-    document_type = document_type_result.get(
-        "document_type",
-        "unknown",
-    )
-
-    print(
-        "\n========== DOCUMENT TYPE =========="
-    )
-    print(document_type_result)
-    print(
-        "===================================\n"
-    )
-
-    parser_result = parse_financial_document(
-        extracted_text=normalized_text,
-        detected_type=document_type,
-    )
-
-    validation_result = validate_parser_result(
-        parser_result
-    )
-
-    print(
-        "\n========== PARSER RESULT =========="
-    )
-    print(parser_result)
-    print(
-        "\n========== VALIDATION RESULT =========="
-    )
-    print(validation_result)
-    print(
-        "=======================================\n"
-    )
-
-    if should_use_ai_fallback(
-        parser_result,
-        validation_result,
-    ):
-        update_processing_status(
-            uploaded_file,
-            60,
-            ai_step_message,
-        )
-
-        parsed_transactions = (
-            parse_transactions_with_ai(
-                extracted_text=normalized_text,
-                document_type=document_type,
-            )
-        )
-
-        parser_used = "ai_transaction_parser"
-
-        parser_confidence = None
-
-    else:
-        if document_type == "invoice":
-            update_processing_status(
-                uploaded_file,
-                60,
-                "Enhancing invoice details with AI",
-            )
-
-            parser_result = enhance_invoice_result(
-                parser_result=parser_result,
-                extracted_text=normalized_text,
-            )
-
-            print(
-                "\n========== ENHANCED INVOICE RESULT =========="
-            )
-            print(parser_result)
-            print(
-                "=============================================\n"
-            )
-
-        parsed_transactions = parser_result.get(
-            "transactions",
-            [],
-        )
-
-        parser_used = parser_result.get(
-            "parser",
-            "unknown_parser",
-        )
-
-        parser_confidence = parser_result.get(
-            "confidence",
-            0.0,
-        )
-
-        if should_use_ai_repair(
-            parser_result,
-            validation_result,
-        ):
-            print(
-                "Medium-confidence deterministic result. "
-                "Keeping it with optional semantic enhancement."
-            )
-
-    return {
-        "extracted_text": normalized_text,
-        "document_type": document_type,
-        "document_type_result": document_type_result,
-        "parser_result": parser_result,
-        "validation_result": validation_result,
-        "parser_used": parser_used,
-        "parser_confidence": parser_confidence,
-        "transactions": parsed_transactions,
-    }
 
 def resolve_transaction_date(
     item: dict,
@@ -382,442 +433,130 @@ def process_uploaded_file(uploaded_file: UploadedFile):
     try:
         temporary_path = create_temporary_upload_file(uploaded_file)
 
-        if uploaded_file.file_type == UploadedFile.FileType.PDF:
+        temporary_path = (
+            create_temporary_upload_file(
+                uploaded_file
+            )
+        )
+
+        # -------------------------------------------------------------
+        # Document processing
+        # -------------------------------------------------------------
+
+        if (
+            uploaded_file.file_type
+            == UploadedFile.FileType.PDF
+        ):
             update_processing_status(
                 uploaded_file,
                 15,
-                "Extracting PDF text",
+                "Processing PDF document",
             )
 
-            extracted_text = extract_text_from_pdf(temporary_path)
-
-
+        elif (
+            uploaded_file.file_type
+            == UploadedFile.FileType.IMAGE
+        ):
             update_processing_status(
                 uploaded_file,
-                30,
-                "Detecting document type",
+                15,
+                "Processing image document",
             )
 
-            update_processing_status(
-                uploaded_file,
-                45,
-                "Parsing financial document",
-            )
-
-            document_result = parse_extracted_document(
-                uploaded_file=uploaded_file,
-                extracted_text=extracted_text,
-                ai_step_message=(
-                    "Running AI transaction analysis"
-                ),
-            )
-
-            extracted_text = document_result[
-                "extracted_text"
-            ]
-
-            document_type = document_result[
-                "document_type"
-            ]
-
-            parsed_transactions = document_result[
-                "transactions"
-            ]
-
-            parser_confidence = document_result.get(
-                "parser_confidence"
-            )
-
-            parser_used = document_result.get(
-                "parser_used",
-                "unknown_parser",
-            )
-
-            print(
-                "Final parser used:",
-                document_result["parser_used"],
-            )
-
-            print(
-                "Final document type:",
-                document_type,
-            )
-
-            if not parsed_transactions:
-                raise ValueError(
-                    "No valid transactions were found "
-                    "in this document."
-                )
-
-            created_count = 0
-            total_transactions = max(len(parsed_transactions), 1)
-
-            for index, item in enumerate(parsed_transactions, start=1):
-                current_progress = 70 + int((index / total_transactions) * 20)
-
-                update_processing_status(
-                    uploaded_file,
-                    min(current_progress, 90),
-                    f"Processing transaction {index} of {total_transactions}",
-                )
-
-                category_text = (
-                    item.get("description")
-                    or item.get("merchant_name")
-                    or "Unknown transaction"
-                )
-
-                category_result = get_cached_category_result(
-                    category_cache=category_cache,
-                    description=category_text,
-                    transaction_type=item["transaction_type"],
-                )
-
-                category_fields = prepare_category_fields(
-                    category_result
-                )
-
-                (
-                    transaction_date,
-                    date_is_estimated,
-                ) = resolve_transaction_date(
-                    item
-                )
-
-                transaction = Transaction.objects.create(
-                    user=uploaded_file.user,
-                    uploaded_file=uploaded_file,
-                    date=transaction_date,
-                    date_is_estimated=date_is_estimated,
-                    description=item["description"],
-                    amount=item["amount"],
-                    transaction_type=item["transaction_type"],
-                    merchant_name=item.get(
-                        "merchant_name"
-                    ),
-                    reference_number=item.get(
-                        "reference_number"
-                    ),
-                    balance_after_transaction=item.get(
-                        "balance_after_transaction"
-                    ),
-                    raw_text=item.get(
-                        "raw_text",
-                        extracted_text,
-                    ),
-                    parser_confidence=parser_confidence,
-                    parser_used=parser_used,
-                    category=category_fields["category"],
-                    category_source=category_fields[
-                        "category_source"
-                    ],
-                    is_ai_categorized=category_fields[
-                        "is_ai_categorized"
-                    ],
-                    ai_confidence=category_fields[
-                        "ai_confidence"
-                    ],
-                    ai_reason=category_fields["ai_reason"],
-                    is_reviewed=category_fields["is_reviewed"],
-                )
-
-                queue_transaction_vectorization(transaction)
-
-                created_count += 1
-
-            uploaded_file.extracted_transactions_count = created_count
-            uploaded_file.extracted_amount = None
-
-        elif uploaded_file.file_type == UploadedFile.FileType.CSV:
+        elif (
+            uploaded_file.file_type
+            == UploadedFile.FileType.CSV
+        ):
             update_processing_status(
                 uploaded_file,
                 20,
-                "Reading CSV file",
+                "Processing CSV transactions",
             )
 
-            parser_result = parse_csv_transactions(temporary_path)
-
-            parsed_transactions = parser_result["transactions"]
-
-            update_processing_status(
-                uploaded_file,
-                55,
-                "Parsing CSV transactions",
+        else:
+            raise ValueError(
+                "Unsupported file type."
             )
 
-            created_count = 0
-            total_transactions = max(len(parsed_transactions), 1)
-
-            for index, item in enumerate(parsed_transactions, start=1):
-                current_progress = 70 + int((index / total_transactions) * 20)
-
-                update_processing_status(
-                    uploaded_file,
-                    min(current_progress, 90),
-                    f"Processing transaction {index} of {total_transactions}",
-                )
-
-                provided_category = item.get("category")
-
-                if provided_category:
-                    category_fields = {
-                        "category": provided_category,
-                        "category_source": "user",
-                        "is_ai_categorized": False,
-                        "ai_confidence": None,
-                        "ai_reason": (
-                            "Category provided in uploaded CSV."
-                        ),
-                        "is_reviewed": True,
-                    }
-
-                else:
-                    category_text = (
-                        item.get("description")
-                        or item.get("merchant_name")
-                        or "Unknown transaction"
-                    )
-
-                    category_result = get_cached_category_result(
-                        category_cache=category_cache,
-                        description=category_text,
-                        transaction_type=item["transaction_type"],
-                    )
-
-                    category_fields = prepare_category_fields(
-                        category_result
-                    )
-
-                (
-                    transaction_date,
-                    date_is_estimated,
-                ) = resolve_transaction_date(
-                    item
-                )
-
-                transaction = Transaction.objects.create(
-                    user=uploaded_file.user,
-                    uploaded_file=uploaded_file,
-                    date=transaction_date,
-                    date_is_estimated=date_is_estimated,
-                    description=item["description"],
-                    amount=item["amount"],
-                    transaction_type=item["transaction_type"],
-                    merchant_name=item.get(
-                        "merchant_name"
-                    ),
-                    reference_number=item.get(
-                        "reference_number"
-                    ),
-                    balance_after_transaction=item.get(
-                        "balance_after_transaction"
-                    ),
-                    raw_text=item.get(
-                        "raw_text",
-                        "",
-                    ),
-                    category=category_fields["category"],
-                    category_source=category_fields[
-                        "category_source"
-                    ],
-                    is_ai_categorized=category_fields[
-                        "is_ai_categorized"
-                    ],
-                    ai_confidence=category_fields[
-                        "ai_confidence"
-                    ],
-                    ai_reason=category_fields["ai_reason"],
-                    is_reviewed=category_fields["is_reviewed"],
-                )
-
-                queue_transaction_vectorization(transaction)
-
-                created_count += 1
-
-            uploaded_file.extracted_text = "CSV transactions parsed successfully."
-            uploaded_file.extracted_transactions_count = created_count
-            uploaded_file.extracted_amount = None
-
-        elif uploaded_file.file_type == UploadedFile.FileType.IMAGE:
-            update_processing_status(
-                uploaded_file,
-                15,
-                "Reading image text with OCR",
-            )
-
-            extracted_text = extract_text_from_image(
-                temporary_path
-            )
-
-            print(
-                "\n========== RAW IMAGE OCR TEXT =========="
-            )
-            print(extracted_text)
-            print(
-                "========================================\n"
-            )
-
-            update_processing_status(
-                uploaded_file,
-                30,
-                "Detecting financial document type",
-            )
-
-            update_processing_status(
-                uploaded_file,
-                45,
-                "Parsing image transactions",
-            )
-
-            document_result = parse_extracted_document(
-                uploaded_file=uploaded_file,
-                extracted_text=extracted_text,
-                ai_step_message=(
-                    "Running AI image analysis"
+        document_result = (
+            process_financial_document_file(
+                file_path=temporary_path,
+                file_type=(
+                    uploaded_file.file_type
                 ),
             )
+        )
 
-            extracted_text = document_result[
-                "extracted_text"
-            ]
-
-            document_type = document_result[
-                "document_type"
-            ]
-
-            parsed_transactions = document_result[
-                "transactions"
-            ]
-
-            parser_confidence = document_result.get(
-                "parser_confidence"
+        extracted_text = (
+            document_result.get(
+                "extracted_text",
+                "",
             )
+        )
 
-            parser_used = document_result.get(
+        parsed_transactions = (
+            document_result.get(
+                "transactions",
+                [],
+            )
+        )
+
+        parser_used = (
+            document_result.get(
                 "parser_used",
                 "unknown_parser",
             )
+        )
 
-            print(
-                "Final image parser used:",
-                document_result["parser_used"],
+        parser_confidence = (
+            document_result.get(
+                "parser_confidence"
+            )
+        )
+
+        if not parsed_transactions:
+            raise ValueError(
+                "No valid transactions were found."
             )
 
-            print(
-                "Final image document type:",
-                document_type,
+        uploaded_file.extracted_text = (
+            extracted_text
+        )
+
+        # -------------------------------------------------------------
+        # Save transactions
+        # -------------------------------------------------------------
+
+        created_count = (
+            persist_parsed_transactions(
+                uploaded_file=uploaded_file,
+                parsed_transactions=(
+                    parsed_transactions
+                ),
+                extracted_text=(
+                    extracted_text
+                ),
+                parser_used=(
+                    parser_used
+                ),
+                parser_confidence=(
+                    parser_confidence
+                ),
+                category_cache=(
+                    category_cache
+                ),
+                allow_provided_category=(
+                    uploaded_file.file_type
+                    == UploadedFile.FileType.CSV
+                ),
             )
+        )
 
-            if not parsed_transactions:
-                raise ValueError(
-                    "No valid transactions were found "
-                    "in this image."
-                )
+        uploaded_file.extracted_transactions_count = (
+            created_count
+        )
 
-            created_count = 0
-            total_transactions = max(
-                len(parsed_transactions),
-                1,
-            )
-
-            for index, item in enumerate(
-                parsed_transactions,
-                start=1,
-            ):
-                current_progress = 70 + int(
-                    (
-                        index
-                        / total_transactions
-                    )
-                    * 20
-                )
-
-                update_processing_status(
-                    uploaded_file,
-                    min(current_progress, 90),
-                    (
-                        f"Processing transaction "
-                        f"{index} of {total_transactions}"
-                    ),
-                )
-
-                category_text = (
-                    item.get("description")
-                    or item.get("merchant_name")
-                    or "Unknown transaction"
-                )
-
-                category_result = get_cached_category_result(
-                    category_cache=category_cache,
-                    description=category_text,
-                    transaction_type=item["transaction_type"],
-                )
-
-                category_fields = prepare_category_fields(
-                    category_result
-                )
-
-                (
-                    transaction_date,
-                    date_is_estimated,
-                ) = resolve_transaction_date(
-                    item
-                )
-
-                transaction = Transaction.objects.create(
-                    user=uploaded_file.user,
-                    uploaded_file=uploaded_file,
-                    date=transaction_date,
-                    date_is_estimated=date_is_estimated,
-                    description=item["description"],
-                    amount=item["amount"],
-                    transaction_type=(
-                        item["transaction_type"]
-                    ),
-                    merchant_name=item.get(
-                        "merchant_name"
-                    ),
-                    reference_number=item.get(
-                        "reference_number"
-                    ),
-                    balance_after_transaction=item.get(
-                        "balance_after_transaction"
-                    ),
-                    raw_text=item.get(
-                        "raw_text",
-                        extracted_text,
-                    ),
-                    parser_confidence=parser_confidence,
-                    parser_used=parser_used,
-                    category=category_fields["category"],
-                    category_source=category_fields[
-                        "category_source"
-                    ],
-                    is_ai_categorized=category_fields[
-                        "is_ai_categorized"
-                    ],
-                    ai_confidence=category_fields[
-                        "ai_confidence"
-                    ],
-                    ai_reason=category_fields["ai_reason"],
-                    is_reviewed=category_fields[
-                        "is_reviewed"
-                    ],
-                )
-
-                queue_transaction_vectorization(
-                    transaction
-                )
-
-                created_count += 1
-
-            uploaded_file.extracted_transactions_count = (
-                created_count
-            )
-            uploaded_file.extracted_amount = None
-
-        else:
-            raise ValueError("Unsupported file type.")
+        uploaded_file.extracted_amount = None
 
         update_processing_status(uploaded_file, 92, "Detecting recurring payments")
 

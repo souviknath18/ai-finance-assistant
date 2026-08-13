@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from .models import GeneratedReport
 from .services import get_report_dashboard
 from apps.notifications.services import create_notification_once
-from ai_engine.reports.report_ai_writer import (
+from apps.reports.ai_writer import (
     generate_ai_report_summary,
 )
 

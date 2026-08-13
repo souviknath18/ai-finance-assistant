@@ -242,12 +242,31 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 
-OPENAI_API_KEY = os.getenv(
+OPENAI_API_KEY = config(
     "OPENAI_API_KEY",
-    ""
+    default="",
 )
 
-OPENAI_INSIGHTS_MODEL = os.getenv(
+OPENAI_INSIGHTS_MODEL = config(
     "OPENAI_INSIGHTS_MODEL",
-    "gpt-5.6",
+    default="gpt-5.6",
+)
+
+OPENAI_EMBEDDING_MODEL = config(
+    "OPENAI_EMBEDDING_MODEL",
+    default="text-embedding-3-small",
+)
+
+LANGGRAPH_DATABASE_URL = config(
+    "LANGGRAPH_DATABASE_URL",
+    default=config(
+        "DATABASE_URL",
+        default="",
+    ),
+)
+
+AURA_HISTORY_TOKEN_LIMIT = config(
+    "AURA_HISTORY_TOKEN_LIMIT",
+    default=12000,
+    cast=int,
 )

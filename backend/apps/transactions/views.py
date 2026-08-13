@@ -14,7 +14,9 @@ from .serializers import (
     TransactionCreateSerializer,
     TransactionDetailsSerializer,
 )
-from ai_engine.embeddings.vector_store import delete_transaction_vector
+from ai.embeddings.service import (
+    delete_transaction_vector,
+)
 
 
 class TransactionListCreateView(APIView):

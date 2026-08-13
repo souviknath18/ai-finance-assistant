@@ -2,8 +2,6 @@ import json
 import logging
 from typing import Any
 
-from django.conf import settings
-from openai import OpenAI
 from pydantic import BaseModel, Field, ValidationError
 
 from apps.insights.prompts.monthly_summary import (
@@ -21,15 +19,12 @@ from apps.insights.prompts.anomaly_explanation import (
     build_anomaly_explanation_prompt,
 )
 
+from ai.llm.langchain_client import (
+    get_aura_chat_model,
+)
+
 
 logger = logging.getLogger(__name__)
-
-
-DEFAULT_MODEL = getattr(
-    settings,
-    "OPENAI_INSIGHTS_MODEL",
-    "gpt-5.6",
-)
 
 
 # ---------------------------------------------------------------------
@@ -101,38 +96,6 @@ class AnomalyExplanationOutput(BaseModel):
         le=1.0,
     )
 
-
-# ---------------------------------------------------------------------
-# Client
-# ---------------------------------------------------------------------
-
-def get_openai_client():
-    """
-    Create the OpenAI client.
-
-    OPENAI_API_KEY should be configured through environment variables
-    or Django settings.
-
-    Example:
-        OPENAI_API_KEY=...
-    """
-
-    api_key = getattr(
-        settings,
-        "OPENAI_API_KEY",
-        None,
-    )
-
-    if not api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY is not configured."
-        )
-
-    return OpenAI(
-        api_key=api_key
-    )
-
-
 # ---------------------------------------------------------------------
 # Generic helpers
 # ---------------------------------------------------------------------
@@ -180,41 +143,38 @@ def _call_structured_output(
     output_model,
 ):
     """
-    Execute one structured OpenAI request.
+    Execute one structured LangChain/OpenAI request.
 
-    The output_model must be a Pydantic model.
-
-    OpenAI validates the model output against the schema and returns
-    the parsed Pydantic instance through response.output_parsed.
+    output_model must be a Pydantic model.
     """
 
-    client = get_openai_client()
+    model = get_aura_chat_model()
 
-    response = client.responses.parse(
-        model=DEFAULT_MODEL,
-
-        input=[
-            {
-                "role": "system",
-                "content": system_prompt,
-            },
-            {
-                "role": "user",
-                "content": user_prompt,
-            },
-        ],
-
-        text_format=output_model,
+    structured_model = (
+        model.with_structured_output(
+            output_model
+        )
     )
 
-    parsed = response.output_parsed
+    result = structured_model.invoke(
+        [
+            (
+                "system",
+                system_prompt,
+            ),
+            (
+                "human",
+                user_prompt,
+            ),
+        ]
+    )
 
-    if parsed is None:
+    if result is None:
         raise ValueError(
-            "OpenAI returned no parsed structured output."
+            "LangChain returned no structured output."
         )
 
-    return parsed
+    return result
 
 
 # ---------------------------------------------------------------------
@@ -393,6 +353,7 @@ def build_executive_summary_fallback(
 def generate_executive_summary(
     *,
     evidence,
+    supporting_evidence=None,
 ):
     """
     Generate Aura's top-level executive summary.
@@ -403,6 +364,13 @@ def generate_executive_summary(
         - structured parsing fails
         - output validation fails
     """
+
+    executive_evidence = (
+        combine_generation_evidence(
+            deterministic_evidence=evidence,
+            supporting_evidence=supporting_evidence,
+        )
+    )
 
     fallback = (
         build_executive_summary_fallback(
@@ -838,6 +806,8 @@ SPENDING_SIGNAL_TYPES = {
 
 def enrich_signal_with_ai(
     signal,
+    *,
+    supporting_evidence=None,
 ):
     """
     Optionally enrich one deterministic Insight Engine signal.
@@ -856,6 +826,11 @@ def enrich_signal_with_ai(
         "type"
     )
 
+    supporting_evidence = (
+        supporting_evidence
+        or {}
+    )
+
     evidence = {
         **signal,
 
@@ -868,9 +843,19 @@ def enrich_signal_with_ai(
     }
 
     if signal_type in SPENDING_SIGNAL_TYPES:
+        spending_evidence = {
+            **evidence,
+            "supporting_transactions": (
+                supporting_evidence.get(
+                    "spending",
+                    [],
+                )
+            ),
+        }
+
         generated = (
             generate_spending_insight(
-                evidence=evidence
+                evidence=spending_evidence
             )
         )
 
@@ -882,9 +867,21 @@ def enrich_signal_with_ai(
             )
         )
 
+        anomaly_generation_evidence = {
+            **anomaly_evidence,
+            "supporting_transactions": (
+                supporting_evidence.get(
+                    "anomalies",
+                    [],
+                )
+            ),
+        }
+
         generated = (
             generate_anomaly_explanation(
-                evidence=anomaly_evidence
+                evidence=(
+                    anomaly_generation_evidence
+                )
             )
         )
 
@@ -931,6 +928,7 @@ def enrich_signal_with_ai(
 def enrich_top_signals_with_ai(
     signals,
     *,
+    supporting_evidence=None,
     limit=3,
 ):
     """
@@ -952,6 +950,11 @@ def enrich_top_signals_with_ai(
 
     ai_calls_used = 0
 
+    supporting_evidence = (
+        supporting_evidence
+        or {}
+    )
+
     for signal in signals:
         signal_type = signal.get(
             "type"
@@ -971,7 +974,10 @@ def enrich_top_signals_with_ai(
         ):
             enriched.append(
                 enrich_signal_with_ai(
-                    signal
+                    signal,
+                    supporting_evidence=(
+                        supporting_evidence
+                    ),
                 )
             )
 
@@ -983,3 +989,27 @@ def enrich_top_signals_with_ai(
             )
 
     return enriched
+
+
+def combine_generation_evidence(
+    *,
+    deterministic_evidence: dict,
+    supporting_evidence: dict | None = None,
+) -> dict:
+    """
+    Combine deterministic Insight evidence with optional
+    semantic transaction evidence.
+
+    Deterministic evidence remains authoritative.
+    """
+
+    result = {
+        **deterministic_evidence,
+    }
+
+    if supporting_evidence:
+        result["supporting_transaction_evidence"] = (
+            supporting_evidence
+        )
+
+    return result

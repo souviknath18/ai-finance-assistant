@@ -5,7 +5,10 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ai_engine.insights.upload_tip_generator import get_cached_upload_ai_tip
+from apps.uploads.ai_tip_service import (
+    generate_and_store_upload_ai_tip,
+    get_cached_upload_ai_tip,
+)
 from math import ceil
 from django.db.models import Sum
 from .models import UploadedFile
