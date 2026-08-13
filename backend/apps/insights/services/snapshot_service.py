@@ -46,6 +46,7 @@ from apps.insights.services.insight_engine import (
 
 from apps.insights.services.evidence_builder import (
     build_evidence_package,
+    build_supporting_evidence,
 )
 
 from apps.insights.services.insight_generator import (
@@ -705,12 +706,36 @@ def build_insights_dashboard(
     )
 
     # -----------------------------------------------------------------
+    # Supporting semantic RAG evidence
+    # -----------------------------------------------------------------
+
+    analysis = {
+        "analytics": current_analytics,
+        "trends": trends,
+        "anomalies": anomalies,
+        "recurring": recurring,
+        "budgets": budgets,
+        "goals": goals,
+        "health": financial_health,
+    }
+
+    supporting_evidence = (
+        build_supporting_evidence(
+            user=user,
+            analysis=analysis,
+        )
+    )
+
+    # -----------------------------------------------------------------
     # AI Executive Summary
     # -----------------------------------------------------------------
 
     executive_summary = (
         generate_executive_summary(
-            evidence=evidence
+            evidence=evidence,
+            supporting_evidence=(
+                supporting_evidence
+            ),
         )
     )
 
@@ -722,6 +747,9 @@ def build_insights_dashboard(
     insights = (
         enrich_top_signals_with_ai(
             deterministic_insights,
+            supporting_evidence=(
+                supporting_evidence
+            ),
             limit=3,
         )
     )

@@ -1,11 +1,16 @@
 from django.core.management.base import BaseCommand
 
 from apps.transactions.models import Transaction
-from ai_engine.embeddings.vector_store import store_transaction_vector
+from ai.embeddings.service import (
+    store_transaction_vector,
+)
 
 
 class Command(BaseCommand):
-    help = "Rebuild Chroma vectors for all existing transactions"
+    help = (
+        "Rebuild pgvector embeddings "
+        "for all existing transactions"
+    )
 
     def handle(self, *args, **options):
         transactions = Transaction.objects.all()

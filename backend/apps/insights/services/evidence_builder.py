@@ -1,5 +1,13 @@
-from decimal import Decimal, InvalidOperation
+import logging
 
+logger = logging.getLogger(__name__)
+from decimal import Decimal, InvalidOperation
+from ai.rag.evidence import (
+    serialize_evidence_list,
+)
+from ai.rag.transaction_retriever import (
+    retrieve_semantic_transaction_evidence,
+)
 
 ZERO = Decimal("0.00")
 
@@ -938,6 +946,135 @@ def build_signal_evidence(
         }
         for signal in top_signals
     ]
+
+
+# ---------------------------------------------------------------------
+# Semantic RAG evidence
+# ---------------------------------------------------------------------
+
+def get_insight_rag_evidence(
+    *,
+    user,
+    query: str,
+    limit: int = 6,
+):
+    """
+    Retrieve semantically relevant transaction evidence.
+
+    This supplements deterministic financial analysis with
+    actual supporting transaction context.
+    """
+
+    if not query or not query.strip():
+        return []
+
+    safe_limit = max(
+        1,
+        min(limit, 10),
+    )
+
+    evidence = (
+        retrieve_semantic_transaction_evidence(
+            user=user,
+            query=query.strip(),
+            limit=safe_limit,
+        )
+    )
+
+    return serialize_evidence_list(
+        evidence
+    )
+
+
+def build_supporting_evidence(
+    *,
+    user,
+    analysis: dict,
+) -> dict:
+    evidence = {}
+
+    anomalies = analysis.get(
+        "anomalies",
+        {},
+    )
+
+    trends = analysis.get(
+        "trends",
+        {},
+    )
+
+    anomaly_items = anomalies.get(
+        "items",
+        [],
+    )
+
+    if anomaly_items:
+        logger.info(
+            "Insights RAG: retrieving anomaly evidence for user=%s",
+            user.pk,
+        )
+
+        evidence["anomalies"] = (
+            get_insight_rag_evidence(
+                user=user,
+                query=(
+                    "unusually large unexpected "
+                    "or abnormal expense transactions"
+                ),
+                limit=6,
+            )
+        )
+
+    spending_change = (
+        trends.get(
+            "spending",
+            {},
+        ).get(
+            "change_percent"
+        )
+    )
+
+    has_meaningful_spending_increase = (
+        spending_change is not None
+        and float(spending_change) >= 10
+    )
+
+    has_category_spikes = bool(
+        trends.get(
+            "category_spikes",
+            [],
+        )
+    )
+
+    has_merchant_spikes = bool(
+        trends.get(
+            "merchant_spikes",
+            [],
+        )
+    )
+
+    if (
+        has_meaningful_spending_increase
+        or has_category_spikes
+        or has_merchant_spikes
+    ):
+        logger.info(
+            "Insights RAG: retrieving spending evidence for user=%s",
+            user.pk,
+        )
+
+        evidence["spending"] = (
+            get_insight_rag_evidence(
+                user=user,
+                query=(
+                    "recent discretionary spending "
+                    "high spending and increased expenses"
+                ),
+                limit=6,
+            )
+        )
+
+    return evidence
 
 
 # ---------------------------------------------------------------------

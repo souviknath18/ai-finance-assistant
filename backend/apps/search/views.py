@@ -3,9 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ai_engine.embeddings.semantic_search import (
-    semantic_search_transactions,
+from ai.rag.transaction_retriever import (
     find_similar_transactions,
+    semantic_search_transactions,
 )
 
 

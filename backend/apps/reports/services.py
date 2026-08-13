@@ -9,9 +9,132 @@ from django.utils import timezone
 
 from apps.transactions.models import Transaction
 from apps.subscriptions.services import detect_subscriptions
-from ai_engine.insights.anomaly_detection import detect_anomalies
-from ai_engine.insights.financial_health import calculate_financial_health
+from apps.insights.services.analytics_service import (
+    build_period_analytics,
+)
+
+from apps.insights.services.anomaly_detector import (
+    detect_anomalies,
+)
+
+from apps.insights.services.budget_analyzer import (
+    analyze_budgets,
+)
+
+from apps.insights.services.financial_health import (
+    calculate_financial_health,
+)
+
+from apps.insights.services.goal_analyzer import (
+    analyze_goals,
+)
+
+from apps.insights.services.recurring_detector import (
+    analyze_recurring_expenses,
+)
+
+from apps.insights.services.trend_analyzer import (
+    build_trend_analysis,
+)
 from .models import ReportDashboardSnapshot
+
+
+def build_report_financial_analysis(
+    *,
+    user,
+    start_date,
+    end_date,
+):
+    """
+    Build the deterministic financial analysis needed by Reports.
+
+    No LLM calls happen here.
+    """
+
+    current_analytics = (
+        build_period_analytics(
+            user=user,
+            start_date=start_date,
+            end_date=end_date,
+        )
+    )
+
+    period_days = (
+        end_date - start_date
+    ).days + 1
+
+    previous_end = (
+        start_date
+        - timedelta(days=1)
+    )
+
+    previous_start = (
+        previous_end
+        - timedelta(
+            days=period_days - 1
+        )
+    )
+
+    previous_analytics = (
+        build_period_analytics(
+            user=user,
+            start_date=previous_start,
+            end_date=previous_end,
+        )
+    )
+
+    trends = build_trend_analysis(
+        current_analytics=current_analytics,
+        previous_analytics=previous_analytics,
+    )
+
+    anomalies = detect_anomalies(
+        user=user,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+    recurring = (
+        analyze_recurring_expenses(
+            user=user,
+        )
+    )
+
+    budgets = analyze_budgets(
+        user=user,
+        reference_date=end_date,
+    )
+
+    goals = analyze_goals(
+        user=user,
+        reference_date=end_date,
+    )
+
+    metrics = current_analytics.get(
+        "metrics",
+        {},
+    )
+
+    health = (
+        calculate_financial_health(
+            metrics=metrics,
+            trends=trends,
+            anomalies=anomalies,
+            recurring=recurring,
+            budgets=budgets,
+            goals=goals,
+        )
+    )
+
+    return {
+        "analytics": current_analytics,
+        "trends": trends,
+        "anomalies": anomalies,
+        "recurring": recurring,
+        "budgets": budgets,
+        "goals": goals,
+        "health": health,
+    }
 
 
 def money(amount):
@@ -208,21 +331,45 @@ def build_report_dashboard(
             "count": item["count"],
         })
 
-    subscriptions = detect_subscriptions(user)
-    recurring = subscriptions["subscriptions"][:3]
+    subscriptions = (
+        detect_subscriptions(
+            user
+        )
+    )
 
-    anomalies = detect_anomalies(
-                    user,
-                    start_date=start_date,
-                    end_date=end_date,
-                )
-    health = calculate_financial_health(
-                    user,
-                    start_date=start_date,
-                    end_date=end_date,
-                )
+    recurring_payments = (
+        subscriptions.get(
+            "subscriptions",
+            [],
+        )[:3]
+    )
 
-    biggest_expense = anomalies.get("biggest_expense")
+    financial_analysis = (
+        build_report_financial_analysis(
+            user=user,
+            start_date=start_date,
+            end_date=end_date,
+        )
+    )
+
+    anomalies = financial_analysis[
+        "anomalies"
+    ]
+
+    health = financial_analysis[
+        "health"
+    ]
+
+    anomaly_items = anomalies.get(
+        "items",
+        [],
+    )
+
+    biggest_expense = (
+        anomaly_items[0]
+        if anomaly_items
+        else None
+    )
 
     return {
         "period": {
@@ -245,23 +392,51 @@ def build_report_dashboard(
         },
         "ai_insight": {
             "summary": (
-                f"Your current financial health score is {health['score']}/100. "
-                f"Your savings rate is {health['savings_rate']}%. "
-                f"Aura detected {anomalies.get('alert_count', 0)} unusual spending alert(s)."
+                f"Your current financial health score is "
+                f"{health['score']}/100. "
+                f"Your savings rate is "
+                f"{health.get('savings_rate', 0)}%. "
+                f"Aura detected "
+                f"{anomalies.get('count', len(anomaly_items))} "
+                "unusual spending alert(s)."
             ),
+
             "top_unusual_title": (
-                biggest_expense["merchant"]
+                (
+                    biggest_expense.get(
+                        "merchant"
+                    )
+                    or biggest_expense.get(
+                        "description"
+                    )
+                    or "Unusual expense"
+                )
                 if biggest_expense
                 else "No unusual expense"
             ),
+
             "top_unusual_amount": (
-                biggest_expense["amount_display"]
+                (
+                    biggest_expense.get(
+                        "amount_display"
+                    )
+                    or money(
+                        Decimal(
+                            str(
+                                biggest_expense.get(
+                                    "amount",
+                                    "0",
+                                )
+                            )
+                        )
+                    )
+                )
                 if biggest_expense
                 else "₹0.00"
             ),
         },
         "categories": category_data,
-        "recurring_payments": recurring,
+        "recurring_payments": recurring_payments,
         "recurring_count": len(subscriptions["subscriptions"]),
     }
 
