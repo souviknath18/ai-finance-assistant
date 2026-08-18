@@ -1,39 +1,66 @@
-import json
 import logging
 import re
 import time
 from typing import Any
 
-from decouple import config
-from openai import OpenAI
+from pydantic import BaseModel, Field
+
+from ai.llm.langchain_client import (
+    get_aura_chat_model,
+)
+
+
 logger = logging.getLogger(__name__)
 
 
-client = OpenAI(
-    api_key=config("OPENAI_API_KEY")
-)
-
-MODEL_NAME = "gpt-4.1-mini"
 MAX_OCR_CHARACTERS = 12_000
 MODEL_CONFIDENCE_CAP = 0.95
+MIN_ACCEPTED_CONFIDENCE = 0.55
 
 
-def clean_json_output(
-    raw_output: str,
-) -> str:
-    cleaned = str(raw_output or "").strip()
+# ---------------------------------------------------------------------
+# Structured output schema
+# ---------------------------------------------------------------------
 
-    if cleaned.startswith("```json"):
-        cleaned = cleaned[len("```json"):]
+class InvoiceExtractionOutput(BaseModel):
+    merchant_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description=(
+            "The seller, merchant, provider, platform, "
+            "or legal business that issued the invoice."
+        ),
+    )
 
-    elif cleaned.startswith("```"):
-        cleaned = cleaned[len("```"):]
+    service_description: str | None = Field(
+        default=None,
+        max_length=500,
+        description=(
+            "Concise description of the actual product "
+            "or service purchased."
+        ),
+    )
 
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3]
+    confidence: float = Field(
+        ge=0.0,
+        le=0.95,
+        description=(
+            "Confidence in the extracted semantic fields."
+        ),
+    )
 
-    return cleaned.strip()
+    reason: str | None = Field(
+        default=None,
+        max_length=500,
+        description=(
+            "Short explanation of the invoice evidence used."
+        ),
+    )
 
+
+# ---------------------------------------------------------------------
+# Generic helpers
+# ---------------------------------------------------------------------
 
 def clean_text_value(
     value: Any,
@@ -57,7 +84,11 @@ def normalize_confidence(
 ) -> float:
     try:
         confidence = float(value)
-    except (TypeError, ValueError):
+
+    except (
+        TypeError,
+        ValueError,
+    ):
         return 0.0
 
     confidence = max(
@@ -74,27 +105,38 @@ def normalize_confidence(
     )
 
 
-MIN_ACCEPTED_CONFIDENCE = 0.55
-
 def adjust_confidence_for_fields(
     confidence: float,
     merchant_name: str | None,
     service_description: str | None,
 ) -> float:
-    if merchant_name and service_description:
+    if (
+        merchant_name
+        and service_description
+    ):
         cap = 0.95
 
-    elif merchant_name or service_description:
+    elif (
+        merchant_name
+        or service_description
+    ):
         cap = 0.75
 
     else:
         return 0.0
 
     return round(
-        min(confidence, cap),
+        min(
+            confidence,
+            cap,
+        ),
         2,
     )
 
+
+# ---------------------------------------------------------------------
+# Merchant validation
+# ---------------------------------------------------------------------
 
 def is_valid_merchant_name(
     value: str | None,
@@ -177,15 +219,36 @@ def clean_ai_merchant_name(
     )
 
     ocr_replacements = (
-        (r"\blnvoice\b", "invoice"),
-        (r"\binv0ice\b", "invoice"),
-        (r"\binv0lce\b", "invoice"),
-        (r"\binvo1ce\b", "invoice"),
-        (r"\binvolce\b", "invoice"),
-        (r"\bwrcice\b", "invoice"),
+        (
+            r"\blnvoice\b",
+            "invoice",
+        ),
+        (
+            r"\binv0ice\b",
+            "invoice",
+        ),
+        (
+            r"\binv0lce\b",
+            "invoice",
+        ),
+        (
+            r"\binvo1ce\b",
+            "invoice",
+        ),
+        (
+            r"\binvolce\b",
+            "invoice",
+        ),
+        (
+            r"\bwrcice\b",
+            "invoice",
+        ),
     )
 
-    for pattern, replacement in ocr_replacements:
+    for (
+        pattern,
+        replacement,
+    ) in ocr_replacements:
         cleaned = re.sub(
             pattern,
             replacement,
@@ -225,8 +288,15 @@ def clean_ai_merchant_name(
         " ,:-|"
     )
 
-    return cleaned or None
+    return (
+        cleaned
+        or None
+    )
 
+
+# ---------------------------------------------------------------------
+# Service-description validation
+# ---------------------------------------------------------------------
 
 def is_table_heading_description(
     value: str,
@@ -273,7 +343,8 @@ def is_table_heading_description(
     )
 
     return (
-        heading_word_count / len(words)
+        heading_word_count
+        / len(words)
         >= 0.60
     )
 
@@ -301,7 +372,9 @@ def is_valid_service_description(
     ):
         return False
 
-    lower_value = cleaned.lower()
+    lower_value = (
+        cleaned.lower()
+    )
 
     ocr_replacements = {
         "wrcice": "invoice",
@@ -311,10 +384,15 @@ def is_valid_service_description(
         "invo1ce": "invoice",
     }
 
-    for wrong, correct in ocr_replacements.items():
-        lower_value = lower_value.replace(
-            wrong,
-            correct,
+    for (
+        wrong,
+        correct,
+    ) in ocr_replacements.items():
+        lower_value = (
+            lower_value.replace(
+                wrong,
+                correct,
+            )
         )
 
     rejected_terms = (
@@ -364,18 +442,6 @@ def is_valid_service_description(
     return True
 
 
-def build_failed_result(
-    reason: str,
-) -> dict:
-    return {
-        "merchant_name": None,
-        "service_description": None,
-        "confidence": 0.0,
-        "reason": reason,
-        "matched": False,
-    }
-
-
 def clean_ai_service_description(
     value: str | None,
 ) -> str | None:
@@ -388,48 +454,95 @@ def clean_ai_service_description(
         return None
 
     cleaned = re.sub(
-        r"\s+(?:invoice|lnvoice|inv0ice|wrcice)"
-        r"\s+(?:date|number|no\.?|#)\b.*$",
+        (
+            r"\s+(?:invoice|lnvoice|inv0ice|wrcice)"
+            r"\s+(?:date|number|no\.?|#)\b.*$"
+        ),
         "",
         cleaned,
         flags=re.IGNORECASE,
     )
 
     cleaned = re.sub(
-        r"\s+(?:qty|quantity|rate|price|amount|gst|tax)"
-        r"\s*[:\-]?\s*.*$",
+        (
+            r"\s+(?:qty|quantity|rate|price|amount|gst|tax)"
+            r"\s*[:\-]?\s*.*$"
+        ),
         "",
         cleaned,
         flags=re.IGNORECASE,
     )
 
-    return cleaned.strip(
-        " ,:-|"
-    ) or None
+    return (
+        cleaned.strip(
+            " ,:-|"
+        )
+        or None
+    )
+
+
+# ---------------------------------------------------------------------
+# Result validation
+# ---------------------------------------------------------------------
+
+def build_failed_result(
+    reason: str,
+) -> dict:
+    return {
+        "merchant_name": None,
+        "service_description": None,
+        "confidence": 0.0,
+        "reason": reason,
+        "matched": False,
+    }
 
 
 def validate_ai_invoice_output(
     data: Any,
 ) -> dict:
-    if not isinstance(data, dict):
+    if isinstance(
+        data,
+        InvoiceExtractionOutput,
+    ):
+        data = data.model_dump()
+
+    if not isinstance(
+        data,
+        dict,
+    ):
         return build_failed_result(
-            "AI invoice extraction returned an invalid format."
+            "AI invoice extraction returned "
+            "an invalid format."
         )
 
-    merchant_name = clean_ai_merchant_name(
-        data.get("merchant_name")
+    merchant_name = (
+        clean_ai_merchant_name(
+            data.get(
+                "merchant_name"
+            )
+        )
     )
 
-    service_description = clean_ai_service_description(
-        data.get("service_description")
+    service_description = (
+        clean_ai_service_description(
+            data.get(
+                "service_description"
+            )
+        )
     )
 
-    confidence = normalize_confidence(
-        data.get("confidence")
+    confidence = (
+        normalize_confidence(
+            data.get(
+                "confidence"
+            )
+        )
     )
 
     reason = clean_text_value(
-        data.get("reason"),
+        data.get(
+            "reason"
+        ),
         max_length=500,
     )
 
@@ -443,14 +556,19 @@ def validate_ai_invoice_output(
     ):
         service_description = None
 
-    confidence = adjust_confidence_for_fields(
-        confidence=confidence,
-        merchant_name=merchant_name,
-        service_description=service_description,
+    confidence = (
+        adjust_confidence_for_fields(
+            confidence=confidence,
+            merchant_name=merchant_name,
+            service_description=(
+                service_description
+            ),
+        )
     )
 
     matched = (
-        confidence >= MIN_ACCEPTED_CONFIDENCE
+        confidence
+        >= MIN_ACCEPTED_CONFIDENCE
         and (
             merchant_name
             or service_description
@@ -463,22 +581,45 @@ def validate_ai_invoice_output(
         confidence = 0.0
 
     return {
-        "merchant_name": merchant_name,
-        "service_description": service_description,
-        "confidence": confidence,
+        "merchant_name": (
+            merchant_name
+        ),
+        "service_description": (
+            service_description
+        ),
+        "confidence": (
+            confidence
+        ),
         "reason": (
             reason
-            or "AI extracted invoice semantic fields."
+            or (
+                "AI extracted invoice "
+                "semantic fields."
+            )
         ),
         "matched": matched,
     }
 
 
+# ---------------------------------------------------------------------
+# LangChain invoice extraction
+# ---------------------------------------------------------------------
+
 def extract_invoice_fields(
     extracted_text: str,
 ) -> dict:
+    """
+    Extract semantic invoice information using Aura's
+    shared LangChain model.
+
+    This function does not determine invoice totals or create
+    transaction records. It only extracts semantic fields used
+    to enhance deterministic invoice parsing.
+    """
+
     safe_text = str(
-        extracted_text or ""
+        extracted_text
+        or ""
     )[:MAX_OCR_CHARACTERS]
 
     if not safe_text.strip():
@@ -486,79 +627,62 @@ def extract_invoice_fields(
             "No OCR text was provided."
         )
 
-    prompt = f"""
-You are a strict invoice semantic-field extraction system.
+    model = (
+        get_aura_chat_model()
+        .with_structured_output(
+            InvoiceExtractionOutput,
+            method="json_schema",
+        )
+    )
 
-Your task is to extract only the semantic information needed
-to understand the purchase.
+    system_prompt = """
+You are Aura's strict invoice semantic-field extraction system.
 
-Extract exactly these fields:
+You receive OCR text from a financial invoice.
+
+Extract only these semantic fields:
 
 1. merchant_name
-   The seller, business, company, provider, store, platform,
-   or legal entity that issued the invoice.
-
 2. service_description
-   The actual product, subscription, plan, service, repair,
-   booking, purchase, or work paid for.
-
 3. confidence
-   Confidence in the extracted merchant and product or service.
-
 4. reason
-   A short explanation of the evidence used.
 
-Important merchant rules:
+Never invent values.
 
-- Return the invoice issuer, seller, provider, or merchant.
-- Do not return the customer, buyer, shipping recipient,
-  billing recipient, or employee.
+MERCHANT RULES
+
+- Return the seller, merchant, business, provider,
+  store, platform, or legal entity that issued the invoice.
+- Do not return the customer, buyer, employee,
+  billing recipient, or shipping recipient.
 - Do not return an address as the merchant.
-- A legal business name is preferred when clearly available.
-- A brand name is acceptable when the legal name is unclear.
-- Do not combine the merchant with invoice metadata.
+- Prefer the legal business name when clearly available.
+- A brand name is acceptable when the legal entity is unclear.
+- Do not combine the merchant name with invoice metadata.
+- Exclude invoice date, invoice number, GSTIN,
+  address, totals, payment status, and payment method.
 - Return null when the merchant cannot be identified reliably.
-- Return only the merchant name.
-- Remove invoice date, invoice number, GSTIN, address,
-  payment status, and any OCR-corrupted invoice labels
-  accidentally attached to the merchant name.
 
-Important description rules:
+SERVICE DESCRIPTION RULES
 
-- Return the actual purchased product or service.
-- If the invoice contains multiple purchased products or
-  services, return a concise summary of the primary
-  purchased items.
-
-  Good examples:
-
-  Bluetooth headphones, USB-C cable and power bank
-
-  Groceries and household supplies
-
-  Office stationery
-
-  Electronics accessories
-
-- Maximum 120 characters.
-
-- Do not list prices, quantities, taxes, invoice metadata,
-  GST, HSN, SAC codes or table values.
-- Prefer a specific product name over a generic table heading.
-- Prefer a specific service name over the merchant name.
-- Keep the description concise but informative.
-- Do not include the merchant name inside the description.
-- Do not include price, quantity, tax, GST, HSN, SAC,
-  invoice number, invoice date, payment method, or address.
-- Do not return a table heading.
-- Do not return totals, subtotals, tax labels, footer text,
-  support text, marketing content, or legal disclaimers.
+- Return the actual purchased product, service,
+  subscription, booking, plan, repair, or work.
+- For multiple purchased items, return a concise summary.
+- Prefer specific purchased items over generic table headings.
+- Maximum practical length should be around 120 characters.
+- Do not include merchant name in the description.
+- Do not include prices, quantities, tax, GST,
+  HSN, SAC, invoice number, invoice date,
+  payment method, or addresses.
+- Do not return table headings.
+- Do not return totals, subtotals, footer text,
+  customer-support text, marketing copy, or legal disclaimers.
 - Correct obvious OCR errors only when the intended value
   is reasonably clear.
-- Do not invent a product or service.
-- Return null when the product or service cannot be identified.
+- Return null when the purchased product or service
+  cannot be identified reliably.
 
-Invalid descriptions include:
+INVALID SERVICE DESCRIPTIONS INCLUDE
 
 - Net Amount Tax Tax Total Amount
 - Description Qty Rate Amount
@@ -569,57 +693,50 @@ Invalid descriptions include:
 - Track Your Order
 - Authorized Signatory
 
-Confidence rules:
+CONFIDENCE RULES
 
 - 0.90 to 0.95:
-  Merchant and purchased item or service are explicit.
+  merchant and purchased item/service are explicit.
 - 0.75 to 0.89:
-  Evidence is strong but one field has mild ambiguity.
+  evidence is strong but one field has mild ambiguity.
 - 0.55 to 0.74:
-  Evidence is incomplete or affected by OCR noise.
+  evidence is incomplete or affected by OCR noise.
 - Below 0.55:
-  Evidence is weak or highly ambiguous.
-- Never return 1.0.
-- Maximum confidence is 0.95.
+  evidence is weak or highly ambiguous.
+- Never return confidence above 0.95.
 
-Return valid JSON only:
+The supplied OCR text is the only source of truth.
+""".strip()
 
-{{
-    "merchant_name": "string or null",
-    "service_description": "string or null",
-    "confidence": 0.0,
-    "reason": "brief explanation"
-}}
-
-INVOICE OCR TEXT:
+    user_prompt = f"""
+Extract invoice semantic fields from this OCR text:
 
 {safe_text}
-"""
+""".strip()
 
     try:
-        start_time = time.perf_counter()
-
-        response = client.responses.create(
-            model=MODEL_NAME,
-            input=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You extract merchant and purchased "
-                        "product or service fields from invoice OCR. "
-                        "Return valid JSON only. Never invent values."
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
-            temperature=0,
+        start_time = (
+            time.perf_counter()
         )
+
+        result = model.invoke(
+            [
+                (
+                    "system",
+                    system_prompt,
+                ),
+                (
+                    "human",
+                    user_prompt,
+                ),
+            ]
+        )
+
         elapsed_ms = (
-            time.perf_counter() - start_time
+            time.perf_counter()
+            - start_time
         ) * 1000
+
     except Exception:
         logger.exception(
             "AI invoice extraction request failed"
@@ -629,49 +746,44 @@ INVOICE OCR TEXT:
             "The AI invoice extraction request failed."
         )
 
-    raw_output = str(
-        response.output_text or ""
-    ).strip()
-
-    # print(
-    #     "AI invoice extraction raw output:",
-    #     raw_output,
-    # )
-
-    cleaned_output = clean_json_output(
-        raw_output
-    )
-
-    try:
-        parsed_data = json.loads(
-            cleaned_output
-        )
-    except json.JSONDecodeError:
-        logger.warning(
-            "AI invoice extraction returned invalid JSON"
-        )
-
+    if result is None:
         return build_failed_result(
-            "AI invoice extraction returned invalid JSON."
+            "AI invoice extraction returned no result."
         )
 
-    result = validate_ai_invoice_output(
-        parsed_data
+    validated_result = (
+        validate_ai_invoice_output(
+            result
+        )
     )
 
     logger.info(
         "AI invoice extraction completed",
         extra={
-            "matched": result["matched"],
-            "confidence": result["confidence"],
-            "latency_ms": round(elapsed_ms),
+            "matched": (
+                validated_result[
+                    "matched"
+                ]
+            ),
+            "confidence": (
+                validated_result[
+                    "confidence"
+                ]
+            ),
+            "latency_ms": round(
+                elapsed_ms
+            ),
             "merchant_found": bool(
-                result["merchant_name"]
+                validated_result[
+                    "merchant_name"
+                ]
             ),
             "description_found": bool(
-                result["service_description"]
+                validated_result[
+                    "service_description"
+                ]
             ),
         },
     )
 
-    return result
+    return validated_result

@@ -1,235 +1,546 @@
-import json
-from datetime import datetime
+from datetime import date as Date
 from decimal import Decimal, InvalidOperation
-from decouple import config
-from openai import OpenAI
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+from ai.llm.langchain_client import (
+    get_aura_chat_model,
+)
 
 
-client = OpenAI(api_key=config("OPENAI_API_KEY"))
+# ---------------------------------------------------------------------
+# Structured output schemas
+# ---------------------------------------------------------------------
+
+class AITransactionItem(BaseModel):
+    """
+    One transaction extracted from a financial document.
+    """
+
+    date: Date | None = Field(
+        default=None,
+        description=(
+            "Transaction date when explicitly available. "
+            "Return null if a reliable date is unavailable."
+        ),
+    )
+
+    description: str = Field(
+        min_length=1,
+        max_length=500,
+        description=(
+            "Transaction description, merchant, employer, "
+            "provider, or other meaningful transaction text."
+        ),
+    )
+
+    merchant_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description=(
+            "Merchant or counterparty name when clearly identifiable."
+        ),
+    )
+
+    amount: Decimal = Field(
+        description=(
+            "Transaction amount. Expenses should be negative "
+            "and income should be positive."
+        ),
+    )
+
+    transaction_type: Literal[
+        "income",
+        "expense",
+    ] = Field(
+        description=(
+            "Whether the transaction is income or an expense."
+        ),
+    )
+
+    balance_after_transaction: Decimal | None = Field(
+        default=None,
+        description=(
+            "Running account balance after the transaction "
+            "when explicitly available."
+        ),
+    )
+
+    reference_number: str | None = Field(
+        default=None,
+        max_length=255,
+        description=(
+            "Transaction reference, UTR, invoice reference, "
+            "or similar identifier when present."
+        ),
+    )
+
+    raw_text: str | None = Field(
+        default=None,
+        max_length=5000,
+        description=(
+            "Relevant source text supporting this transaction."
+        ),
+    )
 
 
-def clean_json_output(raw_output: str) -> str:
-    cleaned = raw_output.strip()
+class AITransactionExtraction(BaseModel):
+    """
+    Structured output returned by the LLM.
+    """
 
-    if cleaned.startswith("```json"):
-        cleaned = cleaned[len("```json"):]
+    transactions: list[
+        AITransactionItem
+    ] = Field(
+        default_factory=list,
+        description=(
+            "All valid financial transactions explicitly "
+            "supported by the document."
+        ),
+    )
 
-    elif cleaned.startswith("```"):
-        cleaned = cleaned[len("```"):]
 
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3]
+# ---------------------------------------------------------------------
+# Normalization
+# ---------------------------------------------------------------------
 
-    return cleaned.strip()
+def normalize_ai_transaction(
+    item,
+):
+    """
+    Convert structured AI output into Aura's normalized
+    transaction dictionary.
 
+    Even though Pydantic validates the model response,
+    this function remains defensive because financial
+    transaction data must be normalized consistently.
+    """
 
-def normalize_ai_transaction(item):
-    if not isinstance(item, dict):
+    if isinstance(
+        item,
+        AITransactionItem,
+    ):
+        item = item.model_dump()
+
+    if not isinstance(
+        item,
+        dict,
+    ):
         return None
 
-    description = str(
-        item.get("description", "")
-    ).strip()
+    # -------------------------------------------------------------
+    # Description
+    # -------------------------------------------------------------
 
-    transaction_type = str(
-        item.get("transaction_type", "")
-    ).lower().strip()
+    description = str(
+        item.get(
+            "description",
+            "",
+        )
+        or ""
+    ).strip()
 
     if not description:
         return None
 
-    if transaction_type not in {"income", "expense"}:
+    description = (
+        description[:500]
+    )
+
+    # -------------------------------------------------------------
+    # Transaction type
+    # -------------------------------------------------------------
+
+    transaction_type = str(
+        item.get(
+            "transaction_type",
+            "",
+        )
+        or ""
+    ).lower().strip()
+
+    if transaction_type not in {
+        "income",
+        "expense",
+    }:
         return None
 
-    # Date is optional.
-    # AI may return null when the document has no reliable date.
-    transaction_date = None
+    # -------------------------------------------------------------
+    # Date
+    # -------------------------------------------------------------
 
-    if item.get("date"):
-        try:
-            transaction_date = datetime.strptime(
-                str(item["date"]).strip(),
-                "%Y-%m-%d",
-            ).date()
-        except (
-            ValueError,
-            TypeError,
-        ):
-            transaction_date = None
+    transaction_date = (
+        item.get("date")
+    )
 
-    # Amount is required.
+    if (
+        transaction_date is not None
+        and not isinstance(
+            transaction_date,
+            Date,
+        )
+    ):
+        transaction_date = None
+
+    # -------------------------------------------------------------
+    # Amount
+    # -------------------------------------------------------------
+
     try:
         amount = Decimal(
-            str(item["amount"])
+            str(
+                item.get(
+                    "amount"
+                )
+            )
         )
+
     except (
-        KeyError,
-        ValueError,
         TypeError,
+        ValueError,
         InvalidOperation,
     ):
         return None
 
-    amount = (
-        abs(amount)
-        if transaction_type == "income"
-        else -abs(amount)
-    )
+    # Aura stores:
+    # income   -> positive
+    # expense  -> negative
 
-    balance = None
+    if transaction_type == "income":
+        amount = abs(
+            amount
+        )
 
-    if item.get(
-        "balance_after_transaction"
-    ) is not None:
-        try:
-            balance = Decimal(
-                str(
-                    item[
-                        "balance_after_transaction"
-                    ]
-                )
-            )
-        except (
-            ValueError,
-            TypeError,
-            InvalidOperation,
-        ):
-            balance = None
+    else:
+        amount = -abs(
+            amount
+        )
+
+    # -------------------------------------------------------------
+    # Merchant
+    # -------------------------------------------------------------
 
     merchant_name = None
 
-    if item.get("merchant_name"):
+    raw_merchant = item.get(
+        "merchant_name"
+    )
+
+    if raw_merchant:
         merchant_name = str(
-            item["merchant_name"]
-        ).strip()[:255]
+            raw_merchant
+        ).strip()
+
+        if merchant_name:
+            merchant_name = (
+                merchant_name[:255]
+            )
+        else:
+            merchant_name = None
+
+    # -------------------------------------------------------------
+    # Balance
+    # -------------------------------------------------------------
+
+    balance_after_transaction = None
+
+    raw_balance = item.get(
+        "balance_after_transaction"
+    )
+
+    if raw_balance is not None:
+        try:
+            balance_after_transaction = (
+                Decimal(
+                    str(
+                        raw_balance
+                    )
+                )
+            )
+
+        except (
+            TypeError,
+            ValueError,
+            InvalidOperation,
+        ):
+            balance_after_transaction = None
+
+    # -------------------------------------------------------------
+    # Reference
+    # -------------------------------------------------------------
 
     reference_number = None
 
-    if item.get("reference_number"):
+    raw_reference = item.get(
+        "reference_number"
+    )
+
+    if raw_reference:
         reference_number = str(
-            item["reference_number"]
-        ).strip()[:255]
+            raw_reference
+        ).strip()
+
+        if reference_number:
+            reference_number = (
+                reference_number[:255]
+            )
+        else:
+            reference_number = None
+
+    # -------------------------------------------------------------
+    # Raw source text
+    # -------------------------------------------------------------
+
+    raw_text = str(
+        item.get(
+            "raw_text",
+            "",
+        )
+        or ""
+    ).strip()
+
+    raw_text = (
+        raw_text[:5000]
+    )
+
+    # -------------------------------------------------------------
+    # Final normalized transaction
+    # -------------------------------------------------------------
 
     return {
         "date": transaction_date,
-        "description": description[:500],
+        "description": description,
         "merchant_name": merchant_name,
         "amount": amount,
-        "transaction_type": transaction_type,
-        "balance_after_transaction": balance,
-        "reference_number": reference_number,
-        "raw_text": str(
-            item.get("raw_text", "")
-        )[:5000],
+        "transaction_type": (
+            transaction_type
+        ),
+        "balance_after_transaction": (
+            balance_after_transaction
+        ),
+        "reference_number": (
+            reference_number
+        ),
+        "raw_text": raw_text,
     }
 
+
+# ---------------------------------------------------------------------
+# AI extraction
+# ---------------------------------------------------------------------
 
 def parse_transactions_with_ai(
     extracted_text: str,
     document_type: str = "unknown",
 ):
-    prompt = f"""
-    You are a strict financial document extraction system.
+    """
+    Extract transactions using Aura's shared LangChain model.
 
-    Detected document type:
-    {document_type}
+    This function is intended as a fallback when deterministic
+    parsing is insufficient.
 
-    Extract only real financial transactions from the document.
-
-    Return ONLY valid JSON:
-
-    [
-    {{
-        "date": "YYYY-MM-DD or null",
-        "description": "merchant, provider, employer, or transaction description",
-        "merchant_name": "string or null",
-        "amount": "decimal number",
-        "transaction_type": "income or expense",
-        "balance_after_transaction": "decimal number or null",
-        "reference_number": "string or null",
-        "raw_text": "source text used"
-    }}
-    ]
-
-    Document rules:
-
-    BANK OR CREDIT-CARD STATEMENT:
-    - Return one JSON object for every actual transaction row.
-    - Preserve the relationship between the date, description,
-    debit, credit and balance from the same row.
-    - The debit or credit column is the transaction amount.
-    - The running balance is never the transaction amount.
-    - Debit values are expenses.
-    - Credit values are income.
-    - Exclude opening balance, closing balance, account summary,
-    statement date, statement period and totals.
-    - Do not use the statement date as a transaction date.
-    - If ten transaction rows are visible, return ten objects.
-    - Never merge multiple transaction rows into one object.
-
-    INVOICE:
-    - Return exactly one expense transaction.
-    - Use amount payable, net amount, invoice total,
-    grand total or total due.
-    - Do not create transactions from line items,
-    subtotal, tax, GST, discount or taxable value.
-
-    RECEIPT:
-    - Return exactly one expense transaction using
-    the final amount paid.
-    - Do not return each purchased product separately.
-
-    UTILITY BILL:
-    - Return exactly one expense transaction using
-    current bill amount, amount payable or total due.
-
-    SUBSCRIPTION RECEIPT:
-    - Return exactly one expense transaction for
-    the charged subscription amount.
-
-    SALARY SLIP:
-    - Return exactly one income transaction using net pay.
-    - Do not create separate transactions for allowances,
-    benefits, tax or deductions.
-
-    General rules:
-    - Do not invent values.
-    - If a date is unavailable, return null.
-    - Expenses must be negative.
-    - Income must be positive.
-    - If no valid financial transaction exists, return [].
-
-    TEXT:
-    {extracted_text}
+    It does not save Transaction models.
+    It only returns normalized transaction dictionaries.
     """
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt,
+    safe_text = str(
+        extracted_text
+        or ""
+    ).strip()
+
+    if not safe_text:
+        return []
+
+    # Prevent excessively large document prompts.
+    safe_text = (
+        safe_text[:20_000]
     )
 
-    raw_output = response.output_text.strip()
+    normalized_document_type = str(
+        document_type
+        or "unknown"
+    ).strip().lower()
 
-    cleaned_output = clean_json_output(raw_output)
+    # -------------------------------------------------------------
+    # Structured model
+    # -------------------------------------------------------------
 
-    try:
-        parsed = json.loads(cleaned_output)
-    except json.JSONDecodeError as error:
-        raise ValueError(
-            "AI parser returned invalid JSON."
-        ) from error
+    model = (
+        get_aura_chat_model()
+        .with_structured_output(
+            AITransactionExtraction,
+            method="json_schema",
+        )
+    )
 
-    if not isinstance(parsed, list):
-        raise ValueError(
-            "AI parser returned an invalid response format."
+    # -------------------------------------------------------------
+    # System prompt
+    # -------------------------------------------------------------
+
+    system_prompt = """
+You are Aura's strict financial document transaction extraction system.
+
+Your job is to extract only real financial transactions that are
+explicitly supported by the provided document text.
+
+Never invent financial data.
+
+GENERAL RULES
+
+1. Return every real transaction that appears in the document.
+
+2. Do not merge separate transaction rows into one transaction.
+
+3. If a reliable transaction date is not present, return null.
+
+4. Expenses must use:
+   transaction_type = "expense"
+
+5. Income must use:
+   transaction_type = "income"
+
+6. Expense amounts must be negative.
+
+7. Income amounts must be positive.
+
+8. Do not use a running account balance as the transaction amount.
+
+9. Do not create transactions from:
+   - opening balances
+   - closing balances
+   - totals
+   - summaries
+   - taxes
+   - discounts
+   - headings
+   - metadata
+   - statement period information
+
+10. Never manufacture:
+    - dates
+    - amounts
+    - merchants
+    - references
+    - balances
+
+11. If no valid transaction is supported by the document,
+    return an empty transactions list.
+
+
+BANK STATEMENT / CREDIT CARD STATEMENT
+
+- Return one transaction for each actual transaction row.
+- Keep the date, description, amount, debit/credit information,
+  and running balance from the same row.
+- Debit means expense.
+- Credit means income.
+- Do not return opening balance or closing balance as transactions.
+- Do not combine multiple rows.
+- If ten real transaction rows are visible, return ten transactions.
+
+
+INVOICE
+
+- Return exactly one expense transaction.
+- Use the final amount payable, invoice total, grand total,
+  net amount, total due, or equivalent final charge.
+- Do not create separate transactions for:
+  - individual products
+  - GST
+  - tax
+  - subtotal
+  - taxable value
+  - discounts
+- The merchant should be the invoice issuer when clear.
+
+
+RECEIPT
+
+- Return exactly one expense transaction.
+- Use the final amount actually paid.
+- Do not create individual transactions for line items.
+
+
+UTILITY BILL
+
+- Return exactly one expense transaction.
+- Use the current bill amount, amount payable, total due,
+  or equivalent final charge.
+
+
+SUBSCRIPTION RECEIPT
+
+- Return exactly one expense transaction.
+- Use the charged subscription amount.
+
+
+SALARY SLIP
+
+- Return exactly one income transaction.
+- Use net salary or net pay.
+- Do not create separate income/expense transactions for:
+  - allowances
+  - deductions
+  - taxes
+  - PF
+  - HRA
+""".strip()
+
+    # -------------------------------------------------------------
+    # User prompt
+    # -------------------------------------------------------------
+
+    user_prompt = f"""
+Detected document type:
+{normalized_document_type}
+
+Extract transactions from the following financial document.
+
+Document text:
+
+{safe_text}
+""".strip()
+
+    # -------------------------------------------------------------
+    # Invoke LangChain structured output
+    # -------------------------------------------------------------
+
+    result = model.invoke(
+        [
+            (
+                "system",
+                system_prompt,
+            ),
+            (
+                "human",
+                user_prompt,
+            ),
+        ]
+    )
+
+    if result is None:
+        return []
+
+    # -------------------------------------------------------------
+    # Normalize output
+    # -------------------------------------------------------------
+
+    transactions = []
+
+    for item in (
+        result.transactions
+        or []
+    ):
+        normalized = (
+            normalize_ai_transaction(
+                item
+            )
         )
 
-    cleaned = []
+        if normalized:
+            transactions.append(
+                normalized
+            )
 
-    for item in parsed:
-        transaction = normalize_ai_transaction(item)
-
-        if transaction:
-            cleaned.append(transaction)
-
-    return cleaned
+    return transactions

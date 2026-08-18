@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.dashboard.apps.DashboardConfig",
     "apps.uploads.apps.UploadsConfig",
     "apps.transactions.apps.TransactionsConfig",
+    "apps.banking.apps.BankingConfig",
     "apps.categories.apps.CategoriesConfig",
     "apps.insights.apps.InsightsConfig",
     "apps.chat.apps.ChatConfig",
@@ -113,7 +114,7 @@ if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
-            conn_max_age=600,
+            conn_max_age=0,
             ssl_require=True,
         )
     }

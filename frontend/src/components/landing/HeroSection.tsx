@@ -2,17 +2,17 @@ import Link from "next/link";
 
 import {
   ArrowRight,
-  FileText,
-  Image,
+  Brain,
+  Landmark,
   PlayCircle,
+  RefreshCcw,
   Sparkles,
-  Table,
+  Upload,
 } from "lucide-react";
 
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8 lg:pb-24">
-      {/* Background */}
       <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-emerald-200/25 blur-3xl" />
 
       <div className="pointer-events-none absolute -right-28 top-24 h-80 w-80 rounded-full bg-blue-200/20 blur-3xl" />
@@ -27,21 +27,22 @@ export default function HeroSection() {
             />
 
             <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-700">
-              AI-Powered Financial Intelligence
+              AI-Powered Personal Finance
             </span>
           </div>
 
           <h1 className="mt-5 max-w-3xl text-[38px] font-bold leading-[1.08] tracking-tight text-black sm:text-[48px] lg:text-[58px]">
-            Understand your money.
+            Your finances.
             <span className="block text-emerald-700">
-              Let Aura do the analysis.
+              Understood by AI.
             </span>
           </h1>
 
           <p className="mt-5 max-w-xl text-[14px] leading-7 text-[#565e74] sm:text-[16px]">
-            Upload statements, invoices, receipts, salary slips, or CSVs.
-            Aura organizes your transactions, detects patterns, and turns
-            financial activity into useful insights.
+            Connect financial accounts or import your existing data.
+            Aura organizes transactions, tracks spending patterns,
+            detects recurring payments, and gives you personalized
+            financial insights.
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -64,12 +65,12 @@ export default function HeroSection() {
 
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[10px] font-semibold text-[#7c839b]">
             <span>✓ No credit card required</span>
-            <span>✓ Secure document processing</span>
+            <span>✓ Secure financial workspace</span>
             <span>✓ AI-powered insights</span>
           </div>
         </div>
 
-        {/* Right Preview */}
+        {/* Right */}
         <div className="relative">
           <div className="rounded-[28px] border border-[#e6edf9] bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.10)] sm:p-6">
             <div className="flex items-center justify-between border-b border-[#edf2fb] pb-4">
@@ -79,7 +80,7 @@ export default function HeroSection() {
                 </p>
 
                 <h3 className="mt-1 text-[15px] font-bold text-black">
-                  Import Financial Data
+                  Your Financial Data
                 </h3>
               </div>
 
@@ -88,60 +89,76 @@ export default function HeroSection() {
               </span>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-dashed border-[#cfd9e8] bg-[#fbfcff] p-7 text-center">
-              <div className="mb-7 flex justify-center -space-x-3">
-                <FileMockup
-                  icon={<FileText size={25} />}
-                  badge="PDF"
-                  tone="red"
-                  rotate="-rotate-6"
-                />
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center justify-between rounded-2xl border border-[#e6edf9] bg-[#fbfcff] p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white">
+                    <Landmark size={17} />
+                  </div>
 
-                <FileMockup
-                  icon={<Table size={25} />}
-                  badge="CSV"
-                  tone="green"
-                  rotate="z-10"
-                />
+                  <div>
+                    <p className="text-[12px] font-bold text-black">
+                      Connected Account
+                    </p>
 
-                <FileMockup
-                  icon={<Image size={25} />}
-                  badge="IMG"
-                  tone="blue"
-                  rotate="rotate-6"
-                />
+                    <p className="mt-0.5 text-[10px] text-[#7c839b]">
+                      Automatic transaction sync
+                    </p>
+                  </div>
+                </div>
+
+                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[9px] font-bold text-emerald-700">
+                  Connected
+                </span>
               </div>
 
-              <h4 className="text-[16px] font-bold text-black">
-                Upload your financial documents
-              </h4>
+              <div className="flex items-center justify-between rounded-2xl border border-[#e6edf9] bg-[#fbfcff] p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-700">
+                    <Upload size={17} />
+                  </div>
 
-              <p className="mx-auto mt-2 max-w-sm text-[11px] leading-5 text-[#7c839b]">
-                Aura automatically detects document type, extracts
-                transactions, and prepares them for analysis.
-              </p>
+                  <div>
+                    <p className="text-[12px] font-bold text-black">
+                      Import Financial Data
+                    </p>
 
-              <button className="mt-5 rounded-xl bg-black px-5 py-2.5 text-[11px] font-bold text-white">
-                Choose a Financial File
-              </button>
+                    <p className="mt-0.5 text-[10px] text-[#7c839b]">
+                      Statements, receipts and CSV files
+                    </p>
+                  </div>
+                </div>
+
+                <ArrowRight
+                  size={14}
+                  className="text-[#98a2b3]"
+                />
+              </div>
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-2">
               <MiniMetric
+                icon={<RefreshCcw size={13} />}
                 value="Auto"
-                label="Categorization"
+                label="Sync"
               />
 
               <MiniMetric
+                icon={<Brain size={13} />}
                 value="AI"
                 label="Insights"
               />
 
               <MiniMetric
+                icon={<Sparkles size={13} />}
                 value="Smart"
-                label="Search"
+                label="Analysis"
               />
             </div>
+
+            <p className="mt-4 text-center text-[9px] text-[#98a2b3]">
+              Bank connectivity is currently demonstrated using simulated accounts.
+            </p>
           </div>
         </div>
       </div>
@@ -149,50 +166,21 @@ export default function HeroSection() {
   );
 }
 
-function FileMockup({
-  icon,
-  badge,
-  tone,
-  rotate,
-}: {
-  icon: React.ReactNode;
-  badge: string;
-  tone: "red" | "green" | "blue";
-  rotate: string;
-}) {
-  const styles =
-    tone === "red"
-      ? "border-red-100 bg-red-50 text-red-600"
-      : tone === "green"
-        ? "border-emerald-100 bg-emerald-50 text-emerald-700"
-        : "border-blue-100 bg-blue-50 text-blue-700";
-
-  return (
-    <div
-      className={`relative flex h-20 w-16 items-center justify-center rounded-xl border bg-white shadow-[0_5px_15px_rgba(15,23,42,0.08)] ${rotate}`}
-    >
-      <span className={styles}>
-        {icon}
-      </span>
-
-      <span
-        className={`absolute -bottom-2 rounded-full border px-2 py-0.5 text-[8px] font-bold ${styles}`}
-      >
-        {badge}
-      </span>
-    </div>
-  );
-}
-
 function MiniMetric({
+  icon,
   value,
   label,
 }: {
+  icon: React.ReactNode;
   value: string;
   label: string;
 }) {
   return (
     <div className="rounded-xl border border-[#edf2fb] bg-[#fbfcff] p-3 text-center">
+      <div className="mb-1 flex justify-center text-emerald-700">
+        {icon}
+      </div>
+
       <p className="text-[12px] font-bold text-black">
         {value}
       </p>

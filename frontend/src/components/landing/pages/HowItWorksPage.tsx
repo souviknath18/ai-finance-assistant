@@ -1,12 +1,13 @@
 import Link from "next/link";
+
 import {
   ArrowRight,
   BarChart3,
   BrainCircuit,
   CheckCircle2,
-  CloudUpload,
   Database,
-  FileSearch,
+  Landmark,
+  MessageCircle,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -17,74 +18,74 @@ import LandingFooter from "../LandingFooter";
 const steps = [
   {
     number: "01",
-    icon: <CloudUpload size={20} />,
-    title: "Upload your financial files",
+    icon: <Landmark size={20} />,
+    title: "Connect or import your financial data",
     description:
-      "Upload a bank statement, CSV export, receipt, invoice or financial screenshot from your device.",
+      "Connect a financial account or import statements, receipts, invoices, images, and CSV files.",
     details: [
-      "PDF, CSV and image support",
-      "Secure cloud storage",
-      "Real-time upload progress",
+      "Connected account support",
+      "PDF, CSV, and image import",
+      "Historical data import",
     ],
   },
   {
     number: "02",
-    icon: <FileSearch size={20} />,
-    title: "Aura detects and processes the document",
+    icon: <Database size={20} />,
+    title: "Aura creates one financial workspace",
     description:
-      "The system identifies the document type and selects the most appropriate parsing method.",
+      "Financial activity from different sources is normalized into one consistent transaction history.",
     details: [
-      "Document type detection",
-      "Rule-based parsing",
-      "AI fallback processing",
+      "Unified transactions",
+      "Duplicate protection",
+      "Structured financial records",
     ],
   },
   {
     number: "03",
     icon: <BrainCircuit size={20} />,
-    title: "AI extracts and categorizes transactions",
+    title: "Transactions are intelligently organized",
     description:
-      "Dates, merchants, amounts and transaction types are converted into structured financial records.",
+      "Aura categorizes transactions, identifies merchants, analyzes transaction types, and detects recurring activity.",
     details: [
-      "Merchant identification",
       "Expense categorization",
-      "Transaction validation",
+      "Merchant identification",
+      "Recurring payment detection",
     ],
   },
   {
     number: "04",
-    icon: <Database size={20} />,
-    title: "Embeddings power intelligent retrieval",
+    icon: <Search size={20} />,
+    title: "AI retrieval understands your history",
     description:
-      "Aura generates vector embeddings that allow transactions to be discovered by meaning and context.",
+      "Transaction embeddings allow Aura to retrieve relevant financial activity using meaning and context.",
     details: [
       "OpenAI embeddings",
       "pgvector storage",
-      "Semantic similarity search",
+      "Semantic search",
     ],
   },
   {
     number: "05",
     icon: <BarChart3 size={20} />,
-    title: "Your dashboard updates automatically",
+    title: "Aura continuously analyzes your finances",
     description:
-      "Processed transactions, categories and insights become available through your personal dashboard.",
+      "Your dashboard, budgets, subscriptions, reports, and financial insights update as your financial activity changes.",
     details: [
       "Spending analytics",
-      "Processing status",
       "Financial insights",
+      "Trend detection",
     ],
   },
   {
     number: "06",
-    icon: <Search size={20} />,
-    title: "Search and understand your finances",
+    icon: <MessageCircle size={20} />,
+    title: "Ask Aura about your money",
     description:
-      "Ask natural-language questions and discover spending patterns, subscriptions and important transactions.",
+      "Use natural language to explore transactions, understand spending changes, and discover patterns in your financial history.",
     details: [
-      "Natural-language search",
-      "Recurring-payment detection",
-      "AI-powered recommendations",
+      "Natural-language questions",
+      "Context-aware answers",
+      "Personalized insights",
     ],
   },
 ];
@@ -93,8 +94,6 @@ export default function HowItWorksPage() {
   return (
     <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
       <LandingNavbar />
-
-      {/* Hero */}
 
       <section className="px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pt-32">
         <div className="mx-auto max-w-5xl text-center">
@@ -107,17 +106,16 @@ export default function HowItWorksPage() {
           </p>
 
           <h1 className="mt-4 text-2xl font-bold tracking-tight text-black sm:text-3xl lg:text-4xl">
-            From financial documents to intelligent insights
+            From financial activity to financial intelligence
           </h1>
 
           <p className="mx-auto mt-5 max-w-3xl text-[15px] leading-7 text-[#565e74]">
-            Aura transforms unstructured financial files into searchable
-            transactions, spending insights and personalized recommendations.
+            Aura brings financial data together, organizes transactions,
+            analyzes patterns, and turns your financial history into
+            searchable, personalized intelligence.
           </p>
         </div>
       </section>
-
-      {/* Steps */}
 
       <section className="bg-[#eff4ff] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl space-y-5">
@@ -172,17 +170,15 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* CTA */}
-
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl rounded-3xl bg-[#131b2e] px-6 py-10 text-center shadow-sm sm:px-10 sm:py-14">
           <h2 className="text-2xl font-bold text-white sm:text-3xl">
-            Let Aura do the repetitive financial work
+            Spend less time organizing money and more time understanding it
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#a5aec4]">
-            Spend less time organizing statements and more time understanding
-            your financial decisions.
+            Bring your financial activity into Aura and let intelligent
+            automation handle organization, analysis, retrieval, and insights.
           </p>
 
           <Link

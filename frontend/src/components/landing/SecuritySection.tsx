@@ -48,7 +48,7 @@ export default function SecuritySection() {
             <SecurityItem
               icon={<ShieldCheck size={16} />}
               title="Secure Processing"
-              description="Uploaded data is handled through controlled application workflows."
+              description="Financial data is handled through controlled backend workflows and authenticated application access."
             />
           </div>
         </div>

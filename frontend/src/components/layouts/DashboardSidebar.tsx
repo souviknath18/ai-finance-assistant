@@ -14,6 +14,7 @@ import {
   CalendarDays,
   CreditCard,
   FolderOpen,
+  Landmark,
   LayoutDashboard,
   Lightbulb,
   LogOut,
@@ -43,9 +44,9 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    label: "Uploads",
-    href: "/uploads",
-    icon: Upload,
+    label: "Accounts",
+    href: "/accounts",
+    icon: Landmark,
   },
   {
     label: "Transactions",
@@ -53,19 +54,14 @@ const navItems = [
     icon: ReceiptText,
   },
   {
-    label: "Categories",
-    href: "/categories",
-    icon: Tags,
+    label: "Insights",
+    href: "/insights",
+    icon: Lightbulb,
   },
   {
     label: "AI Chat",
     href: "/chat",
     icon: MessageCircle,
-  },
-  {
-    label: "Insights",
-    href: "/insights",
-    icon: Lightbulb,
   },
   {
     label: "Budgets",
@@ -83,14 +79,24 @@ const navItems = [
     icon: CalendarDays,
   },
   {
-    label: "Reports",
-    href: "/reports",
-    icon: BarChart3,
+    label: "Categories",
+    href: "/categories",
+    icon: Tags,
+  },
+  {
+    label: "Uploads",
+    href: "/uploads",
+    icon: Upload,
   },
   {
     label: "File History",
     href: "/history",
     icon: FolderOpen,
+  },
+  {
+    label: "Reports",
+    href: "/reports",
+    icon: BarChart3,
   },
 ];
 

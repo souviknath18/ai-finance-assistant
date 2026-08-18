@@ -15,63 +15,57 @@ const plans = [
   {
     name: "Free",
     description:
-      "Explore Aura and organize your personal finances.",
+      "Explore Aura and start understanding your personal finances.",
     price: "₹0",
     period: "/month",
-    icon: (
-      <Sparkles size={17} />
-    ),
+    icon: <Sparkles size={17} />,
     highlighted: false,
     buttonText: "Get Started",
     features: [
-      "5 financial file uploads per month",
-      "Basic transaction extraction",
+      "Demo financial account connection",
+      "Basic transaction dashboard",
       "Automatic expense categorization",
-      "Transaction dashboard",
+      "Basic spending analytics",
       "Basic semantic search",
-      "Upload history",
+      "5 financial document imports per month",
     ],
   },
   {
     name: "Pro",
     description:
-      "For users who want deeper AI-powered financial clarity.",
+      "For users who want deeper AI-powered financial intelligence.",
     price: "₹499",
     period: "/month",
-    icon: (
-      <Zap size={17} />
-    ),
+    icon: <Zap size={17} />,
     highlighted: true,
     buttonText: "Start Pro",
     features: [
-      "50 financial file uploads per month",
-      "Advanced AI extraction",
+      "Everything included in Free",
       "AI financial chat assistant",
       "Full semantic transaction search",
       "Subscription detection",
       "Personalized financial insights",
+      "Budgets and financial goals",
       "Monthly financial reports",
-      "Priority processing",
+      "50 document imports per month",
     ],
   },
   {
     name: "Premium",
     description:
-      "For advanced personal finance tracking and automation.",
+      "For advanced financial tracking, automation, and analysis.",
     price: "₹999",
     period: "/month",
-    icon: (
-      <Crown size={17} />
-    ),
+    icon: <Crown size={17} />,
     highlighted: false,
     buttonText: "Choose Premium",
     features: [
-      "Unlimited financial file uploads",
       "Everything included in Pro",
-      "Budget forecasting",
       "Advanced spending analytics",
+      "Budget forecasting",
       "Financial goal recommendations",
-      "Exportable financial reports",
+      "Advanced financial reports",
+      "Unlimited document imports",
       "Early access to new AI features",
       "Priority support",
     ],
@@ -83,7 +77,6 @@ export default function PricingPage() {
     <main className="min-h-screen bg-[#f8faff] text-[#0b1c30]">
       <LandingNavbar />
 
-      {/* Hero */}
       <section className="relative overflow-hidden px-4 pb-14 pt-28 sm:px-6 sm:pb-16 lg:px-8 lg:pt-32">
         <div className="pointer-events-none absolute -left-28 -top-28 h-80 w-80 rounded-full bg-emerald-200/20 blur-3xl" />
 
@@ -103,13 +96,12 @@ export default function PricingPage() {
           </h1>
 
           <p className="mx-auto mt-3 max-w-2xl text-[12px] leading-5 text-[#565e74] sm:text-[13px] sm:leading-6">
-            Start free, then upgrade when you need more uploads, deeper AI
-            insights, and more advanced financial automation.
+            Start free and upgrade when you want deeper AI insights,
+            advanced analytics, and more financial automation.
           </p>
         </div>
       </section>
 
-      {/* Pricing Cards */}
       <section className="px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 lg:grid-cols-3">
           {plans.map((plan) => (
@@ -127,7 +119,6 @@ export default function PricingPage() {
                 </span>
               )}
 
-              {/* Icon */}
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
                   plan.highlighted
@@ -138,7 +129,6 @@ export default function PricingPage() {
                 {plan.icon}
               </div>
 
-              {/* Heading */}
               <div className="mt-4">
                 <h2 className="text-[18px] font-bold">
                   {plan.name}
@@ -155,7 +145,6 @@ export default function PricingPage() {
                 </p>
               </div>
 
-              {/* Price */}
               <div className="mt-5 flex items-end gap-1.5">
                 <span className="text-[32px] font-bold tracking-tight">
                   {plan.price}
@@ -172,20 +161,19 @@ export default function PricingPage() {
                 </span>
               </div>
 
-              {/* CTA */}
               <Link
                 href="/auth/signup"
-                className={`mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[12px] font-bold transition-[background-color,opacity,box-shadow] ${
+                className={`mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-[12px] font-bold transition ${
                   plan.highlighted
-                    ? "bg-emerald-600 text-white shadow-[0_6px_16px_rgba(16,185,129,0.16)] hover:bg-emerald-700"
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-black text-white hover:opacity-90"
                 }`}
               >
                 {plan.buttonText}
+
                 <ArrowRight size={13} />
               </Link>
 
-              {/* Divider */}
               <div
                 className={`my-5 h-px ${
                   plan.highlighted
@@ -194,7 +182,6 @@ export default function PricingPage() {
                 }`}
               />
 
-              {/* Features */}
               <ul className="space-y-3">
                 {plan.features.map((feature) => (
                   <li
@@ -215,9 +202,7 @@ export default function PricingPage() {
                       <Check size={11} />
                     </span>
 
-                    <span>
-                      {feature}
-                    </span>
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -226,12 +211,12 @@ export default function PricingPage() {
         </div>
 
         <p className="mx-auto mt-7 max-w-2xl text-center text-[10px] leading-5 text-[#8a92a5]">
-          Pricing is currently shown as a preview until payment integration
-          and subscription controls are implemented.
+          Pricing is currently shown as a product preview. Payment integration,
+          real bank connectivity, and subscription controls are not yet
+          available.
         </p>
       </section>
 
-      {/* Bottom CTA */}
       <section className="px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[30px] bg-black px-5 py-10 text-center text-white shadow-[0_18px_50px_rgba(15,23,42,0.16)] sm:px-8 sm:py-12">
           <div className="relative z-10">
@@ -240,12 +225,12 @@ export default function PricingPage() {
             </div>
 
             <h2 className="mx-auto mt-4 max-w-2xl text-[22px] font-bold tracking-tight sm:text-[27px]">
-              Start managing your finances more intelligently
+              Start understanding your finances more intelligently
             </h2>
 
             <p className="mx-auto mt-3 max-w-xl text-[12px] leading-6 text-[#b7c0d4]">
-              Create your free account and explore Aura&apos;s financial
-              organization tools without entering payment information.
+              Create your free account and explore Aura&apos;s transaction,
+              analytics, search, and financial intelligence tools.
             </p>
 
             <Link
@@ -253,13 +238,10 @@ export default function PricingPage() {
               className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-5 text-[12px] font-bold text-black transition hover:bg-emerald-50 sm:w-auto"
             >
               Get Started for Free
+
               <ArrowRight size={14} />
             </Link>
           </div>
-
-          <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
-
-          <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-blue-400/10 blur-3xl" />
         </div>
       </section>
 

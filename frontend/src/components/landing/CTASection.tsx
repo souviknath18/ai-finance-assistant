@@ -19,12 +19,12 @@ export default function CTASection() {
           </p>
 
           <h2 className="mx-auto mt-2 max-w-2xl text-[28px] font-bold tracking-tight sm:text-[36px]">
-            Build a clearer picture of your financial life.
+            Start understanding your finances.
           </h2>
 
           <p className="mx-auto mt-4 max-w-xl text-[13px] leading-6 text-[#b7c0d4]">
-            Import your financial activity and let Aura organize, analyze,
-            and surface the information that matters.
+            Bring your financial activity into Aura and turn everyday
+            transactions into useful, personalized insights.
           </p>
 
           <Link

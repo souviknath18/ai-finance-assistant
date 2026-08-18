@@ -1,11 +1,11 @@
 import {
   BarChart3,
   CalendarDays,
-  Flag,
-  FolderKanban,
+  Landmark,
   MessageCircle,
   Search,
-  Tags,
+  Target,
+  Upload,
 } from "lucide-react";
 
 export default function FeaturesSection() {
@@ -21,44 +21,44 @@ export default function FeaturesSection() {
           </p>
 
           <h2 className="mt-2 text-[28px] font-bold tracking-tight text-black sm:text-[34px]">
-            One workspace for your financial life
+            One intelligent workspace for your money
           </h2>
 
           <p className="mt-3 text-[13px] leading-6 text-[#565e74]">
-            Organize transactions, understand spending, discover patterns,
-            and ask questions about your finances using AI.
+            Bring financial activity together, understand your spending,
+            uncover patterns, and ask questions using AI.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
-            icon={<Tags size={18} />}
-            title="AI Categorization"
-            description="Automatically classify transactions while allowing you to review and correct categories whenever needed."
+            icon={<Landmark size={18} />}
+            title="Connected Accounts"
+            description="Bring account activity into Aura and keep your financial picture continuously updated."
           />
 
           <FeatureCard
             icon={<BarChart3 size={18} />}
             title="Spending Intelligence"
-            description="Understand where your money goes with category breakdowns, anomalies, trends, and monthly comparisons."
+            description="Understand where your money goes with category breakdowns, trends, anomalies, and monthly comparisons."
           />
 
           <FeatureCard
             icon={<CalendarDays size={18} />}
             title="Subscription Detection"
-            description="Identify recurring services and review monthly subscription spending from your transaction history."
-          />
-
-          <FeatureCard
-            icon={<Flag size={18} />}
-            title="Goal Tracking"
-            description="Create financial goals and keep track of savings progress across important milestones."
+            description="Identify recurring payments and understand how subscriptions affect your monthly spending."
           />
 
           <FeatureCard
             icon={<Search size={18} />}
             title="Semantic Search"
-            description="Search your financial history naturally instead of relying only on exact transaction names or filters."
+            description="Search your financial history naturally instead of relying only on transaction names or filters."
+          />
+
+          <FeatureCard
+            icon={<Target size={18} />}
+            title="Budgets & Goals"
+            description="Track spending limits, savings goals, and progress toward important financial milestones."
           />
 
           <DarkFeatureCard />
@@ -68,29 +68,25 @@ export default function FeaturesSection() {
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-4">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-white text-emerald-700">
-                <FolderKanban size={19} />
+                <Upload size={19} />
               </div>
 
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-700">
-                  Financial Reporting
+                  Flexible Data Import
                 </p>
 
                 <h3 className="mt-1 text-[18px] font-bold text-black">
-                  Automated Financial Reports
+                  Import financial documents when needed
                 </h3>
 
                 <p className="mt-1 max-w-2xl text-[12px] leading-5 text-[#565e74]">
-                  Turn your transaction history into clear financial
-                  summaries covering spending, income, savings, categories,
-                  and important trends.
+                  Upload bank statements, receipts, invoices, images,
+                  PDFs, or CSV files to add historical or additional
+                  financial data to Aura.
                 </p>
               </div>
             </div>
-
-            <button className="h-10 shrink-0 rounded-xl border border-[#dfe9fb] bg-white px-4 text-[11px] font-bold text-black transition hover:border-emerald-200 hover:bg-emerald-50">
-              View Sample Report
-            </button>
           </div>
         </div>
       </div>
@@ -133,18 +129,17 @@ function DarkFeatureCard() {
         </div>
 
         <h3 className="mt-4 text-[15px] font-bold">
-          AI Financial Chat
+          Ask Aura
         </h3>
 
         <p className="mt-2 text-[12px] leading-5 text-[#b7c0d4]">
-          Ask Aura questions about your transactions, spending behavior,
-          recurring payments, or financial activity using natural language.
+          Ask questions about spending, transactions, recurring payments,
+          trends, and your financial history using natural language.
         </p>
 
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3.5">
           <p className="text-[11px] italic leading-5 text-[#d8deeb]">
-            “How much did I spend on subscriptions over the last three
-            months?”
+            “Why did I spend more this month?”
           </p>
         </div>
       </div>

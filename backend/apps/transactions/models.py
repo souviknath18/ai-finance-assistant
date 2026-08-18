@@ -17,6 +17,12 @@ class Transaction(models.Model):
         TRANSFER = "transfer", "Transfer"
         UNKNOWN = "unknown", "Unknown"
 
+    class TransactionSource(models.TextChoices):
+        UPLOAD = "upload", "Upload"
+        BANK_SYNC = "bank_sync", "Bank Sync"
+        MANUAL = "manual", "Manual"
+        CSV_IMPORT = "csv_import", "CSV Import"
+
     transaction_id = models.CharField(
         max_length=40,
         unique=True,
@@ -39,17 +45,59 @@ class Transaction(models.Model):
         related_name="transactions",
     )
 
+    # NEW
+    source = models.CharField(
+        max_length=30,
+        choices=TransactionSource.choices,
+        default=TransactionSource.UPLOAD,
+    )
+
+    # NEW
+    bank_connection = models.ForeignKey(
+        "banking.BankConnection",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="transactions",
+    )
+
+    # NEW
+    external_transaction_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+
     date = models.DateField(
         null=True,
         blank=True,
     )
-    date_is_estimated = models.BooleanField(default=False)
-    description = models.CharField(max_length=500)
 
-    merchant_name = models.CharField(max_length=255, blank=True, null=True)
-    reference_number = models.CharField(max_length=100, blank=True, null=True)
+    date_is_estimated = models.BooleanField(
+        default=False
+    )
 
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    description = models.CharField(
+        max_length=500
+    )
+
+    merchant_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    reference_number = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+    )
 
     transaction_type = models.CharField(
         max_length=20,
@@ -57,7 +105,11 @@ class Transaction(models.Model):
         default=TransactionType.UNKNOWN,
     )
 
-    category = models.CharField(max_length=100, blank=True, null=True)
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
 
     category_source = models.CharField(
         max_length=20,
@@ -85,7 +137,9 @@ class Transaction(models.Model):
         blank=True,
     )
 
-    is_ai_categorized = models.BooleanField(default=False)
+    is_ai_categorized = models.BooleanField(
+        default=False
+    )
 
     ai_confidence = models.DecimalField(
         max_digits=5,
@@ -94,50 +148,110 @@ class Transaction(models.Model):
         null=True,
     )
 
-    ai_reason = models.TextField(blank=True, null=True)
+    ai_reason = models.TextField(
+        blank=True,
+        null=True,
+    )
 
-    is_reviewed = models.BooleanField(default=False)
+    is_reviewed = models.BooleanField(
+        default=False
+    )
 
-    raw_text = models.TextField(blank=True, null=True)
-    
-    is_vectorized = models.BooleanField(default=False)
+    raw_text = models.TextField(
+        blank=True,
+        null=True,
+    )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    is_vectorized = models.BooleanField(
+        default=False
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
 
     def save(self, *args, **kwargs):
         if not self.transaction_id:
-            today = timezone.now().strftime("%Y%m%d")
+            today = timezone.now().strftime(
+                "%Y%m%d"
+            )
 
             with transaction.atomic():
                 last_transaction = (
-                    Transaction.objects.select_for_update()
-                    .exclude(transaction_id="")
+                    Transaction.objects
+                    .select_for_update()
+                    .exclude(
+                        transaction_id=""
+                    )
                     .order_by("-id")
                     .first()
                 )
 
-                if last_transaction and last_transaction.transaction_id:
+                if (
+                    last_transaction
+                    and last_transaction.transaction_id
+                ):
                     try:
-                        last_number = int(last_transaction.transaction_id.split("-")[-1])
-                    except (ValueError, IndexError):
+                        last_number = int(
+                            last_transaction
+                            .transaction_id
+                            .split("-")[-1]
+                        )
+                    except (
+                        ValueError,
+                        IndexError,
+                    ):
                         last_number = 0
                 else:
                     last_number = 0
 
-                self.transaction_id = f"TXN-{today}-{last_number + 1:06d}"
-                super().save(*args, **kwargs)
+                self.transaction_id = (
+                    f"TXN-{today}-"
+                    f"{last_number + 1:06d}"
+                )
+
+                super().save(
+                    *args,
+                    **kwargs
+                )
+
                 return
 
-        super().save(*args, **kwargs)
+        super().save(
+            *args,
+            **kwargs
+        )
 
     class Meta:
         db_table = "transactions"
-        ordering = ["-date", "-created_at"]
+        ordering = [
+            "-date",
+            "-created_at",
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "bank_connection",
+                    "external_transaction_id",
+                ],
+                condition=models.Q(
+                    bank_connection__isnull=False,
+                    external_transaction_id__isnull=False,
+                ),
+                name="unique_bank_external_transaction",
+            ),
+        ]
 
     def __str__(self):
-        return f"{self.transaction_id} - {self.description}"
-    
+        return (
+            f"{self.transaction_id} - "
+            f"{self.description}"
+        )
 
 
 class TransactionEmbedding(models.Model):
@@ -153,17 +267,31 @@ class TransactionEmbedding(models.Model):
         related_name="transaction_embeddings",
     )
 
-    embedding = VectorField(dimensions=1536)
+    embedding = VectorField(
+        dimensions=1536
+    )
+
     document = models.TextField()
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
 
     class Meta:
         db_table = "transaction_embeddings"
+
         indexes = [
-            models.Index(fields=["user"]),
+            models.Index(
+                fields=["user"]
+            ),
         ]
 
     def __str__(self):
-        return f"Embedding for {self.transaction.transaction_id}"
+        return (
+            "Embedding for "
+            f"{self.transaction.transaction_id}"
+        )
