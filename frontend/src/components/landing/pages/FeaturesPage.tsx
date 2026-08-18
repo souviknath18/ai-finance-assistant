@@ -1,12 +1,13 @@
 import Link from "next/link";
+
 import {
   ArrowRight,
   BarChart3,
-  Bot,
   BrainCircuit,
   CalendarCheck,
   FileSearch,
   FolderClock,
+  Landmark,
   MessageCircle,
   Receipt,
   Search,
@@ -14,7 +15,6 @@ import {
   Sparkles,
   Tags,
   Target,
-  UploadCloud,
 } from "lucide-react";
 
 import LandingNavbar from "../LandingNavbar";
@@ -22,76 +22,76 @@ import LandingFooter from "../LandingFooter";
 
 const features = [
   {
-    icon: <UploadCloud size={20} />,
-    title: "Smart Document Upload",
+    icon: <Landmark size={20} />,
+    title: "Connected Financial Accounts",
     description:
-      "Upload PDF bank statements, CSV files, receipts, invoices and financial screenshots from one secure workspace.",
-  },
-  {
-    icon: <FileSearch size={20} />,
-    title: "Automatic Data Extraction",
-    description:
-      "Aura extracts transaction dates, merchants, amounts, balances and transaction types automatically.",
+      "Bring account activity into Aura and keep your financial workspace continuously updated without repeatedly uploading statements.",
   },
   {
     icon: <Tags size={20} />,
-    title: "AI Expense Categorization",
+    title: "AI Transaction Categorization",
     description:
-      "Transactions are intelligently classified into food, shopping, travel, subscriptions, healthcare and other categories.",
+      "Automatically organize transactions into useful categories such as food, shopping, travel, subscriptions, healthcare, and more.",
   },
   {
-    icon: <Search size={20} />,
-    title: "Semantic Transaction Search",
+    icon: <BarChart3 size={20} />,
+    title: "Spending Intelligence",
     description:
-      "Search your financial history using natural language instead of relying only on merchant names or exact keywords.",
-  },
-  {
-    icon: <MessageCircle size={20} />,
-    title: "Financial Chat Assistant",
-    description:
-      "Ask questions about your expenses, savings and recurring payments using your actual financial data.",
+      "Understand category spending, monthly changes, unusual activity, income patterns, and important financial trends.",
   },
   {
     icon: <CalendarCheck size={20} />,
     title: "Subscription Detection",
     description:
-      "Identify recurring payments and forgotten subscriptions before they continue affecting your monthly budget.",
+      "Identify recurring payments and understand how subscriptions affect your monthly spending.",
   },
   {
-    icon: <BarChart3 size={20} />,
-    title: "Spending Analytics",
+    icon: <Search size={20} />,
+    title: "Semantic Transaction Search",
     description:
-      "Understand spending trends, category distribution and unusual changes through clear financial visualizations.",
+      "Search your financial history naturally instead of relying only on exact merchant names or traditional filters.",
   },
   {
-    icon: <Target size={20} />,
-    title: "Goal Tracking",
+    icon: <MessageCircle size={20} />,
+    title: "Ask Aura",
     description:
-      "Create financial goals and track your progress using automated updates based on income and expenses.",
-  },
-  {
-    icon: <FolderClock size={20} />,
-    title: "Upload History",
-    description:
-      "Review previously uploaded files, processing states, extracted transactions and failed upload details.",
+      "Ask questions about your spending, transactions, subscriptions, and financial history using natural language.",
   },
   {
     icon: <BrainCircuit size={20} />,
     title: "AI Financial Insights",
     description:
-      "Receive personalized recommendations based on spending patterns, subscriptions, income and savings behavior.",
+      "Discover spending changes, saving opportunities, recurring behavior, and personalized observations from your financial activity.",
+  },
+  {
+    icon: <Target size={20} />,
+    title: "Budgets & Goals",
+    description:
+      "Track spending limits, savings goals, and progress toward important personal financial milestones.",
   },
   {
     icon: <Receipt size={20} />,
-    title: "Receipt & Invoice Support",
+    title: "Flexible Financial Import",
     description:
-      "Convert receipts and invoices into organized financial records automatically.",
+      "Add historical or additional financial data using bank statements, receipts, invoices, PDFs, images, and CSV files.",
+  },
+  {
+    icon: <FolderClock size={20} />,
+    title: "Financial Data History",
+    description:
+      "Review imported files, processing activity, transactions, and previously added financial information.",
+  },
+  {
+    icon: <FileSearch size={20} />,
+    title: "Document Intelligence",
+    description:
+      "Aura can extract structured financial information from statements, receipts, invoices, and other supported documents.",
   },
   {
     icon: <ShieldCheck size={20} />,
     title: "Private Financial Workspace",
     description:
-      "User-specific data isolation keeps every financial workspace secure and private.",
+      "Authenticated access and user-specific data separation help keep each financial workspace private.",
   },
 ];
 
@@ -100,9 +100,7 @@ export default function FeaturesPage() {
     <main className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
       <LandingNavbar />
 
-      {/* Hero */}
-
-      <section className="px-4 pt-28 pb-16 sm:px-6 lg:px-8 lg:pt-32">
+      <section className="px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pt-32">
         <div className="mx-auto max-w-5xl text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#89f5e7]/20 text-[#006a61]">
             <Sparkles size={22} />
@@ -113,18 +111,16 @@ export default function FeaturesPage() {
           </p>
 
           <h1 className="mt-4 text-2xl font-bold tracking-tight text-black sm:text-3xl lg:text-4xl">
-            Everything you need to manage your finances
+            One intelligent workspace for your financial life
           </h1>
 
           <p className="mx-auto mt-5 max-w-3xl text-[15px] leading-7 text-[#565e74]">
-            Aura Finance combines AI document processing, intelligent expense
-            categorization, semantic search and powerful financial analytics in
-            one modern workspace.
+            Aura brings financial activity into one place and combines
+            automatic organization, intelligent search, spending analytics,
+            document processing, and personalized AI insights.
           </p>
         </div>
       </section>
-
-      {/* Features */}
 
       <section className="bg-[#eff4ff] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -149,21 +145,19 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* CTA */}
-
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-[#131b2e] px-6 py-10 text-center shadow-sm sm:px-10 sm:py-14">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
-            <Bot size={22} />
+            <BrainCircuit size={22} className="text-white" />
           </div>
 
           <h2 className="mt-5 text-2xl font-bold text-white sm:text-3xl">
-            Turn financial documents into actionable insights
+            Turn everyday financial activity into useful insights
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#a5aec4]">
-            Upload your financial documents once and let Aura automatically
-            organize, categorize and analyze every transaction for you.
+            Connect financial data or import existing records and let Aura
+            organize, analyze, and help you understand your money.
           </p>
 
           <Link

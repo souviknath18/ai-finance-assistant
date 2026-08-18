@@ -26,8 +26,8 @@ export default function LandingFooter() {
           </Link>
 
           <p className="mt-3 text-[11px] leading-5 text-[#565e74]">
-            AI-powered personal finance tools for organizing transactions,
-            understanding spending, and discovering financial insights.
+            AI-powered personal finance intelligence for organizing transactions,
+            understanding spending, discovering patterns, and making sense of your money.
           </p>
 
           <p className="mt-3 text-[10px] text-[#8a92a5]">

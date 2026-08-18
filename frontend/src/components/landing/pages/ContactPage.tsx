@@ -84,9 +84,9 @@ export default function ContactPage() {
                 </h2>
 
                 <p className="mt-3 text-[12px] leading-6 text-[#b7c0d4]">
-                  Contact us about account access, document processing,
-                  technical issues, feature suggestions, or general product
-                  questions.
+                  Contact us about account access, financial connections, transaction
+                  processing, document imports, technical issues, feature suggestions,
+                  or general product questions.
                 </p>
               </div>
 

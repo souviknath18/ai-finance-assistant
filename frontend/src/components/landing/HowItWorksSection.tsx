@@ -1,30 +1,30 @@
 import {
   Brain,
-  FileUp,
+  Landmark,
   LineChart,
 } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: FileUp,
-    title: "Upload Your Data",
+    icon: Landmark,
+    title: "Connect or Import",
     description:
-      "Import bank statements, receipts, invoices, salary slips, images, or CSV files.",
+      "Connect a financial account or import statements, receipts, invoices, images, and CSV files.",
   },
   {
     number: "02",
     icon: Brain,
-    title: "Aura Understands It",
+    title: "Aura Organizes Everything",
     description:
-      "AI extracts transactions, identifies categories, detects recurring payments, and indexes your financial activity.",
+      "Transactions are normalized, categorized, indexed, and analyzed automatically.",
   },
   {
     number: "03",
     icon: LineChart,
-    title: "Get Financial Intelligence",
+    title: "Understand Your Money",
     description:
-      "Explore spending patterns, budgets, semantic search, financial insights, and personalized recommendations.",
+      "Discover spending trends, recurring payments, anomalies, budgets, goals, and personalized AI insights.",
   },
 ];
 
@@ -41,19 +41,18 @@ export default function HowItWorksSection() {
           </p>
 
           <h2 className="mt-2 text-[28px] font-bold tracking-tight text-black sm:text-[34px]">
-            From documents to decisions
+            From financial activity to financial clarity
           </h2>
 
           <p className="mt-3 text-[13px] leading-6 text-[#565e74]">
-            Aura turns raw financial activity into an organized workspace in
-            three simple steps.
+            Aura brings your financial activity together and turns it
+            into useful intelligence in three simple steps.
           </p>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
           {steps.map((step) => {
-            const Icon =
-              step.icon;
+            const Icon = step.icon;
 
             return (
               <div
