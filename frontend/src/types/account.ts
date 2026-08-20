@@ -6,14 +6,20 @@ export type AccountConnectionStatus =
 
 export type FinancialAccount = {
   id: string;
+
   institution_name: string;
   institution_code: string;
+
   account_name: string;
   account_type: string;
+
   masked_account_number: string;
+
   balance: number | null;
   currency: string;
+
   status: AccountConnectionStatus;
+
   last_synced_at: string | null;
   created_at: string;
 };
@@ -28,13 +34,22 @@ export type AccountSummary = {
 export type BankInstitution = {
   code: string;
   name: string;
+
   description?: string;
+
   available: boolean;
+
+  demo_account_name: string;
+  demo_account_type: string;
+  demo_masked_account_number: string;
+  demo_currency: string;
 };
 
 export type AccountsDashboard = {
   summary: AccountSummary;
+
   accounts: FinancialAccount[];
+
   available_institutions: BankInstitution[];
 };
 
@@ -44,8 +59,10 @@ export type ConnectAccountPayload = {
 
 export type AccountSyncResult = {
   account_id: string;
+
   imported: number;
   updated: number;
   skipped: number;
+
   last_synced_at: string;
 };
