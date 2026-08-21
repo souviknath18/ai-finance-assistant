@@ -157,7 +157,7 @@ export default function CategoryIntelligenceCard({
                   </div>
 
                   {/* Progress */}
-                  <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#edf2fb]">
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#edf2fb]">
                     <div
                       className={`h-full rounded-full bg-gradient-to-r transition-[width] duration-700 ease-out ${categoryStyles.progress}`}
                       style={{
