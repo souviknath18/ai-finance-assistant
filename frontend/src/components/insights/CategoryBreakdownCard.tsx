@@ -28,7 +28,7 @@ export default function CategoryBreakdownCard({
   );
 
   return (
-    <div className="h-full overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
+    <div className="h-full min-w-0 overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
       {/* Header */}
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export default function CategoryBreakdownCard({
         ) : (
           <>
             {/* Main visualization */}
-            <div className="grid grid-cols-1 gap-7 lg:grid-cols-[210px_1fr] lg:items-center">
+            <div className="grid min-w-0 grid-cols-1 gap-7 lg:grid-cols-[180px_minmax(0,1fr)] lg:items-center">
               {/* Donut */}
               <div className="flex flex-col items-center justify-center">
                 <DonutChart items={topItems} />
