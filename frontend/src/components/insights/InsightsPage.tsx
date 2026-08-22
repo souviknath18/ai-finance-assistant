@@ -479,14 +479,14 @@ export default function InsightsPage() {
           {/* Category + Financial Health */}
           {/* ------------------------------------------------------------- */}
 
-          <section className="mb-8 grid grid-cols-1 items-stretch gap-5 xl:grid-cols-12">
-            <div className="h-full xl:col-span-4">
+          <section className="mb-8 grid min-w-0 grid-cols-1 items-stretch gap-5 xl:grid-cols-2">
+            <div className="min-w-0">
               <CategoryBreakdownCard
                 items={data.categories}
               />
             </div>
 
-            <div className="h-full xl:col-span-8">
+            <div className="min-w-0">
               <FinancialHealthCard
                 health={data.financial_health}
               />

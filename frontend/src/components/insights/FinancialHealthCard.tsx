@@ -68,7 +68,7 @@ export default function FinancialHealthCard({
   )[0];
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
+    <div className="h-full min-w-0 overflow-hidden rounded-3xl border border-[#e6edf9] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)]">
       {/* Header */}
       <div className="border-b border-[#edf2fb] p-5">
         <div className="flex items-center justify-between gap-4">
@@ -100,7 +100,7 @@ export default function FinancialHealthCard({
       </div>
 
       {/* Main content */}
-      <div className="grid grid-cols-1 gap-7 p-5 lg:grid-cols-[230px_1fr] lg:items-center">
+      <div className="grid min-w-0 grid-cols-1 gap-7 p-5 lg:grid-cols-[190px_minmax(0,1fr)] lg:items-center">
         {/* Left side */}
         <div className="flex flex-col items-center border-b border-[#edf2fb] pb-6 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-7">
           <HealthGauge score={safeScore} />
