@@ -94,7 +94,7 @@ export default function CategoryBreakdownCard({
               <div className="space-y-4">
                 {topItems.map((item, index) => (
                   <CategoryRow
-                    key={item.category}
+                    key={`${item.category}-${index}`}
                     item={item}
                     index={index}
                   />
@@ -277,7 +277,7 @@ function DonutChart({
 
           return (
             <circle
-              key={item.category}
+              key={`${item.category}-${index}`}
               cx="60"
               cy="60"
               r={radius}
