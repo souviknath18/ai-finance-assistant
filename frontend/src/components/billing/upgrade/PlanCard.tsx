@@ -44,6 +44,13 @@ export default function PlanCard({
   const BadgeIcon =
     plan.badgeIcon;
 
+  const formattedPrice =
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
+
   return (
     <div
       className={`relative overflow-hidden rounded-3xl border bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.05)] ${
@@ -80,7 +87,7 @@ export default function PlanCard({
 
           <div className="text-right">
             <p className="text-[28px] font-bold tracking-tight text-black">
-              ${price}
+              {formattedPrice}
             </p>
 
             <p className="text-[11px] text-[#7c839b]">
