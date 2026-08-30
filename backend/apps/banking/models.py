@@ -5,6 +5,9 @@ from django.db import models
 
 
 class BankConnection(models.Model):
+    class Provider(models.TextChoices):
+        DEMO = "demo", "Demo"
+
     class Status(models.TextChoices):
         CONNECTED = "connected", "Connected"
         SYNCING = "syncing", "Syncing"
@@ -27,6 +30,12 @@ class BankConnection(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="bank_connections",
+    )
+
+    provider = models.CharField(
+        max_length=50,
+        choices=Provider.choices,
+        default=Provider.DEMO,
     )
 
     institution_code = models.CharField(

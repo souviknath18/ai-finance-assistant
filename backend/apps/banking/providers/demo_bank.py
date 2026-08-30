@@ -6,59 +6,44 @@ from decimal import Decimal
 
 from django.utils import timezone
 
+from .base import BaseBankProvider
+
 
 DEMO_BANKS = {
     "hdfc": {
         "code": "hdfc",
         "name": "HDFC Bank",
-        "account_name":
-            "HDFC Savings Account",
-        "account_type":
-            "savings",
-        "masked_account_number":
-            "4821",
-        "currency":
-            "INR",
+        "account_name": "HDFC Savings Account",
+        "account_type": "savings",
+        "masked_account_number": "4821",
+        "currency": "INR",
     },
 
     "sbi": {
         "code": "sbi",
-        "name":
-            "State Bank of India",
-        "account_name":
-            "SBI Savings Account",
-        "account_type":
-            "savings",
-        "masked_account_number":
-            "7314",
-        "currency":
-            "INR",
+        "name": "State Bank of India",
+        "account_name": "SBI Savings Account",
+        "account_type": "savings",
+        "masked_account_number": "7314",
+        "currency": "INR",
     },
 
     "icici": {
         "code": "icici",
         "name": "ICICI Bank",
-        "account_name":
-            "ICICI Savings Account",
-        "account_type":
-            "savings",
-        "masked_account_number":
-            "2659",
-        "currency":
-            "INR",
+        "account_name": "ICICI Savings Account",
+        "account_type": "savings",
+        "masked_account_number": "2659",
+        "currency": "INR",
     },
 
     "axis": {
         "code": "axis",
         "name": "Axis Bank",
-        "account_name":
-            "Axis Savings Account",
-        "account_type":
-            "savings",
-        "masked_account_number":
-            "9042",
-        "currency":
-            "INR",
+        "account_name": "Axis Savings Account",
+        "account_type": "savings",
+        "masked_account_number": "9042",
+        "currency": "INR",
     },
 }
 
@@ -107,203 +92,185 @@ DEMO_EXPENSES = [
 ]
 
 
-def get_demo_institutions():
-    return [
-        {
-            "code":
-                bank["code"],
+class DemoBankProvider(BaseBankProvider):
+    provider_name = "demo"
 
-            "name":
-                bank["name"],
+    def get_institutions(self):
+        return [
+            {
+                "code": bank["code"],
 
-            "description":
-                (
-                    "Connect a simulated "
-                    "account with sample "
-                    "financial activity."
+                "name": bank["name"],
+
+                "description": (
+                    "Connect a simulated account "
+                    "with sample financial activity."
                 ),
 
-            "available":
-                True,
+                "available": True,
 
-            "demo_account_name":
-                bank[
-                    "account_name"
-                ],
+                "demo_account_name":
+                    bank["account_name"],
 
-            "demo_account_type":
-                bank[
-                    "account_type"
-                ].title(),
+                "demo_account_type":
+                    bank["account_type"].title(),
 
-            "demo_masked_account_number":
-                bank[
-                    "masked_account_number"
-                ],
+                "demo_masked_account_number":
+                    bank["masked_account_number"],
 
-            "demo_currency":
-                bank[
-                    "currency"
-                ],
-        }
-        for bank in
-        DEMO_BANKS.values()
-    ]
+                "demo_currency":
+                    bank["currency"],
+            }
+            for bank in DEMO_BANKS.values()
+        ]
 
-
-def create_demo_account(
-    institution_code: str,
-):
-    bank = DEMO_BANKS.get(
-        institution_code
-    )
-
-    if not bank:
-        raise ValueError(
-            "Unsupported demo institution."
+    def create_account(
+        self,
+        institution_code: str,
+    ):
+        bank = DEMO_BANKS.get(
+            institution_code
         )
 
-    return {
-        "institution_code":
-            bank["code"],
+        if not bank:
+            raise ValueError(
+                "Unsupported demo institution."
+            )
 
-        "institution_name":
-            bank["name"],
+        return {
+            "institution_code":
+                bank["code"],
 
-        "account_name":
-            bank["account_name"],
+            "institution_name":
+                bank["name"],
 
-        "account_type":
-            bank["account_type"],
+            "account_name":
+                bank["account_name"],
 
-        "masked_account_number":
-            bank[
-                "masked_account_number"
-            ],
+            "account_type":
+                bank["account_type"],
 
-        "external_account_id":
-            (
+            "masked_account_number":
+                bank["masked_account_number"],
+
+            "external_account_id": (
                 "demo-account-"
                 f"{uuid.uuid4()}"
             ),
 
-        "balance":
-            Decimal(
-                "84320.00"
-            ),
+            "balance":
+                Decimal("84320.00"),
 
-        "currency":
-            bank["currency"],
-    }
+            "currency":
+                bank["currency"],
 
+            "is_demo":
+                True,
+        }
 
-def generate_demo_transactions(
-    *,
-    count: int = 35,
-):
-    today = timezone.localdate()
-
-    transactions = []
-
-    for month_offset in range(
-        3
+    def fetch_transactions(
+        self,
+        connection,
+        count: int = 35,
     ):
-        transaction_date = (
-            today
-            - timedelta(
-                days=(
-                    month_offset
-                    * 30
+        today = timezone.localdate()
+
+        transactions = []
+
+        # -------------------------------------------------
+        # Salary transactions
+        # -------------------------------------------------
+
+        for month_offset in range(3):
+            transaction_date = (
+                today
+                - timedelta(
+                    days=month_offset * 30
                 )
             )
-        )
 
-        transactions.append(
-            {
-                "external_transaction_id":
-                    (
+            transactions.append(
+                {
+                    "external_transaction_id": (
                         "salary-"
                         f"{transaction_date.isoformat()}"
                     ),
 
-                "date":
-                    transaction_date,
+                    "date":
+                        transaction_date,
 
-                "description":
-                    "SALARY CREDIT",
+                    "description":
+                        "SALARY CREDIT",
 
-                "merchant_name":
-                    "Employer",
+                    "merchant_name":
+                        "Employer",
 
-                "amount":
-                    Decimal(
-                        "65000.00"
-                    ),
+                    "amount":
+                        Decimal("65000.00"),
 
-                "transaction_type":
-                    "income",
+                    "transaction_type":
+                        "income",
 
-                "balance_after_transaction":
-                    None,
+                    "balance_after_transaction":
+                        None,
 
-                "reference_number":
-                    None,
-            }
-        )
+                    "reference_number":
+                        None,
+                }
+            )
 
-    for _ in range(
-        count
-    ):
-        (
-            description,
-            amount,
-        ) = random.choice(
-            DEMO_EXPENSES
-        )
+        # -------------------------------------------------
+        # Expense transactions
+        # -------------------------------------------------
 
-        days_ago = (
-            random.randint(
+        for _ in range(count):
+            (
+                description,
+                amount,
+            ) = random.choice(
+                DEMO_EXPENSES
+            )
+
+            days_ago = random.randint(
                 0,
                 90,
             )
-        )
 
-        transaction_date = (
-            today
-            - timedelta(
-                days=days_ago
+            transaction_date = (
+                today
+                - timedelta(
+                    days=days_ago
+                )
             )
-        )
 
-        transactions.append(
-            {
-                "external_transaction_id":
-                    (
+            transactions.append(
+                {
+                    "external_transaction_id": (
                         "demo-"
                         f"{uuid.uuid4()}"
                     ),
 
-                "date":
-                    transaction_date,
+                    "date":
+                        transaction_date,
 
-                "description":
-                    description,
+                    "description":
+                        description,
 
-                "merchant_name":
-                    description.title(),
+                    "merchant_name":
+                        description.title(),
 
-                "amount":
-                    amount,
+                    "amount":
+                        amount,
 
-                "transaction_type":
-                    "expense",
+                    "transaction_type":
+                        "expense",
 
-                "balance_after_transaction":
-                    None,
+                    "balance_after_transaction":
+                        None,
 
-                "reference_number":
-                    None,
-            }
-        )
+                    "reference_number":
+                        None,
+                }
+            )
 
-    return transactions
+        return transactions
