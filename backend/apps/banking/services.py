@@ -32,10 +32,8 @@ from pipelines.document_processing.categorization.service import (
     categorize_transaction,
 )
 
-from .providers.demo_bank import (
-    create_demo_account,
-    generate_demo_transactions,
-    get_demo_institutions,
+from .providers import (
+    get_bank_provider,
 )
 
 
@@ -96,17 +94,28 @@ def prepare_category_fields(
     }
 
 
-def get_available_institutions():
-    return get_demo_institutions()
+def get_available_institutions(
+    provider_name: str = "demo",
+):
+    provider = get_bank_provider(
+        provider_name
+    )
+
+    return provider.get_institutions()
 
 
 def create_bank_connection(
     *,
     user,
     institution_code: str,
+    provider_name: str = "demo",
 ):
+    provider = get_bank_provider(
+        provider_name
+    )
+
     account_data = (
-        create_demo_account(
+        provider.create_account(
             institution_code
         )
     )
@@ -114,6 +123,9 @@ def create_bank_connection(
     connection = (
         BankConnection.objects.create(
             user=user,
+
+            provider=provider_name,
+
             **account_data,
         )
     )
@@ -244,7 +256,7 @@ def persist_bank_transaction(
             ),
 
             parser_used=(
-                "demo_bank_provider"
+                f"{connection.provider}_bank_provider"
             ),
 
             parser_confidence=(
@@ -280,8 +292,14 @@ def sync_bank_connection(
     )
 
     try:
+        provider = get_bank_provider(
+            connection.provider
+        )
+
         items = (
-            generate_demo_transactions()
+            provider.fetch_transactions(
+                connection
+            )
         )
 
         imported = 0

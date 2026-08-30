@@ -13,6 +13,7 @@ class BankConnectionSerializer(
 
         fields = [
             "id",
+            "provider",
             "institution_name",
             "institution_code",
             "account_name",
