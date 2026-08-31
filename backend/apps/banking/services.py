@@ -158,10 +158,19 @@ def persist_bank_transaction(
     connection,
     item,
 ):
-    external_id = item[
+    external_id = item.get(
         "external_transaction_id"
-    ]
+    )
 
+    if not external_id:
+        raise ValueError(
+            "Bank transaction is missing "
+            "external_transaction_id."
+        )
+
+    # Fast path:
+    # Avoid categorization work when this
+    # transaction was already imported.
     existing = (
         Transaction.objects.filter(
             bank_connection=connection,
@@ -181,7 +190,9 @@ def persist_bank_transaction(
             ),
             item.get(
                 "transaction_type",
-                "unknown",
+                Transaction
+                .TransactionType
+                .UNKNOWN,
             ),
         )
     )
@@ -192,86 +203,95 @@ def persist_bank_transaction(
         )
     )
 
-    transaction = (
-        Transaction.objects.create(
-            user=user,
-
-            uploaded_file=None,
-
+    transaction, created = (
+        Transaction.objects.get_or_create(
             bank_connection=connection,
+            external_transaction_id=external_id,
 
-            source=(
-                Transaction
-                .TransactionSource
-                .BANK_SYNC
-            ),
+            defaults={
+                "user":
+                    user,
 
-            external_transaction_id=(
-                external_id
-            ),
+                "uploaded_file":
+                    None,
 
-            date=item.get(
-                "date"
-            ),
+                "source": (
+                    Transaction
+                    .TransactionSource
+                    .BANK_SYNC
+                ),
 
-            date_is_estimated=False,
+                "date":
+                    item.get(
+                        "date"
+                    ),
 
-            description=(
-                item.get(
-                    "description"
-                )
-                or "Bank transaction"
-            ),
+                "date_is_estimated":
+                    False,
 
-            merchant_name=item.get(
-                "merchant_name"
-            ),
+                "description": (
+                    item.get(
+                        "description"
+                    )
+                    or "Bank transaction"
+                ),
 
-            reference_number=item.get(
-                "reference_number"
-            ),
+                "merchant_name":
+                    item.get(
+                        "merchant_name"
+                    ),
 
-            amount=item[
-                "amount"
-            ],
+                "reference_number":
+                    item.get(
+                        "reference_number"
+                    ),
 
-            transaction_type=item.get(
-                "transaction_type",
-                Transaction
-                .TransactionType
-                .UNKNOWN,
-            ),
+                "amount":
+                    item[
+                        "amount"
+                    ],
 
-            balance_after_transaction=(
-                item.get(
-                    "balance_after_transaction"
-                )
-            ),
+                "transaction_type": (
+                    item.get(
+                        "transaction_type",
+                        Transaction
+                        .TransactionType
+                        .UNKNOWN,
+                    )
+                ),
 
-            raw_text=(
-                item.get(
-                    "description",
-                    ""
-                )
-            ),
+                "balance_after_transaction": (
+                    item.get(
+                        "balance_after_transaction"
+                    )
+                ),
 
-            parser_used=(
-                f"{connection.provider}_bank_provider"
-            ),
+                "raw_text": (
+                    item.get(
+                        "description",
+                        ""
+                    )
+                ),
 
-            parser_confidence=(
-                Decimal("1.000")
-            ),
+                "parser_used": (
+                    f"{connection.provider}"
+                    "_bank_provider"
+                ),
 
-            **category_fields,
+                "parser_confidence":
+                    Decimal("1.000"),
+
+                **category_fields,
+            },
         )
     )
 
-    queue_transaction_vectorization(
-        transaction
-    )
+    if created:
+        queue_transaction_vectorization(
+            transaction
+        )
 
-    return transaction, True
+    return transaction, created
 
 
 def sync_bank_connection(
@@ -331,10 +351,7 @@ def sync_bank_connection(
         )
 
         if balance is not None:
-            connection.balance = (
-                connection.balance
-                or Decimal("0")
-            )
+            connection.balance = balance
 
         connection.status = (
             BankConnection.Status.CONNECTED
