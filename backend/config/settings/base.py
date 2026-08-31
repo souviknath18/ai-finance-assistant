@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from decouple import config, Csv
 from datetime import timedelta
@@ -110,7 +111,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASE_URL = config("DATABASE_URL", default=None)
 
-if DATABASE_URL:
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config(
+                "TEST_DB_NAME",
+                default="aura_test",
+            ),
+            "USER": config(
+                "TEST_DB_USER",
+                default="postgres",
+            ),
+            "PASSWORD": config(
+                "TEST_DB_PASSWORD",
+                default="",
+            ),
+            "HOST": config(
+                "TEST_DB_HOST",
+                default="localhost",
+            ),
+            "PORT": config(
+                "TEST_DB_PORT",
+                default="5434",
+            ),
+        }
+    }
+
+elif DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
@@ -118,6 +146,7 @@ if DATABASE_URL:
             ssl_require=True,
         )
     }
+
 else:
     DATABASES = {
         "default": {
