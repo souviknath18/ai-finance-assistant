@@ -163,6 +163,32 @@ export default function AccountsPage() {
     loadAccounts(true);
   }, [loadAccounts]);
 
+  const hasSyncingAccounts =
+    data?.accounts.some(
+      (account) =>
+        account.status === "syncing"
+    ) ?? false;
+
+  useEffect(() => {
+    if (!hasSyncingAccounts) {
+      return;
+    }
+
+    const intervalId =
+      window.setInterval(() => {
+        void loadAccounts();
+      }, 2500);
+
+    return () => {
+      window.clearInterval(
+        intervalId
+      );
+    };
+  }, [
+    hasSyncingAccounts,
+    loadAccounts,
+  ]);
+
   const handleSync =
     async (
       accountId: string
@@ -178,19 +204,23 @@ export default function AccountsPage() {
           accountId
         );
 
+        // Fetch once immediately so the
+        // server's "syncing" status appears.
         await loadAccounts();
+
       } catch (err) {
         console.error(
-          "Failed to sync account:",
+          "Failed to start account sync:",
           err
         );
 
         setError(
           getErrorMessage(
             err,
-            "We couldn't sync this account."
+            "We couldn't start syncing this account."
           )
         );
+
       } finally {
         setSyncingAccountId(
           null

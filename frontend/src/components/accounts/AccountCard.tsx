@@ -88,8 +88,12 @@ export default function AccountCard({
   onSyncAction,
   onDisconnectAction,
 }: AccountCardProps) {
-  const busy =
+  const isSyncing =
     syncing ||
+    account.status === "syncing";
+
+  const busy =
+    isSyncing ||
     disconnecting;
 
   return (
@@ -124,7 +128,7 @@ export default function AccountCard({
 
           <SyncStatusBadge
             status={
-              syncing
+              isSyncing
                 ? "syncing"
                 : account.status
             }
@@ -202,13 +206,13 @@ export default function AccountCard({
           <RefreshCcw
             size={13}
             className={
-              syncing
+              isSyncing
                 ? "animate-spin"
                 : ""
             }
           />
 
-          {syncing
+          {isSyncing
             ? "Syncing..."
             : "Sync Now"}
         </button>

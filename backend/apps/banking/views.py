@@ -31,8 +31,58 @@ from .serializers import (
 from .services import (
     create_bank_connection,
     get_available_institutions,
-    sync_bank_connection,
 )
+
+from .tasks import (
+    sync_bank_connection_task,
+)
+
+
+def queue_bank_sync(
+    connection,
+):
+    """
+    Mark the connection as syncing and
+    queue the Celery worker.
+    """
+
+    connection.status = (
+        BankConnection.Status.SYNCING
+    )
+
+    connection.last_sync_error = None
+
+    connection.save(
+        update_fields=[
+            "status",
+            "last_sync_error",
+            "updated_at",
+        ]
+    )
+
+    try:
+        sync_bank_connection_task.delay(
+            str(connection.id)
+        )
+
+    except Exception as error:
+        connection.status = (
+            BankConnection.Status.ERROR
+        )
+
+        connection.last_sync_error = (
+            "Unable to queue bank sync."
+        )
+
+        connection.save(
+            update_fields=[
+                "status",
+                "last_sync_error",
+                "updated_at",
+            ]
+        )
+
+        raise error
 
 
 class BankAccountListView(
@@ -164,17 +214,18 @@ class ConnectBankAccountView(
                 )
             )
 
-            # First sync immediately
-            sync_bank_connection(
+            queue_bank_sync(
                 connection
             )
 
-            connection.refresh_from_db()
-
-            return Response(
+            response_data = (
                 BankConnectionSerializer(
                     connection
-                ).data,
+                ).data
+            )
+
+            return Response(
+                response_data,
                 status=(
                     status.HTTP_201_CREATED
                 ),
@@ -189,6 +240,21 @@ class ConnectBankAccountView(
                 status=(
                     status
                     .HTTP_400_BAD_REQUEST
+                ),
+            )
+
+        except Exception:
+            return Response(
+                {
+                    "detail": (
+                        "Account was created, "
+                        "but Aura could not "
+                        "start synchronization."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_503_SERVICE_UNAVAILABLE
                 ),
             )
 
@@ -213,14 +279,86 @@ class SyncBankAccountView(
             )
         )
 
-        result = (
-            sync_bank_connection(
+        if (
+            connection.status
+            == BankConnection
+            .Status
+            .DISCONNECTED
+        ):
+            return Response(
+                {
+                    "detail": (
+                        "Disconnected accounts "
+                        "cannot be synchronized."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_400_BAD_REQUEST
+                ),
+            )
+
+        # Prevent the user from accidentally
+        # creating multiple simultaneous jobs.
+        if (
+            connection.status
+            == BankConnection.Status.SYNCING
+        ):
+            return Response(
+                {
+                    "account_id":
+                        str(connection.id),
+
+                    "status":
+                        BankConnection
+                        .Status
+                        .SYNCING,
+
+                    "message":
+                        "Sync is already running.",
+                },
+                status=(
+                    status
+                    .HTTP_202_ACCEPTED
+                ),
+            )
+
+        try:
+            queue_bank_sync(
                 connection
             )
-        )
+
+        except Exception:
+            return Response(
+                {
+                    "detail": (
+                        "Aura could not start "
+                        "the account sync."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_503_SERVICE_UNAVAILABLE
+                ),
+            )
 
         return Response(
-            result
+            {
+                "account_id":
+                    str(connection.id),
+
+                "status":
+                    BankConnection
+                    .Status
+                    .SYNCING,
+
+                "message":
+                    "Account sync started.",
+            },
+            status=(
+                status
+                .HTTP_202_ACCEPTED
+            ),
         )
 
 

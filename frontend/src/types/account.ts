@@ -60,9 +60,7 @@ export type ConnectAccountPayload = {
 export type AccountSyncResult = {
   account_id: string;
 
-  imported: number;
-  updated: number;
-  skipped: number;
+  status: "syncing";
 
-  last_synced_at: string;
+  message: string;
 };
