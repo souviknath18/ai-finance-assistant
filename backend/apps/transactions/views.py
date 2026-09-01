@@ -25,11 +25,13 @@ class TransactionListCreateView(APIView):
     def get(self, request):
         transactions = (
             Transaction.objects.filter(user=request.user)
-            .select_related("uploaded_file")
+            .select_related(
+                "uploaded_file",
+                "bank_connection",
+            )
             .order_by(
-                F("uploaded_file__processed_at").desc(nulls_last=True),
-                "uploaded_file_id",
-                "id",
+                F("date").desc(nulls_last=True),
+                "-created_at",
             )
         )
 
@@ -39,7 +41,7 @@ class TransactionListCreateView(APIView):
         status_filter = request.GET.get("status", "").strip()
         start_date = request.GET.get("start_date", "").strip()
         end_date = request.GET.get("end_date", "").strip()
-
+        source = request.GET.get("source", "").strip()
         page = int(request.GET.get("page", 1))
         page_size = int(request.GET.get("page_size", 10))
 
@@ -58,6 +60,11 @@ class TransactionListCreateView(APIView):
 
         if transaction_type and transaction_type != "all":
             transactions = transactions.filter(transaction_type=transaction_type)
+
+        if source and source != "all":
+            transactions = transactions.filter(
+                source=source
+            )
 
         if start_date:
             transactions = transactions.filter(date__gte=start_date)
@@ -107,7 +114,17 @@ class TransactionListCreateView(APIView):
         serializer = TransactionCreateSerializer(data=request.data)
 
         if serializer.is_valid():
-            transaction = serializer.save(user=request.user)
+            transaction = serializer.save(
+                user=request.user,
+                source=(
+                    Transaction
+                    .TransactionSource
+                    .MANUAL
+                ),
+                uploaded_file=None,
+                bank_connection=None,
+                external_transaction_id=None,
+            )
 
             mark_insights_stale(request.user)
             mark_report_dashboard_stale(request.user)
@@ -125,6 +142,7 @@ class TransactionDetailView(APIView):
         return get_object_or_404(
             Transaction.objects.select_related(
                 "uploaded_file",
+                "bank_connection",
             ),
             transaction_id=transaction_id,
             user=request.user,
