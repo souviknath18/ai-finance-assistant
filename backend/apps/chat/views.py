@@ -1,3 +1,8 @@
+import json
+from django.http import StreamingHttpResponse, JsonResponse
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from ai.agents.aura.service import stream_aura_agent
+
 from django.shortcuts import (
     get_object_or_404,
 )
@@ -154,3 +159,38 @@ class ChatSessionDeleteView(APIView):
             {"detail": "Chat session deleted successfully."},
             status=status.HTTP_200_OK,
         )
+
+
+class AuraChatStreamView(APIView):
+    """
+    Streams Aura LangGraph agent execution over Server-Sent Events (SSE).
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    async def post(self, request, *args, **kwargs):
+        try:
+            body = json.loads(request.body.decode("utf-8"))
+        except Exception:
+            return JsonResponse({"error": "Invalid JSON body"}, status=400)
+
+        message = body.get("message", "").strip()
+        thread_id = body.get("thread_id") or f"user_{request.user.id}_aura"
+
+        if not message:
+            return JsonResponse({"error": "Message is required"}, status=400)
+
+        user_id = str(request.user.id)
+        event_stream = stream_aura_agent(
+            message=message,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
+
+        response = StreamingHttpResponse(
+            event_stream,
+            content_type="text/event-stream",
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"  # Prevents Nginx from buffering SSE chunks
+        return response

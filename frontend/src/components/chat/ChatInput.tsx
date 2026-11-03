@@ -1,34 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Image,
-  Mic,
-  Paperclip,
-  Send,
-} from "lucide-react";
-
+import { Image, Mic, Paperclip, Send, Square } from "lucide-react";
 import IconButton from "./IconButton";
 
 type ChatInputProps = {
   loading: boolean;
-  onSendAction: (
-    message: string
-  ) => void;
+  onSendAction: (message: string) => void;
+  onStopAction?: () => void;
 };
 
 export default function ChatInput({
   loading,
   onSendAction,
+  onStopAction,
 }: ChatInputProps) {
-  const [message, setMessage] =
-    useState("");
+  const [message, setMessage] = useState("");
 
   const handleSend = () => {
-    if (
-      !message.trim() ||
-      loading
-    ) {
+    if (loading) {
+      onStopAction?.();
+      return;
+    }
+
+    if (!message.trim()) {
       return;
     }
 
@@ -41,16 +36,9 @@ export default function ChatInput({
       <div className="overflow-hidden rounded-3xl border border-[#dfe7f3] bg-white shadow-[0_8px_28px_rgba(15,23,42,0.10)] transition focus-within:border-emerald-200 focus-within:shadow-[0_10px_30px_rgba(15,23,42,0.12)]">
         <textarea
           value={message}
-          onChange={(event) =>
-            setMessage(
-              event.target.value
-            )
-          }
+          onChange={(event) => setMessage(event.target.value)}
           onKeyDown={(event) => {
-            if (
-              event.key === "Enter" &&
-              !event.shiftKey
-            ) {
+            if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
               handleSend();
             }
@@ -58,39 +46,37 @@ export default function ChatInput({
           className="min-h-[56px] max-h-[130px] w-full resize-none border-none bg-transparent px-4 pt-4 text-[13px] leading-6 text-black outline-none placeholder:text-[#9aa2b4]"
           placeholder="Ask Aura about your finances..."
           rows={1}
+          disabled={loading}
         />
 
         <div className="flex items-center justify-between border-t border-[#edf2fb] px-3 py-2.5">
           <div className="flex items-center gap-1">
-            <IconButton
-              icon={<Paperclip size={16} />}
-            />
-
-            <IconButton
-              icon={<Mic size={16} />}
-            />
-
-            <IconButton
-              icon={<Image size={16} />}
-            />
+            <IconButton icon={<Paperclip size={16} />} />
+            <IconButton icon={<Mic size={16} />} />
+            <IconButton icon={<Image size={16} />} />
           </div>
 
           <button
             type="button"
             onClick={handleSend}
-            disabled={
-              !message.trim() ||
+            disabled={!loading && !message.trim()}
+            className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-[12px] font-bold transition-[opacity,transform,box-shadow] duration-200 active:scale-[0.98] ${
               loading
-            }
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-black px-4 text-[12px] font-bold text-white transition-[opacity,transform,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_6px_16px_rgba(15,23,42,0.14)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                ? "border border-rose-200 bg-rose-50 text-rose-700 shadow-[0_2px_8px_rgba(244,63,94,0.1)] hover:bg-rose-100"
+                : "bg-black text-white hover:opacity-90 hover:shadow-[0_6px_16px_rgba(15,23,42,0.14)] disabled:cursor-not-allowed disabled:opacity-40"
+            }`}
           >
-            <span>
-              {loading
-                ? "Thinking..."
-                : "Send"}
-            </span>
-
-            <Send size={14} />
+            {loading ? (
+              <>
+                <span>Stop</span>
+                <Square size={12} className="fill-current" />
+              </>
+            ) : (
+              <>
+                <span>Send</span>
+                <Send size={14} />
+              </>
+            )}
           </button>
         </div>
       </div>
