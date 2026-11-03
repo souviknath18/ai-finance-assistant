@@ -1,5 +1,7 @@
 import json
-from typing import Any
+import logging
+from typing import AsyncGenerator, Dict, Any
+from langchain_core.messages import HumanMessage
 
 from langchain.messages import (
     AIMessage,
@@ -8,7 +10,12 @@ from langchain.messages import (
 )
 
 from ai.agents.aura.context import AuraContext
-from ai.agents.aura.graph import aura_graph
+from ai.agents.aura.graph import aura_graph, build_aura_graph
+
+logger = logging.getLogger(__name__)
+
+# Compile the LangGraph agent graph once with persistence
+aura_app = build_aura_graph()
 
 
 SEMANTIC_TOOL_NAMES = {
@@ -331,3 +338,68 @@ def _determine_source_type(
         return "agent_tools"
 
     return "agent"
+
+
+
+async def stream_aura_agent(
+    message: str,
+    user_id: str,
+    thread_id: str,
+) -> AsyncGenerator[str, None]:
+    """
+    Streams LangGraph execution events as formatted Server-Sent Event (SSE) strings.
+    Captures tool dispatch states and token-by-token LLM generation.
+    """
+    config = {"configurable": {"thread_id": thread_id}}
+    initial_input = {
+        "messages": [HumanMessage(content=message)],
+        "user_id": user_id,
+    }
+
+    try:
+        async for event in aura_app.astream_events(
+            initial_input,
+            config=config,
+            version="v2",
+        ):
+            event_type = event.get("event")
+
+            # 1. Model token chunk
+            if event_type == "on_chat_model_stream":
+                chunk = event.get("data", {}).get("chunk")
+                content = getattr(chunk, "content", None)
+                if content and isinstance(content, str):
+                    payload = {"type": "token", "content": content}
+                    yield f"data: {json.dumps(payload)}\n\n"
+
+            # 2. Tool started
+            elif event_type == "on_tool_start":
+                tool_name = event.get("name", "tool")
+                tool_input = event.get("data", {}).get("input", {})
+                payload = {
+                    "type": "tool_start",
+                    "tool": tool_name,
+                    "input": tool_input,
+                }
+                yield f"data: {json.dumps(payload)}\n\n"
+
+            # 3. Tool completed
+            elif event_type == "on_tool_end":
+                tool_name = event.get("name", "tool")
+                raw_output = event.get("data", {}).get("output", "")
+                # Truncate large tool output payloads sent to client
+                output_str = str(raw_output)[:300]
+                payload = {
+                    "type": "tool_end",
+                    "tool": tool_name,
+                    "output": output_str,
+                }
+                yield f"data: {json.dumps(payload)}\n\n"
+
+        # Signal completion
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    except Exception as exc:
+        logger.exception("Error in Aura streaming execution: %s", exc)
+        err_payload = {"type": "error", "error": str(exc)}
+        yield f"data: {json.dumps(err_payload)}\n\n"

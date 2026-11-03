@@ -1,5 +1,12 @@
 export type ChatRole = "user" | "ai";
 
+export interface ToolExecutionState {
+  tool: string;
+  status: "running" | "completed" | "failed";
+  input?: Record<string, unknown>;
+  output?: string;
+}
+
 export type ChatMessage = {
   id: number | string;
   role: ChatRole;
@@ -7,6 +14,9 @@ export type ChatMessage = {
   sources?: unknown[];
   source_type?: string;
   created_at?: string;
+  isStreaming?: boolean;
+  tools?: ToolExecutionState[];
+  error?: string;
 };
 
 export type ChatSession = {
@@ -40,3 +50,19 @@ export type SendChatMessageResponse = {
   sources: unknown[];
   source_type: string;
 };
+
+// Streaming & SSE Payload types
+export interface StreamCallbacks {
+  onToken: (token: string) => void;
+  onToolStart: (toolName: string, input: Record<string, unknown>) => void;
+  onToolEnd: (toolName: string, output: string) => void;
+  onError: (errorMsg: string) => void;
+  onDone: () => void;
+}
+
+export type SSEPayload =
+  | { type: "token"; content: string }
+  | { type: "tool_start"; tool: string; input: Record<string, unknown> }
+  | { type: "tool_end"; tool: string; output: string }
+  | { type: "error"; error: string }
+  | { type: "done" };

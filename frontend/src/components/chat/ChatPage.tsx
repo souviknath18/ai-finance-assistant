@@ -1,20 +1,13 @@
 "use client";
 
-import { useState } from "react";
-
+import { useState, useRef, useEffect, useCallback } from "react";
 import ChatHeader from "./ChatHeader";
-// import ChatInsightGrid from "./ChatInsightGrid";
 import SuggestedQueries from "./SuggestedQueries";
 import AIMessage from "./AIMessage";
 import UserMessage from "./UserMessage";
 import ChatInput from "./ChatInput";
-import { sendChatMessage } from "@/lib/api/chatApi";
-
-type ChatMessage = {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-};
+import { streamChatMessage } from "@/lib/api/chatApi";
+import type { ChatMessage } from "@/types/chat";
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -27,39 +20,113 @@ export default function ChatPage() {
   ]);
 
   const [loading, setLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSendMessage = async (message: string) => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom("smooth");
+  }, [messages, loading, scrollToBottom]);
+
+  const handleSendMessage = async (messageText: string) => {
+    if (!messageText.trim() || loading) return;
+
+    const userMsgId = crypto.randomUUID();
+    const aiMsgId = crypto.randomUUID();
+
     const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: userMsgId,
       role: "user",
-      content: message,
+      content: messageText,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const initialAiMessage: ChatMessage = {
+      id: aiMsgId,
+      role: "ai",
+      content: "",
+      isStreaming: true,
+      tools: [],
+    };
+
+    // Add user message and the placeholder AI message that will stream in place
+    setMessages((prev) => [...prev, userMessage, initialAiMessage]);
     setLoading(true);
 
-    try {
-      const data = await sendChatMessage(message);
+    abortControllerRef.current = new AbortController();
 
-      const aiMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "ai",
-        content: data.answer,
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "ai",
-          content:
-            "Sorry, I could not generate an answer right now. Please try again.",
+    await streamChatMessage(
+      messageText,
+      null, // Pass sessionId here if managing persistent session threads
+      {
+        onToken: (token: string) => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiMsgId ? { ...msg, content: msg.content + token } : msg
+            )
+          );
         },
-      ]);
-    } finally {
+        onToolStart: (tool: string, input: Record<string, unknown>) => {
+          setMessages((prev) =>
+            prev.map((msg) => {
+              if (msg.id !== aiMsgId) return msg;
+              const currentTools = msg.tools || [];
+              return {
+                ...msg,
+                tools: [...currentTools, { tool, status: "running", input }],
+              };
+            })
+          );
+        },
+        onToolEnd: (tool: string, output: string) => {
+          setMessages((prev) =>
+            prev.map((msg) => {
+              if (msg.id !== aiMsgId) return msg;
+              const updatedTools = (msg.tools || []).map((t) =>
+                t.tool === tool ? { ...t, status: "completed" as const, output } : t
+              );
+              return { ...msg, tools: updatedTools };
+            })
+          );
+        },
+        onError: (errorMsg: string) => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiMsgId
+                ? {
+                    ...msg,
+                    content: msg.content
+                      ? msg.content + `\n\n[Error: ${errorMsg}]`
+                      : "Sorry, I could not generate an answer right now. Please try again.",
+                    isStreaming: false,
+                  }
+                : msg
+            )
+          );
+          setLoading(false);
+        },
+        onDone: () => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiMsgId ? { ...msg, isStreaming: false } : msg
+            )
+          );
+          setLoading(false);
+        },
+      },
+      abortControllerRef.current.signal
+    );
+  };
+
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
       setLoading(false);
+      setMessages((prev) =>
+        prev.map((msg) => (msg.isStreaming ? { ...msg, isStreaming: false } : msg))
+      );
     }
   };
 
@@ -71,11 +138,14 @@ export default function ChatPage() {
       <ChatHeader />
 
       <div className="mx-auto w-full max-w-5xl flex-1 space-y-6">
-        {/* <ChatInsightGrid /> */}
-
         {messages.map((message) =>
           message.role === "ai" ? (
-            <AIMessage key={message.id}>{message.content}</AIMessage>
+            <AIMessage
+              key={message.id}
+              content={message.content}
+              isStreaming={message.isStreaming}
+              tools={message.tools}
+            />
           ) : (
             <UserMessage key={message.id}>{message.content}</UserMessage>
           )
@@ -85,18 +155,16 @@ export default function ChatPage() {
           <SuggestedQueries onSelectAction={handleSendMessage} />
         )}
 
-        {loading && (
-          <AIMessage>
-            <span className="text-[#565e74]">
-              Aura is analyzing your transactions...
-            </span>
-          </AIMessage>
-        )}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="fixed bottom-0 right-0 z-30 border-t border-[#e5eeff] bg-white/85 px-4 pt-3 backdrop-blur-xl transition-all duration-300 left-0 md:left-[var(--sidebar-offset)] lg:px-8">
         <div className="mx-auto w-full max-w-5xl">
-          <ChatInput loading={loading} onSendAction={handleSendMessage} />
+          <ChatInput
+            loading={loading}
+            onSendAction={handleSendMessage}
+            onStopAction={handleStop}
+          />
         </div>
       </div>
     </div>
